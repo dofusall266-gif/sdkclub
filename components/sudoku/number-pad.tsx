@@ -1,5 +1,6 @@
 "use client"
 
+import { useLanguage } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
 interface NumberPadProps {
@@ -10,6 +11,7 @@ interface NumberPadProps {
 }
 
 export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
+  const { locale } = useLanguage()
   return (
     <div className="mx-auto grid w-full max-w-72 grid-cols-3 gap-2 sm:gap-2.5">
       {Array.from({ length: 9 }, (_, i) => {
@@ -23,7 +25,7 @@ export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
             type="button"
             disabled={disabled || done}
             onClick={() => onInput(n)}
-            aria-label={`Placer le chiffre ${n}`}
+            aria-label={locale === "fr" ? `Placer le chiffre ${n}` : `Place the number ${n}`}
             className={cn(
               "flex aspect-square flex-col items-center justify-center rounded-xl border border-border bg-card text-2xl font-semibold text-foreground transition-colors sm:text-3xl",
               "hover:border-primary hover:bg-primary/10 hover:text-primary",

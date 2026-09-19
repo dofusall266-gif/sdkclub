@@ -10,7 +10,8 @@ import { PrintDialog } from "@/components/sudoku/print-dialog"
 import { SudokuBoard } from "@/components/sudoku/sudoku-board"
 import { useSudoku } from "@/components/sudoku/use-sudoku"
 import { Button } from "@/components/ui/button"
-import { DIFFICULTY_LABELS, type Difficulty, colOf, rowOf } from "@/lib/sudoku"
+import { useLanguage } from "@/lib/i18n/context"
+import { type Difficulty, colOf, rowOf } from "@/lib/sudoku"
 import { cn } from "@/lib/utils"
 
 const DIFFICULTIES: Difficulty[] = ["facile", "moyen", "difficile", "expert"]
@@ -23,11 +24,13 @@ function formatTime(total: number): string {
 
 export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty?: Difficulty }) {
   const { state, conflicts, remaining, actions } = useSudoku(initialDifficulty)
+  const { t } = useLanguage()
   const [notesMode, setNotesMode] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [printIncludeSolution, setPrintIncludeSolution] = useState<boolean | null>(null)
   const isOver = state.status === "won"
+  const difficultyLabel = t.game.difficulties[state.difficulty]
 
   useEffect(() => setMounted(true), [])
 
@@ -51,7 +54,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
   useEffect(() => {
     if (printIncludeSolution === null) return
     const previousTitle = document.title
-    document.title = `Sudoku - ${DIFFICULTY_LABELS[state.difficulty]}`
+    document.title = `Sudoku - ${difficultyLabel}`
     const timeout = setTimeout(() => {
       window.print()
       setPrintIncludeSolution(null)
@@ -129,7 +132,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
                     : "bg-secondary text-muted-foreground hover:text-foreground",
                 )}
               >
-                {DIFFICULTY_LABELS[d]}
+                {t.game.difficulties[d]}
               </button>
             ))}
           </div>
@@ -146,7 +149,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={state.running ? "Mettre en pause" : "Reprendre"}
+              aria-label={state.running ? t.game.pause : t.game.resume}
               onClick={actions.togglePause}
               disabled={isOver}
             >
@@ -171,9 +174,9 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
             <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/85 backdrop-blur-sm">
               <div className="text-center">
                 <Pause className="mx-auto size-8 text-muted-foreground" />
-                <p className="mt-2 font-semibold">Partie en pause</p>
+                <p className="mt-2 font-semibold">{t.game.paused}</p>
                 <Button className="mt-3" size="sm" onClick={actions.togglePause}>
-                  Reprendre
+                  {t.game.resume}
                 </Button>
               </div>
             </div>
@@ -185,13 +188,12 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
                 <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary/15">
                   <Trophy className="size-7 text-primary" />
                 </div>
-                <p className="mt-3 text-lg font-bold">Bravo, grille résolue&nbsp;!</p>
+                <p className="mt-3 text-lg font-bold">{t.game.wonTitle}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {DIFFICULTY_LABELS[state.difficulty]} · {formatTime(state.seconds)} · {state.mistakes} erreur
-                  {state.mistakes > 1 ? "s" : ""}
+                  {difficultyLabel} · {formatTime(state.seconds)} · {state.mistakes} {t.game.mistakeWord(state.mistakes)}
                 </p>
                 <Button className="mt-4" onClick={() => handleNewGame(state.difficulty)}>
-                  <Sparkles className="size-4" /> Nouvelle grille
+                  <Sparkles className="size-4" /> {t.game.newGame}
                 </Button>
               </div>
             </div>
@@ -214,19 +216,16 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
         <NumberPad remaining={remaining} disabled={paused || isOver} onInput={(n) => actions.input(n, notesMode)} />
 
         <Button variant="secondary" size="lg" onClick={() => handleNewGame(state.difficulty)}>
-          <Sparkles className="size-4" /> Nouvelle grille
+          <Sparkles className="size-4" /> {t.game.newGame}
         </Button>
 
-        <p className="text-center text-xs text-muted-foreground">
-          Astuce : utilisez les flèches du clavier pour vous déplacer et les touches 1-9 pour saisir. Appuyez sur «&nbsp;N&nbsp;» pour
-          les notes.
-        </p>
+        <p className="text-center text-xs text-muted-foreground">{t.game.hintKeyboard}</p>
       </div>
 
       {/* Zone d'impression (masquée à l'écran, visible uniquement à l'impression) */}
       <div id="print-area" className="hidden print:block">
-        <PrintableGrid grid={state.given} title={`Sudoku — ${DIFFICULTY_LABELS[state.difficulty]}`} />
-        {printIncludeSolution && <PrintableGrid grid={state.solution} title="Solution" />}
+        <PrintableGrid grid={state.given} title={`Sudoku — ${difficultyLabel}`} />
+        {printIncludeSolution && <PrintableGrid grid={state.solution} title={t.game.solutionLabel} />}
       </div>
 
       <PrintDialog

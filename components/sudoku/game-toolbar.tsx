@@ -3,6 +3,7 @@
 import { Eraser, Pencil, Printer, Undo2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
 interface GameToolbarProps {
@@ -24,24 +25,26 @@ export function GameToolbar({
   onErase,
   onPrint,
 }: GameToolbarProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="grid grid-cols-4 gap-2">
-      <ToolButton label="Annuler" onClick={onUndo} disabled={disabled || !canUndo}>
+      <ToolButton label={t.toolbar.undo} onClick={onUndo} disabled={disabled || !canUndo}>
         <Undo2 className="size-5" />
       </ToolButton>
-      <ToolButton label="Effacer" onClick={onErase} disabled={disabled}>
+      <ToolButton label={t.toolbar.erase} onClick={onErase} disabled={disabled}>
         <Eraser className="size-5" />
       </ToolButton>
       <ToolButton
-        label="Notes"
+        label={t.toolbar.notes}
         onClick={onToggleNotes}
         active={notesMode}
         disabled={disabled}
-        badge={notesMode ? "ON" : "OFF"}
+        badge={notesMode ? t.toolbar.on : t.toolbar.off}
       >
         <Pencil className="size-5" />
       </ToolButton>
-      <ToolButton label="Imprimer" onClick={onPrint}>
+      <ToolButton label={t.toolbar.print} onClick={onPrint}>
         <Printer className="size-5" />
       </ToolButton>
     </div>

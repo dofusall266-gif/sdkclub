@@ -4,20 +4,22 @@ import { CheckCircle2, Send } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/i18n/context"
+import { CONTACT_EMAIL } from "@/lib/site-config"
 
 export function ContactForm() {
   const [sent, setSent] = useState(false)
+  const { t } = useLanguage()
+  const c = t.contact
 
   if (sent) {
     return (
       <div className="rounded-2xl border border-border bg-secondary/40 p-8 text-center">
         <CheckCircle2 className="mx-auto size-10 text-primary" />
-        <h2 className="mt-4 text-lg font-semibold">Message envoyé&nbsp;!</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Merci de nous avoir contactés. Nous reviendrons vers vous dès que possible.
-        </p>
+        <h2 className="mt-4 text-lg font-semibold">{c.sentTitle}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{c.sentText}</p>
         <Button variant="outline" className="mt-6" onClick={() => setSent(false)}>
-          Envoyer un autre message
+          {c.sendAnother}
         </Button>
       </div>
     )
@@ -28,12 +30,16 @@ export function ContactForm() {
       className="space-y-5"
       onSubmit={(e) => {
         e.preventDefault()
+        const data = new FormData(e.currentTarget)
+        const subject = encodeURIComponent(`Message de ${data.get("name")} — Sudoku Club`)
+        const body = encodeURIComponent(`${data.get("message")}\n\n—\n${data.get("email")}`)
+        window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
         setSent(true)
       }}
     >
       <div className="grid gap-2">
         <label htmlFor="name" className="text-sm font-medium">
-          Nom
+          {c.nameLabel}
         </label>
         <input
           id="name"
@@ -46,7 +52,7 @@ export function ContactForm() {
 
       <div className="grid gap-2">
         <label htmlFor="email" className="text-sm font-medium">
-          Adresse e-mail
+          {c.emailLabel}
         </label>
         <input
           id="email"
@@ -60,7 +66,7 @@ export function ContactForm() {
 
       <div className="grid gap-2">
         <label htmlFor="message" className="text-sm font-medium">
-          Message
+          {c.messageLabel}
         </label>
         <textarea
           id="message"
@@ -72,8 +78,16 @@ export function ContactForm() {
       </div>
 
       <Button type="submit" size="lg" className="w-full sm:w-auto">
-        <Send className="size-4" /> Envoyer le message
+        <Send className="size-4" /> {c.send}
       </Button>
+
+      <p className="text-xs text-muted-foreground">
+        {c.directEmail}{" "}
+        <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-primary underline-offset-4 hover:underline">
+          {CONTACT_EMAIL}
+        </a>
+        .
+      </p>
     </form>
   )
 }

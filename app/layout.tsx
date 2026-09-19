@@ -4,6 +4,7 @@ import { Suspense } from "react"
 
 import { CookieConsent } from "@/components/cookie-consent"
 import { GoogleAnalytics } from "@/components/google-analytics"
+import { LanguageProvider } from "@/lib/i18n/context"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -45,17 +46,19 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className="antialiased">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="flex min-h-dvh flex-col">
-            <Suspense fallback={null}>
-              <SiteHeader />
-            </Suspense>
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-          </div>
-          <CookieConsent />
-          <GoogleAnalytics />
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <div className="flex min-h-dvh flex-col">
+              <Suspense fallback={null}>
+                <SiteHeader />
+              </Suspense>
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
+            <CookieConsent />
+            <GoogleAnalytics />
+          </ThemeProvider>
+        </LanguageProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>

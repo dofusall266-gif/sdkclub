@@ -12,7 +12,7 @@ export function getDb() {
 }
 
 /** Crée la table d'événements si elle n'existe pas encore. */
-export async function ensureEventsTable(sql: ReturnType<typeof neon>) {
+export async function ensureEventsTable(sql: NonNullable<ReturnType<typeof getDb>>) {
   await sql`
     CREATE TABLE IF NOT EXISTS events (
       id BIGSERIAL PRIMARY KEY,

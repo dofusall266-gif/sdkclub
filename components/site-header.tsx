@@ -5,20 +5,23 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 
+import { LanguageToggle } from "@/components/language-toggle"
 import { SudokuLogo } from "@/components/sudoku-logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
-
-const NAV_LINKS = [
-  { href: "/", label: "Jouer" },
-  { href: "/regles", label: "Règles" },
-  { href: "/techniques", label: "Techniques" },
-]
 
 export function SiteHeader() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const { t } = useLanguage()
+
+  const navLinks = [
+    { href: "/", label: t.nav.play },
+    { href: "/regles", label: t.nav.rules },
+    { href: "/techniques", label: t.nav.techniques },
+  ]
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md print:hidden">
@@ -31,7 +34,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Navigation principale">
-          {NAV_LINKS.map((link) => {
+          {navLinks.map((link) => {
             const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
             return (
               <Link
@@ -51,6 +54,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1">
+          <LanguageToggle />
           <ThemeToggle />
           <Button
             variant="ghost"
@@ -68,7 +72,7 @@ export function SiteHeader() {
       {open && (
         <nav className="border-t border-border bg-background md:hidden" aria-label="Navigation mobile">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-3">
-            {NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
               const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
               return (
                 <Link

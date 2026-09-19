@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/i18n/context"
 
 export function PrintDialog({
   open,
@@ -11,6 +12,7 @@ export function PrintDialog({
   onClose: () => void
   onConfirm: (includeSolution: boolean) => void
 }) {
+  const { t } = useLanguage()
   if (!open) return null
 
   return (
@@ -26,15 +28,13 @@ export function PrintDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="print-dialog-title" className="text-lg font-bold">
-          Imprimer la grille
+          {t.printDialog.title}
         </h2>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          Voulez-vous inclure la solution sur une deuxième page&nbsp;?
-        </p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{t.printDialog.question}</p>
         <div className="mt-5 flex flex-col gap-2">
-          <Button onClick={() => onConfirm(false)}>Imprimer sans la solution</Button>
+          <Button onClick={() => onConfirm(false)}>{t.printDialog.without}</Button>
           <Button variant="outline" onClick={() => onConfirm(true)}>
-            Imprimer avec la solution (page 2)
+            {t.printDialog.with}
           </Button>
         </div>
         <button
@@ -42,7 +42,7 @@ export function PrintDialog({
           onClick={onClose}
           className="mt-4 w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          Annuler
+          {t.printDialog.cancel}
         </button>
       </div>
     </div>
