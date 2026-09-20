@@ -24,9 +24,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setLocaleState(saved)
         return
       }
-      // Pas de préférence enregistrée : on propose l'anglais si le navigateur
-      // du visiteur est configuré dans une langue non francophone.
-      if (!navigator.language.toLowerCase().startsWith("fr")) {
+      // Pas de préférence enregistrée : le français reste la langue par défaut
+      // pour tout le monde. On ne bascule en anglais que si le navigateur du
+      // visiteur est explicitement configuré en anglais.
+      if (navigator.language.toLowerCase().startsWith("en")) {
         setLocaleState("en")
       }
     } catch {

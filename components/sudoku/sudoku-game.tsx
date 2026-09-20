@@ -34,6 +34,17 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
 
   useEffect(() => setMounted(true), [])
 
+  // Si l'URL contient ?niveau=..., on lance directement cette difficulté.
+  // Fait côté client (pas côté serveur) pour que la page d'accueil reste
+  // statique et se charge instantanément depuis le réseau Vercel.
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("niveau") as Difficulty | null
+    if (requested && DIFFICULTIES.includes(requested)) {
+      actions.newGame(requested)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleNewGame = useCallback(
     (difficulty: Difficulty) => {
       actions.newGame(difficulty)
@@ -202,7 +213,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
       </div>
 
       {/* Colonne latérale : commandes */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 pb-24 lg:pb-0">
         <GameToolbar
           notesMode={notesMode}
           canUndo={state.history.length > 0}
