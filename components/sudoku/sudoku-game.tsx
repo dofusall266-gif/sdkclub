@@ -119,7 +119,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
   if (!mounted) {
     return (
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="aspect-square w-full animate-pulse rounded-xl border-2 border-border bg-muted/40" />
+        <div className="aspect-square w-full max-w-[min(34rem,calc(100dvh-15rem))] animate-pulse rounded-xl border-2 border-border bg-muted/40" />
         <div className="hidden lg:block" />
       </div>
     )
@@ -169,7 +169,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative mx-auto w-full max-w-[min(34rem,calc(100dvh-15rem))]">
           <SudokuBoard
             grid={state.grid}
             given={state.given}
