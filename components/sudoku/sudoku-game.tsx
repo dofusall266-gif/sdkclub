@@ -122,7 +122,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
 
   if (!mounted) {
     return (
-      <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-x-8">
+      <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[min(36rem,calc(100dvh-11rem))_18rem] lg:justify-center lg:gap-x-6">
         <div className="flex flex-col gap-4">
           <div className="h-8" />
           <div className={cn("aspect-square w-full animate-pulse rounded-xl border-2 border-border bg-muted/40", boardMax)} />
@@ -160,13 +160,13 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
   )
 
   return (
-    <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_1fr] lg:gap-x-8">
+    <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[min(36rem,calc(100dvh-11rem))_18rem] lg:grid-rows-[auto_1fr] lg:justify-center lg:gap-x-6">
       {/* Choix de la difficulté (au-dessus du plateau) */}
       <nav
         aria-label={t.game.difficultyLabel}
-        className="flex items-center gap-x-5 overflow-x-auto whitespace-nowrap lg:col-start-1 lg:row-start-1"
+        className="flex items-center gap-x-1 overflow-x-auto whitespace-nowrap lg:col-start-1 lg:row-start-1"
       >
-        <span className="hidden text-sm font-medium text-muted-foreground sm:inline">{t.game.difficultyLabel}</span>
+        <span className="mr-1 hidden text-sm font-medium text-muted-foreground sm:inline">{t.game.difficultyLabel}</span>
         {DIFFICULTIES.map((d) => (
           <button
             key={d}
@@ -174,8 +174,10 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
             onClick={() => handleNewGame(d)}
             aria-current={state.difficulty === d ? "true" : undefined}
             className={cn(
-              "py-1 text-sm font-medium transition-colors sm:text-base",
-              state.difficulty === d ? "font-semibold text-primary" : "text-foreground/70 hover:text-foreground",
+              "cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium transition-colors sm:text-base",
+              "hover:bg-primary/10 hover:text-primary active:bg-primary/20",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              state.difficulty === d ? "font-semibold text-primary" : "text-foreground/70",
             )}
           >
             {t.game.difficulties[d]}
