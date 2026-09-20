@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { Suspense } from "react"
 
-import { CookieConsent } from "@/components/cookie-consent"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { LanguageProvider } from "@/lib/i18n/context"
 import { SiteFooter } from "@/components/site-footer"
@@ -47,6 +46,24 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
+        {/*
+          Google Consent Mode v2 : par défaut, tout est refusé (aucun cookie pub/analytics
+          n'est posé) tant que l'utilisateur n'a pas répondu au bandeau de consentement
+          Google (configuré dans AdSense > Confidentialité et messages). Ce bandeau met
+          ensuite ce signal à jour automatiquement via gtag('consent', 'update', ...).
+        */}
+        <Script id="consent-default" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              'ad_storage': 'denied',
+              'ad_user_data': 'denied',
+              'ad_personalization': 'denied',
+              'analytics_storage': 'denied'
+            });
+          `}
+        </Script>
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5508634102948480"
@@ -64,7 +81,6 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <SiteFooter />
             </div>
-            <CookieConsent />
             <GoogleAnalytics />
           </ThemeProvider>
         </LanguageProvider>
