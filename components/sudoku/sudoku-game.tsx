@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, Clock, Pause, Play, Sparkles, Trophy } from "lucide-react"
+import { Pause, Play, Sparkles, Trophy } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
 import { GameToolbar } from "@/components/sudoku/game-toolbar"
@@ -116,104 +116,123 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
 
   const paused = !state.running && !isOver
 
+  // Largeur maximale du plateau : limitée aussi par la hauteur de l'écran
+  // pour que la grille reste entièrement visible sans défiler.
+  const boardMax = "max-w-[min(36rem,calc(100dvh-11rem))]"
+
   if (!mounted) {
     return (
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="aspect-square w-full max-w-[min(40rem,calc(100dvh-9.5rem))] animate-pulse rounded-xl border-2 border-border bg-muted/40" />
+      <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-x-8">
+        <div className="flex flex-col gap-4">
+          <div className="h-8" />
+          <div className={cn("aspect-square w-full animate-pulse rounded-xl border-2 border-border bg-muted/40", boardMax)} />
+        </div>
         <div className="hidden lg:block" />
       </div>
     )
   }
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      {/* Colonne principale : plateau de jeu */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-1.5">
-            {DIFFICULTIES.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => handleNewGame(d)}
-                className={cn(
-                  "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
-                  state.difficulty === d
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {t.game.difficulties[d]}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-              <AlertTriangle className="size-4" />
-              {state.mistakes}
-            </span>
-            <span className="inline-flex items-center gap-1.5 tabular-nums text-sm font-semibold">
-              <Clock className="size-4 text-muted-foreground" />
-              {formatTime(state.seconds)}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={state.running ? t.game.pause : t.game.resume}
-              onClick={actions.togglePause}
-              disabled={isOver}
-            >
-              {state.running ? <Pause className="size-4" /> : <Play className="size-4" />}
-            </Button>
-          </div>
+  // Erreurs + temps + pause. Affiché au-dessus du plateau sur mobile/tablette,
+  // dans le panneau de droite sur ordinateur (comme sudoku.com).
+  const stats = (
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-8 lg:gap-10">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.errors}</p>
+          <p className="text-xl font-semibold tabular-nums lg:text-2xl">{state.mistakes}</p>
         </div>
-
-        <div className="relative mx-auto w-full max-w-[min(40rem,calc(100dvh-9.5rem))]">
-          <SudokuBoard
-            grid={state.grid}
-            given={state.given}
-            notes={state.notes}
-            solution={state.solution}
-            selected={state.selected}
-            conflicts={conflicts}
-            disabled={paused || isOver}
-            onSelect={actions.select}
-          />
-
-          {paused && (
-            <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/85 backdrop-blur-sm">
-              <div className="text-center">
-                <Pause className="mx-auto size-8 text-muted-foreground" />
-                <p className="mt-2 font-semibold">{t.game.paused}</p>
-                <Button className="mt-3" size="sm" onClick={actions.togglePause}>
-                  {t.game.resume}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {isOver && (
-            <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/90 backdrop-blur-sm">
-              <div className="text-center">
-                <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary/15">
-                  <Trophy className="size-7 text-primary" />
-                </div>
-                <p className="mt-3 text-lg font-bold">{t.game.wonTitle}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {difficultyLabel} · {formatTime(state.seconds)} · {state.mistakes} {t.game.mistakeWord(state.mistakes)}
-                </p>
-                <Button className="mt-4" onClick={() => handleNewGame(state.difficulty)}>
-                  <Sparkles className="size-4" /> {t.game.newGame}
-                </Button>
-              </div>
-            </div>
-          )}
+        <div>
+          <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.time}</p>
+          <p className="text-xl font-semibold tabular-nums lg:text-2xl">{formatTime(state.seconds)}</p>
         </div>
       </div>
+      <button
+        type="button"
+        aria-label={state.running ? t.game.pause : t.game.resume}
+        title={state.running ? t.game.pause : t.game.resume}
+        onClick={actions.togglePause}
+        disabled={isOver}
+        className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
+      >
+        {state.running ? <Pause className="size-4" /> : <Play className="size-4" />}
+      </button>
+    </div>
+  )
 
-      {/* Colonne latérale : commandes */}
-      <div className="flex flex-col gap-4">
+  return (
+    <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_1fr] lg:gap-x-8">
+      {/* Choix de la difficulté (au-dessus du plateau) */}
+      <nav
+        aria-label={t.game.difficultyLabel}
+        className="flex items-center gap-x-5 overflow-x-auto whitespace-nowrap lg:col-start-1 lg:row-start-1"
+      >
+        <span className="hidden text-sm font-medium text-muted-foreground sm:inline">{t.game.difficultyLabel}</span>
+        {DIFFICULTIES.map((d) => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => handleNewGame(d)}
+            aria-current={state.difficulty === d ? "true" : undefined}
+            className={cn(
+              "py-1 text-sm font-medium transition-colors sm:text-base",
+              state.difficulty === d ? "font-semibold text-primary" : "text-foreground/70 hover:text-foreground",
+            )}
+          >
+            {t.game.difficulties[d]}
+          </button>
+        ))}
+      </nav>
+
+      {/* Stats (mobile / tablette uniquement) */}
+      <div className="lg:hidden">{stats}</div>
+
+      {/* Plateau de jeu */}
+      <div className={cn("relative mx-auto w-full lg:col-start-1 lg:row-start-2 lg:mx-0", boardMax)}>
+        <SudokuBoard
+          grid={state.grid}
+          given={state.given}
+          notes={state.notes}
+          solution={state.solution}
+          selected={state.selected}
+          conflicts={conflicts}
+          disabled={paused || isOver}
+          onSelect={actions.select}
+        />
+
+        {paused && (
+          <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/85 backdrop-blur-sm">
+            <div className="text-center">
+              <Pause className="mx-auto size-8 text-muted-foreground" />
+              <p className="mt-2 font-semibold">{t.game.paused}</p>
+              <Button className="mt-3" size="sm" onClick={actions.togglePause}>
+                {t.game.resume}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {isOver && (
+          <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/90 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary/15">
+                <Trophy className="size-7 text-primary" />
+              </div>
+              <p className="mt-3 text-lg font-bold">{t.game.wonTitle}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {difficultyLabel} · {formatTime(state.seconds)} · {state.mistakes} {t.game.mistakeWord(state.mistakes)}
+              </p>
+              <Button className="mt-4" onClick={() => handleNewGame(state.difficulty)}>
+                <Sparkles className="size-4" /> {t.game.newGame}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Panneau de droite : stats (desktop), outils, pavé 3×3, nouvelle partie */}
+      <div className="flex flex-col gap-5 lg:col-start-2 lg:row-start-2 lg:gap-6">
+        <div className="hidden lg:block">{stats}</div>
+
         <GameToolbar
           notesMode={notesMode}
           canUndo={state.history.length > 0}
@@ -226,11 +245,12 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
 
         <NumberPad remaining={remaining} disabled={paused || isOver} onInput={(n) => actions.input(n, notesMode)} />
 
-        <Button variant="secondary" size="lg" onClick={() => handleNewGame(state.difficulty)}>
+        <Button size="lg" className="h-12 text-base" onClick={() => handleNewGame(state.difficulty)}>
           <Sparkles className="size-4" /> {t.game.newGame}
         </Button>
 
-        <p className="text-center text-xs text-muted-foreground">{t.game.hintKeyboard}</p>
+        {/* Astuce clavier : inutile sur mobile, donc affichée seulement sur ordinateur. */}
+        <p className="hidden text-center text-xs text-muted-foreground lg:block">{t.game.hintKeyboard}</p>
       </div>
 
       {/* Zone d'impression (masquée à l'écran, visible uniquement à l'impression) */}

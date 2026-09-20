@@ -35,6 +35,8 @@ const fr = {
 
     game: {
       errors: "Erreurs",
+      time: "Temps",
+      difficultyLabel: "Difficulté :",
       filled: "Grille remplie",
       newGame: "Nouvelle grille",
       difficulties: { facile: "Facile", moyen: "Moyen", difficile: "Difficile", expert: "Expert" },
@@ -233,6 +235,8 @@ const en: Dictionary = {
 
     game: {
       errors: "Errors",
+      time: "Time",
+      difficultyLabel: "Difficulty:",
       filled: "Grid filled",
       newGame: "New puzzle",
       difficulties: { facile: "Easy", moyen: "Medium", difficile: "Hard", expert: "Expert" },
