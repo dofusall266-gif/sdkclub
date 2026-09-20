@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 
-import { PageLayout } from "@/components/page-layout"
+import { GamePageLayout } from "@/components/game-page-layout"
 import { SudokuGame } from "@/components/sudoku/sudoku-game"
 
 export const metadata: Metadata = {
@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <PageLayout>
+    <GamePageLayout>
       <SudokuGame />
-    </PageLayout>
+    </GamePageLayout>
   )
 }
