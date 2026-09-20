@@ -213,7 +213,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
       </div>
 
       {/* Colonne latérale : commandes */}
-      <div className="flex flex-col gap-4 pb-24 lg:pb-0">
+      <div className="flex flex-col gap-4">
         <GameToolbar
           notesMode={notesMode}
           canUndo={state.history.length > 0}

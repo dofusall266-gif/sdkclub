@@ -22,14 +22,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved === "fr" || saved === "en") {
         setLocaleState(saved)
-        return
       }
-      // Pas de préférence enregistrée : le français reste la langue par défaut
-      // pour tout le monde. On ne bascule en anglais que si le navigateur du
-      // visiteur est explicitement configuré en anglais.
-      if (navigator.language.toLowerCase().startsWith("en")) {
-        setLocaleState("en")
-      }
+      // Pas de préférence enregistrée : le français reste la langue par
+      // défaut pour tout le monde, sans détection automatique. Le visiteur
+      // peut toujours basculer manuellement via le bouton EN/FR.
     } catch {
       // localStorage indisponible : on reste sur le français par défaut.
     }

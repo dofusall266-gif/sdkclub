@@ -45,13 +45,9 @@ export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
         })}
       </div>
 
-      {/* Mobile : barre fixée en bas de l'écran, toujours visible sans avoir à scroller. */}
-      <div
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur-md lg:hidden print:hidden"
-        role="group"
-        aria-label={locale === "fr" ? "Pavé numérique" : "Number pad"}
-      >
-        <div className="mx-auto grid w-full max-w-xl grid-cols-9 gap-1 px-2">
+      {/* Mobile : ligne 1x9 compacte, juste après la barre d'outils, dans le flux normal de la page (comme sudoku.com). */}
+      <div className="lg:hidden" role="group" aria-label={locale === "fr" ? "Pavé numérique" : "Number pad"}>
+        <div className="mx-auto grid w-full grid-cols-9 gap-1.5">
           {Array.from({ length: 9 }, (_, i) => {
             const n = i + 1
             const placed = remaining[n] ?? 0
