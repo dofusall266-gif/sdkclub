@@ -17,10 +17,33 @@ const CLUES_BY_DIFFICULTY: Record<Difficulty, number> = {
   expert: 24,
 }
 
-function shuffle<T>(arr: T[]): T[] {
+/** Générateur pseudo-aléatoire déterministe (mulberry32). Permet de générer
+ * exactement la même grille pour tout le monde à partir d'une même graine —
+ * utilisé pour le défi du jour, où chaque joueur doit avoir la même grille. */
+export function createSeededRandom(seed: number): () => number {
+  let s = seed >>> 0
+  return () => {
+    s = (s + 0x6d2b79f5) | 0
+    let t = Math.imul(s ^ (s >>> 15), 1 | s)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/** Hash simple (FNV-1a) pour transformer une chaîne (ex : une date) en graine numérique. */
+export function hashSeed(str: string): number {
+  let h = 0x811c9dc5
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i)
+    h = Math.imul(h, 0x01000193)
+  }
+  return h >>> 0
+}
+
+function shuffle<T>(arr: T[], random: () => number = Math.random): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
+    const j = Math.floor(random() * (i + 1))
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
@@ -56,14 +79,14 @@ function canPlace(grid: Grid, index: number, value: number): boolean {
   return true
 }
 
-function fillGrid(grid: Grid): boolean {
+function fillGrid(grid: Grid, random: () => number = Math.random): boolean {
   for (let i = 0; i < 81; i++) {
     if (grid[i] === 0) {
-      const values = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])
+      const values = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9], random)
       for (const v of values) {
         if (canPlace(grid, i, v)) {
           grid[i] = v
-          if (fillGrid(grid)) return true
+          if (fillGrid(grid, random)) return true
           grid[i] = 0
         }
       }
@@ -135,16 +158,16 @@ export interface Puzzle {
   difficulty: Difficulty
 }
 
-export function generatePuzzle(difficulty: Difficulty): Puzzle {
+export function generatePuzzle(difficulty: Difficulty, random: () => number = Math.random): Puzzle {
   const solution: Grid = new Array(81).fill(0)
-  fillGrid(solution)
+  fillGrid(solution, random)
 
   const puzzle = [...solution]
   const targetClues = CLUES_BY_DIFFICULTY[difficulty]
   let clues = 81
 
   // Try removing cells (in symmetric-ish random order) while keeping uniqueness.
-  const order = shuffle(Array.from({ length: 81 }, (_, i) => i))
+  const order = shuffle(Array.from({ length: 81 }, (_, i) => i), random)
 
   for (const index of order) {
     if (clues <= targetClues) break
@@ -209,4 +232,17 @@ export function isComplete(grid: Grid): boolean {
 
 export function isSolved(grid: Grid, solution: Grid): boolean {
   return grid.every((v, i) => v === solution[i])
+}
+
+/** Indices de la ligne, la colonne et le bloc 3×3 auxquels appartient une case. */
+export function groupIndices(index: number): { row: number[]; col: number[]; box: number[] } {
+  const r = rowOf(index)
+  const c = colOf(index)
+  const br = Math.floor(r / 3) * 3
+  const bc = Math.floor(c / 3) * 3
+  const row = Array.from({ length: 9 }, (_, i) => r * 9 + i)
+  const col = Array.from({ length: 9 }, (_, i) => i * 9 + c)
+  const box: number[] = []
+  for (let dr = 0; dr < 3; dr++) for (let dc = 0; dc < 3; dc++) box.push((br + dr) * 9 + (bc + dc))
+  return { row, col, box }
 }

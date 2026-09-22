@@ -20,8 +20,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, reason: "invalid-body" }, { status: 400 })
   }
 
-  const type = (body as { type?: string })?.type
-  const difficulty = (body as { difficulty?: string })?.difficulty ?? null
+  const payload = body as {
+    type?: string
+    difficulty?: string
+    duration_seconds?: number
+    mistakes?: number
+    device?: string
+  }
+  const type = payload?.type
+  const difficulty = payload?.difficulty ?? null
+  const durationSeconds =
+    typeof payload?.duration_seconds === "number" && Number.isFinite(payload.duration_seconds)
+      ? Math.round(payload.duration_seconds)
+      : null
+  const mistakes =
+    typeof payload?.mistakes === "number" && Number.isFinite(payload.mistakes) ? Math.round(payload.mistakes) : null
+  const device = typeof payload?.device === "string" ? payload.device.slice(0, 20) : null
 
   if (!type || !VALID_TYPES.includes(type as EventType)) {
     return NextResponse.json({ ok: false, reason: "invalid-type" }, { status: 400 })
@@ -29,7 +43,10 @@ export async function POST(req: Request) {
 
   try {
     await ensureEventsTable(sql)
-    await sql`INSERT INTO events (type, difficulty) VALUES (${type}, ${difficulty})`
+    await sql`
+      INSERT INTO events (type, difficulty, duration_seconds, mistakes, device)
+      VALUES (${type}, ${difficulty}, ${durationSeconds}, ${mistakes}, ${device})
+    `
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ ok: false, reason: "db-error" }, { status: 500 })

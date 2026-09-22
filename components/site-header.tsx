@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { useState } from "react"
 
 import { LanguageToggle } from "@/components/language-toggle"
+import { StreakBadge } from "@/components/streak-badge"
 import { SudokuLogo } from "@/components/sudoku-logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ export function SiteHeader() {
 
   const navLinks = [
     { href: "/", label: t.nav.play },
+    { href: "/defi", label: t.nav.daily },
     { href: "/regles", label: t.nav.rules },
     { href: "/techniques", label: t.nav.techniques },
   ]
@@ -53,7 +55,8 @@ export function SiteHeader() {
           })}
         </nav>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <StreakBadge className="hidden sm:flex" />
           <LanguageToggle />
           <ThemeToggle />
           <Button

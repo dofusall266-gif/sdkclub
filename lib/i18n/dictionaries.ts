@@ -2,7 +2,7 @@ export type Locale = "fr" | "en"
 export type Dictionary = typeof fr
 
 const fr = {
-    nav: { play: "Jouer", rules: "Règles", techniques: "Techniques" },
+    nav: { play: "Jouer", daily: "Défi du jour", rules: "Règles", techniques: "Techniques" },
 
     footer: {
       tagline: "Le sudoku gratuit, sans inscription, généré à l'infini.",
@@ -48,6 +48,30 @@ const fr = {
       mistakeWord: (n: number): string => (n > 1 ? "erreurs" : "erreur"),
       solutionLabel: "Solution",
       hintKeyboard: "Astuce : utilisez les flèches du clavier pour vous déplacer et les touches 1-9 pour saisir. Appuyez sur « N » pour les notes.",
+      bestTime: "Record",
+      newRecord: "Nouveau record personnel !",
+      streakLine: (n: number): string => `Série en cours : ${n} jour${n > 1 ? "s" : ""} !`,
+    },
+
+    daily: {
+      title: "Défi du jour",
+      subtitle: "Une seule grille, la même pour tout le monde, chaque jour. Difficulté : Difficile.",
+      alreadyPlayed: "Vous avez déjà joué le défi d'aujourd'hui.",
+      submitHeading: "Bravo ! Inscrivez votre score au classement",
+      pseudoLabel: "Pseudo",
+      pseudoPlaceholder: "Votre pseudo (public)",
+      countryLabel: "Pays",
+      countryPlaceholder: "Choisissez votre pays",
+      submit: "Valider mon score",
+      submitting: "Envoi...",
+      submitted: "Score enregistré, merci d'avoir joué !",
+      submitError: "Impossible d'enregistrer votre score pour le moment. Réessayez plus tard.",
+      pseudoError: "Pseudo invalide (1 à 20 caractères, sans contenu inapproprié).",
+      leaderboardTitle: "Classement du jour",
+      leaderboardEmpty: "Personne n'a encore terminé le défi d'aujourd'hui — soyez le premier !",
+      rank: "Rang",
+      you: "Vous",
+      noDbNotice: "Le classement n'est pas encore actif sur ce site (base de données non connectée).",
     },
 
     printDialog: {
@@ -202,7 +226,7 @@ const fr = {
 }
 
 const en: Dictionary = {
-    nav: { play: "Play", rules: "Rules", techniques: "Techniques" },
+    nav: { play: "Play", daily: "Daily challenge", rules: "Rules", techniques: "Techniques" },
 
     footer: {
       tagline: "Free sudoku, no sign-up, endless unique puzzles.",
@@ -248,6 +272,30 @@ const en: Dictionary = {
       mistakeWord: (n: number) => (n > 1 ? "mistakes" : "mistake"),
       solutionLabel: "Solution",
       hintKeyboard: "Tip: use the arrow keys to move around and keys 1-9 to enter numbers. Press \"N\" for notes.",
+      bestTime: "Best",
+      newRecord: "New personal record!",
+      streakLine: (n: number) => `Current streak: ${n} day${n > 1 ? "s" : ""}!`,
+    },
+
+    daily: {
+      title: "Daily challenge",
+      subtitle: "One single grid, the same for everyone, every day. Difficulty: Hard.",
+      alreadyPlayed: "You've already played today's challenge.",
+      submitHeading: "Well done! Add your score to the leaderboard",
+      pseudoLabel: "Nickname",
+      pseudoPlaceholder: "Your nickname (public)",
+      countryLabel: "Country",
+      countryPlaceholder: "Choose your country",
+      submit: "Submit my score",
+      submitting: "Sending...",
+      submitted: "Score saved, thanks for playing!",
+      submitError: "Couldn't save your score right now. Please try again later.",
+      pseudoError: "Invalid nickname (1 to 20 characters, no inappropriate content).",
+      leaderboardTitle: "Today's leaderboard",
+      leaderboardEmpty: "Nobody has finished today's challenge yet — be the first!",
+      rank: "Rank",
+      you: "You",
+      noDbNotice: "The leaderboard isn't active on this site yet (no database connected).",
     },
 
     printDialog: {

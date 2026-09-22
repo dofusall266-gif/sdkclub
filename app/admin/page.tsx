@@ -1,7 +1,10 @@
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
+import { revalidatePath } from "next/cache"
 
-import { ensureEventsTable, getDb } from "@/lib/db"
+import { ResetStatsButton } from "@/components/admin/reset-stats-button"
+import { ensureDailyScoresTable, ensureEventsTable, getDb } from "@/lib/db"
+import { todayKey } from "@/lib/daily"
 
 export const metadata: Metadata = {
   title: "Statistiques",
@@ -31,12 +34,39 @@ async function logout() {
   cookieStore.delete(COOKIE_NAME)
 }
 
-type Row = Record<string, string | number>
-
-export default async function AdminPage() {
+async function checkAuthed() {
   const cookieStore = await cookies()
   const expected = process.env.ADMIN_PASSWORD
-  const authed = Boolean(expected) && cookieStore.get(COOKIE_NAME)?.value === expected
+  return Boolean(expected) && cookieStore.get(COOKIE_NAME)?.value === expected
+}
+
+/** Vide la table des événements (parties jouées). Ne touche pas au classement du défi du jour. */
+async function resetEvents() {
+  "use server"
+  if (!(await checkAuthed())) return
+  const sql = getDb()
+  if (!sql) return
+  await ensureEventsTable(sql)
+  await sql`DELETE FROM events`
+  revalidatePath("/admin")
+}
+
+/** Vide le classement du défi du jour (tous les jours, pas seulement aujourd'hui). */
+async function resetDaily() {
+  "use server"
+  if (!(await checkAuthed())) return
+  const sql = getDb()
+  if (!sql) return
+  await ensureDailyScoresTable(sql)
+  await sql`DELETE FROM daily_scores`
+  revalidatePath("/admin")
+}
+
+type Row = Record<string, string | number | null>
+
+export default async function AdminPage() {
+  const authed = await checkAuthed()
+  const expected = process.env.ADMIN_PASSWORD
 
   if (!expected) {
     return (
@@ -77,29 +107,45 @@ export default async function AdminPage() {
   let totals: Row | null = null
   let byDifficulty: Row[] = []
   let last30Days: Row[] = []
+  let byDevice: Row[] = []
+  let dailyStats: Row | null = null
   let dbError = false
 
   if (sql) {
     try {
       await ensureEventsTable(sql)
-      // Totaux depuis le tout début (aucune limite de temps).
+      await ensureDailyScoresTable(sql)
+
       const totalsRows = await sql`
         SELECT
           count(*) FILTER (WHERE type = 'game_started') AS games_started,
-          count(*) FILTER (WHERE type = 'game_won') AS games_won
+          count(*) FILTER (WHERE type = 'game_won') AS games_won,
+          round(avg(duration_seconds) FILTER (WHERE type = 'game_won')) AS avg_seconds,
+          round(avg(mistakes) FILTER (WHERE type = 'game_won'), 1) AS avg_mistakes
         FROM events
       `
       totals = totalsRows[0] as Row
 
       byDifficulty = (await sql`
-        SELECT difficulty, count(*) AS count
+        SELECT
+          difficulty,
+          count(*) FILTER (WHERE type = 'game_started') AS started,
+          count(*) FILTER (WHERE type = 'game_won') AS won,
+          round(avg(duration_seconds) FILTER (WHERE type = 'game_won')) AS avg_seconds
         FROM events
-        WHERE type = 'game_started' AND difficulty IS NOT NULL
+        WHERE difficulty IS NOT NULL
         GROUP BY difficulty
+        ORDER BY started DESC
+      `) as Row[]
+
+      byDevice = (await sql`
+        SELECT device, count(*) AS count
+        FROM events
+        WHERE type = 'game_started' AND device IS NOT NULL
+        GROUP BY device
         ORDER BY count DESC
       `) as Row[]
 
-      // Tendance récente (30 jours) — les totaux ci-dessus, eux, couvrent tout l'historique.
       last30Days = (await sql`
         SELECT
           to_char(date_trunc('day', created_at), 'DD/MM') AS day,
@@ -110,6 +156,13 @@ export default async function AdminPage() {
         GROUP BY date_trunc('day', created_at)
         ORDER BY date_trunc('day', created_at)
       `) as Row[]
+
+      const dailyRows = await sql`
+        SELECT count(*) AS participants, round(avg(seconds)) AS avg_seconds, min(seconds) AS best_seconds
+        FROM daily_scores
+        WHERE date = ${todayKey()}
+      `
+      dailyStats = dailyRows[0] as Row
     } catch {
       dbError = true
     }
@@ -118,16 +171,19 @@ export default async function AdminPage() {
   const gamesStarted = Number(totals?.games_started ?? 0)
   const gamesWon = Number(totals?.games_won ?? 0)
   const completionRate = gamesStarted > 0 ? Math.round((gamesWon / gamesStarted) * 100) : 0
+  const abandoned = Math.max(0, gamesStarted - gamesWon)
 
   return (
     <Shell wide>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-bold">Statistiques du site</h1>
-        <form action={logout}>
-          <button type="submit" className="text-xs text-muted-foreground hover:text-foreground">
-            Se déconnecter
-          </button>
-        </form>
+        <div className="flex items-center gap-3">
+          <form action={logout}>
+            <button type="submit" className="text-xs text-muted-foreground hover:text-foreground">
+              Se déconnecter
+            </button>
+          </form>
+        </div>
       </div>
 
       {!sql && (
@@ -145,50 +201,104 @@ export default async function AdminPage() {
 
       {sql && !dbError && (
         <>
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <StatCard label="Parties lancées (total)" value={gamesStarted} />
-            <StatCard label="Parties terminées (total)" value={gamesWon} />
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <StatCard label="Parties lancées" value={gamesStarted} />
+            <StatCard label="Parties terminées" value={gamesWon} />
             <StatCard label="Taux de complétion" value={`${completionRate}%`} />
+            <StatCard label="Parties abandonnées" value={abandoned} />
+            <StatCard label="Temps moyen" value={totals?.avg_seconds ? formatSeconds(Number(totals.avg_seconds)) : "—"} />
+            <StatCard label="Erreurs moyennes" value={totals?.avg_mistakes ?? "—"} />
           </div>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
             <div>
-              <h2 className="text-sm font-semibold">Parties par niveau de difficulté</h2>
+              <h2 className="text-sm font-semibold">Par niveau de difficulté</h2>
               <div className="mt-3 space-y-2">
-                {byDifficulty.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Pas encore de données.</p>
-                )}
+                {byDifficulty.length === 0 && <p className="text-sm text-muted-foreground">Pas encore de données.</p>}
                 {byDifficulty.map((row) => (
                   <div key={String(row.difficulty)} className="flex items-center justify-between text-sm">
                     <span className="capitalize text-muted-foreground">{row.difficulty}</span>
-                    <span className="font-semibold">{row.count}</span>
+                    <span className="font-semibold">
+                      {row.started} lancées · {row.won} gagnées
+                      {row.avg_seconds ? ` · ~${formatSeconds(Number(row.avg_seconds))}` : ""}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <h2 className="text-sm font-semibold">Tendance — 30 derniers jours</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Les totaux ci-dessus couvrent tout l&apos;historique ; cette liste ne montre que le mois écoulé.
-              </p>
-              <div className="mt-3 max-h-72 space-y-2 overflow-y-auto">
-                {last30Days.length === 0 && <p className="text-sm text-muted-foreground">Pas encore de données.</p>}
-                {last30Days.map((row) => (
-                  <div key={String(row.day)} className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{row.day}</span>
-                    <span>
-                      {row.started} lancées · {row.won} gagnées
-                    </span>
+              <h2 className="text-sm font-semibold">Appareils</h2>
+              <div className="mt-3 space-y-2">
+                {byDevice.length === 0 && <p className="text-sm text-muted-foreground">Pas encore de données.</p>}
+                {byDevice.map((row) => (
+                  <div key={String(row.device)} className="flex items-center justify-between text-sm">
+                    <span className="capitalize text-muted-foreground">{row.device}</span>
+                    <span className="font-semibold">{row.count}</span>
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h2 className="text-sm font-semibold">Défi du jour — aujourd&apos;hui</h2>
+            <div className="mt-3 grid grid-cols-3 gap-4">
+              <StatCard label="Participants" value={Number(dailyStats?.participants ?? 0)} />
+              <StatCard
+                label="Temps moyen"
+                value={dailyStats?.avg_seconds ? formatSeconds(Number(dailyStats.avg_seconds)) : "—"}
+              />
+              <StatCard
+                label="Meilleur temps"
+                value={dailyStats?.best_seconds ? formatSeconds(Number(dailyStats.best_seconds)) : "—"}
+              />
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h2 className="text-sm font-semibold">Tendance — 30 derniers jours</h2>
+            <div className="mt-3 max-h-72 space-y-2 overflow-y-auto">
+              {last30Days.length === 0 && <p className="text-sm text-muted-foreground">Pas encore de données.</p>}
+              {last30Days.map((row) => (
+                <div key={String(row.day)} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{row.day}</span>
+                  <span>
+                    {row.started} lancées · {row.won} gagnées
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-10 rounded-xl border border-dashed border-destructive/30 p-4">
+            <h2 className="text-sm font-semibold text-destructive">Zone sensible</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Repart de zéro pour recommencer la prise de données (utile après des tests, par exemple).
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <ResetStatsButton
+                action={resetEvents}
+                label="Réinitialiser les parties jouées"
+                confirmText="Supprimer définitivement toutes les statistiques de parties (temps, erreurs, appareils) ? Cette action est irréversible."
+              />
+              <ResetStatsButton
+                action={resetDaily}
+                label="Réinitialiser le classement du défi"
+                confirmText="Supprimer définitivement tous les scores du défi du jour (tous les jours confondus) ? Cette action est irréversible."
+              />
             </div>
           </div>
         </>
       )}
     </Shell>
   )
+}
+
+function formatSeconds(total: number): string {
+  const m = Math.floor(total / 60)
+  const s = Math.round(total % 60)
+  return `${m}m ${String(s).padStart(2, "0")}s`
 }
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
@@ -201,7 +311,5 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 }
 
 function Shell({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
-  return (
-    <div className={`mx-auto w-full px-4 py-10 ${wide ? "max-w-3xl" : "max-w-sm"}`}>{children}</div>
-  )
+  return <div className={`mx-auto w-full px-4 py-10 ${wide ? "max-w-4xl" : "max-w-sm"}`}>{children}</div>
 }

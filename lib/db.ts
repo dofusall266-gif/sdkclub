@@ -11,7 +11,9 @@ export function getDb() {
   return neon(url)
 }
 
-/** Crée la table d'événements si elle n'existe pas encore. */
+/** Crée la table d'événements si elle n'existe pas encore, et ajoute les colonnes
+ * détaillées (durée, erreurs, appareil) si elles n'existent pas déjà — utile pour
+ * les sites déjà en production avec l'ancien schéma. */
 export async function ensureEventsTable(sql: NonNullable<ReturnType<typeof getDb>>) {
   await sql`
     CREATE TABLE IF NOT EXISTS events (
@@ -19,6 +21,26 @@ export async function ensureEventsTable(sql: NonNullable<ReturnType<typeof getDb
       type TEXT NOT NULL,
       difficulty TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS duration_seconds INTEGER`
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS mistakes INTEGER`
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS device TEXT`
+}
+
+/** Table des scores du défi du jour (pseudo + drapeau choisis, pas de compte). */
+export async function ensureDailyScoresTable(sql: NonNullable<ReturnType<typeof getDb>>) {
+  await sql`
+    CREATE TABLE IF NOT EXISTS daily_scores (
+      id BIGSERIAL PRIMARY KEY,
+      date DATE NOT NULL,
+      player_id TEXT NOT NULL,
+      pseudo TEXT NOT NULL,
+      country_code TEXT,
+      seconds INTEGER NOT NULL,
+      mistakes INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (date, player_id)
     )
   `
 }

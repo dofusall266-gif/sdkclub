@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
+
 import { useLanguage } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
@@ -13,6 +15,21 @@ interface NumberPadProps {
 /** Pavé numérique 3×3 (1-2-3 / 4-5-6 / 7-8-9), comme sur sudoku.com. */
 export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
   const { locale } = useLanguage()
+  const prevRemaining = useRef(remaining)
+  const [pulsingDigit, setPulsingDigit] = useState<number | null>(null)
+
+  // Petit pulse de satisfaction quand un chiffre vient d'atteindre ses 9 occurrences.
+  useEffect(() => {
+    const prev = prevRemaining.current
+    prevRemaining.current = remaining
+    for (let n = 1; n <= 9; n++) {
+      if ((prev[n] ?? 0) < 9 && (remaining[n] ?? 0) >= 9) {
+        setPulsingDigit(n)
+        const t = setTimeout(() => setPulsingDigit(null), 450)
+        return () => clearTimeout(t)
+      }
+    }
+  }, [remaining])
 
   const label = (n: number) => (locale === "fr" ? `Placer le chiffre ${n}` : `Place the number ${n}`)
 
@@ -37,6 +54,7 @@ export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
                 "hover:bg-primary/20 active:bg-primary/25",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 "disabled:pointer-events-none disabled:opacity-30",
+                pulsingDigit === n && "animate-digit-pulse",
               )}
             >
               {n}

@@ -1,8 +1,9 @@
 "use client"
 
-import { Pause, Play, Sparkles, Trophy } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
+import { Flame, Pause, Play, Sparkles, Trophy } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
+import { Confetti } from "@/components/sudoku/confetti"
 import { GameToolbar } from "@/components/sudoku/game-toolbar"
 import { NumberPad } from "@/components/sudoku/number-pad"
 import { PrintableGrid } from "@/components/sudoku/printable-grid"
@@ -11,7 +12,8 @@ import { SudokuBoard } from "@/components/sudoku/sudoku-board"
 import { useSudoku } from "@/components/sudoku/use-sudoku"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/i18n/context"
-import { type Difficulty, colOf, rowOf } from "@/lib/sudoku"
+import { type Difficulty, colOf, groupIndices, rowOf } from "@/lib/sudoku"
+import { getBestTime, maybeRecordBest, recordWinForStreak } from "@/lib/streak"
 import { cn } from "@/lib/utils"
 
 const DIFFICULTIES: Difficulty[] = ["facile", "moyen", "difficile", "expert"]
@@ -29,10 +31,59 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
   const [mounted, setMounted] = useState(false)
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [printIncludeSolution, setPrintIncludeSolution] = useState<boolean | null>(null)
+  const [flashIndices, setFlashIndices] = useState<Set<number>>(new Set())
+  const [winResult, setWinResult] = useState<{ isRecord: boolean; streak: number } | null>(null)
   const isOver = state.status === "won"
   const difficultyLabel = t.game.difficulties[state.difficulty]
 
   useEffect(() => setMounted(true), [])
+
+  // Effet "récompense" : quand une ligne/colonne/bloc vient d'être complété
+  // correctement, on met brièvement ces cases en surbrillance.
+  const prevGridRef = useRef(state.grid)
+  useEffect(() => {
+    const prev = prevGridRef.current
+    const grid = state.grid
+    prevGridRef.current = grid
+    if (prev === grid) return
+
+    let changed = -1
+    for (let i = 0; i < 81; i++) {
+      if (prev[i] !== grid[i] && grid[i] !== 0) {
+        changed = i
+        break
+      }
+    }
+    if (changed === -1 || grid[changed] !== state.solution[changed]) return
+
+    const { row, col, box } = groupIndices(changed)
+    const complete = (indices: number[]) => indices.every((i) => grid[i] === state.solution[i])
+    const newlyDone = new Set<number>()
+    if (complete(row)) row.forEach((i) => newlyDone.add(i))
+    if (complete(col)) col.forEach((i) => newlyDone.add(i))
+    if (complete(box)) box.forEach((i) => newlyDone.add(i))
+    if (newlyDone.size === 0) return
+
+    setFlashIndices(newlyDone)
+    const t = setTimeout(() => setFlashIndices(new Set()), 600)
+    return () => clearTimeout(t)
+  }, [state.grid, state.solution])
+
+  // À la victoire : record personnel + progression de la série (streak), une seule fois.
+  const winHandledRef = useRef(false)
+  useEffect(() => {
+    if (state.status === "won" && !winHandledRef.current) {
+      winHandledRef.current = true
+      const isRecord = maybeRecordBest(state.difficulty, state.seconds, state.mistakes)
+      const { count } = recordWinForStreak()
+      window.dispatchEvent(new Event("sc:streak-updated"))
+      setWinResult({ isRecord, streak: count })
+    }
+    if (state.status === "playing") {
+      winHandledRef.current = false
+      setWinResult(null)
+    }
+  }, [state.status, state.difficulty, state.seconds, state.mistakes])
 
   // Si l'URL contient ?niveau=..., on lance directement cette difficulté.
   // Fait côté client (pas côté serveur) pour que la page d'accueil reste
@@ -132,6 +183,8 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
     )
   }
 
+  const bestTime = mounted ? getBestTime(state.difficulty) : null
+
   // Erreurs + temps + pause. Affiché au-dessus du plateau sur mobile/tablette,
   // dans le panneau de droite sur ordinateur (comme sudoku.com).
   const stats = (
@@ -145,6 +198,12 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
           <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.time}</p>
           <p className="text-xl font-semibold tabular-nums lg:text-2xl">{formatTime(state.seconds)}</p>
         </div>
+        {bestTime !== null && (
+          <div className="hidden sm:block">
+            <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.bestTime}</p>
+            <p className="text-xl font-semibold tabular-nums text-primary lg:text-2xl">{formatTime(bestTime)}</p>
+          </div>
+        )}
       </div>
       <button
         type="button"
@@ -199,6 +258,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
           conflicts={conflicts}
           disabled={paused || isOver}
           onSelect={actions.select}
+          flashIndices={flashIndices}
         />
 
         {paused && (
@@ -214,8 +274,9 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
         )}
 
         {isOver && (
-          <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/90 backdrop-blur-sm">
-            <div className="text-center">
+          <div className="absolute inset-0 grid place-items-center overflow-hidden rounded-xl bg-background/90 backdrop-blur-sm">
+            <Confetti />
+            <div className="relative text-center">
               <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary/15">
                 <Trophy className="size-7 text-primary" />
               </div>
@@ -223,6 +284,18 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
               <p className="mt-1 text-sm text-muted-foreground">
                 {difficultyLabel} · {formatTime(state.seconds)} · {state.mistakes} {t.game.mistakeWord(state.mistakes)}
               </p>
+
+              {winResult?.isRecord && (
+                <p className="animate-toast-in mt-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <Sparkles className="size-3.5" /> {t.game.newRecord}
+                </p>
+              )}
+              {winResult && winResult.streak > 1 && (
+                <p className="animate-toast-in mt-2 flex items-center justify-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400">
+                  <Flame className="size-3.5" /> {t.game.streakLine(winResult.streak)}
+                </p>
+              )}
+
               <Button className="mt-4" onClick={() => handleNewGame(state.difficulty)}>
                 <Sparkles className="size-4" /> {t.game.newGame}
               </Button>

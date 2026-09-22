@@ -9,13 +9,14 @@ import {
   generatePuzzle,
   isComplete,
 } from "@/lib/sudoku"
+import { readJSON, remove, writeJSON } from "@/lib/storage"
 
-interface Snapshot {
+export interface Snapshot {
   grid: Grid
   notes: number[][]
 }
 
-interface State {
+export interface State {
   difficulty: Difficulty
   given: Grid
   solution: Grid
@@ -29,7 +30,7 @@ interface State {
   running: boolean
 }
 
-type Action =
+export type Action =
   | { type: "new"; difficulty: Difficulty }
   | { type: "select"; index: number }
   | { type: "input"; value: number; notesMode: boolean }
@@ -39,12 +40,18 @@ type Action =
   | { type: "tick" }
   | { type: "toggleRunning"; running?: boolean }
 
-function emptyNotes(): number[][] {
+export function emptyNotes(): number[][] {
   return Array.from({ length: 81 }, () => [])
 }
 
-function createGame(difficulty: Difficulty): State {
+export function createGame(difficulty: Difficulty): State {
   const { puzzle, solution } = generatePuzzle(difficulty)
+  return createGameFromPuzzle(puzzle, solution, difficulty)
+}
+
+/** Construit un état de jeu initial à partir d'une grille déjà générée
+ * (utilisé par le hook du défi du jour, dont la grille est déterministe). */
+export function createGameFromPuzzle(puzzle: Grid, solution: Grid, difficulty: Difficulty): State {
   return {
     difficulty,
     given: puzzle,
@@ -64,7 +71,7 @@ function snapshot(state: State): Snapshot {
   return { grid: [...state.grid], notes: state.notes.map((n) => [...n]) }
 }
 
-function reducer(state: State, action: Action): State {
+export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "new":
       return createGame(action.difficulty)
@@ -160,16 +167,49 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function track(type: "game_started" | "game_won", difficulty: Difficulty) {
+/** Type d'appareil, calculé une fois : sert uniquement aux statistiques admin. */
+function detectDevice(): string {
+  if (typeof navigator === "undefined") return "unknown"
+  return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "mobile" : "desktop"
+}
+
+function track(
+  type: "game_started" | "game_won",
+  difficulty: Difficulty,
+  extra?: { duration_seconds?: number; mistakes?: number },
+) {
   fetch("/api/track", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type, difficulty }),
+    body: JSON.stringify({ type, difficulty, device: detectDevice(), ...extra }),
   }).catch(() => {})
 }
 
+const STORAGE_KEY = "sc_active_game_v1"
+
+interface PersistedGame extends State {
+  savedAt: number
+}
+
+/** Charge la partie en cours sauvegardée, si elle existe et est encore "en cours". */
+function loadPersisted(): State | null {
+  const persisted = readJSON<PersistedGame>(STORAGE_KEY)
+  if (!persisted || persisted.status !== "playing") return null
+  // Une grille corrompue/obsolète (ancien format) ne doit jamais faire planter le jeu.
+  if (!Array.isArray(persisted.grid) || persisted.grid.length !== 81) return null
+  const { savedAt: _savedAt, ...state } = persisted
+  return { ...state, running: false } // on redémarre toujours en pause : l'utilisateur reprend volontairement
+}
+
 export function useSudoku(initialDifficulty: Difficulty = "facile") {
-  const [state, dispatch] = useReducer(reducer, initialDifficulty, createGame)
+  const wasResumedRef = useRef(true)
+  const resumedRef = useRef<State | null>(null)
+  if (resumedRef.current === null) {
+    const persisted = loadPersisted()
+    wasResumedRef.current = persisted !== null
+    resumedRef.current = persisted ?? createGame(initialDifficulty)
+  }
+  const [state, dispatch] = useReducer(reducer, resumedRef.current)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const wonTrackedRef = useRef(false)
 
@@ -180,20 +220,31 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
     }
   }, [])
 
-  // Grille initiale au chargement du composant.
+  // Grille initiale au chargement du composant : comptée comme "partie lancée"
+  // seulement si c'est une toute nouvelle grille (pas une reprise), sinon une
+  // simple visite gonflerait artificiellement les statistiques.
   useEffect(() => {
-    track("game_started", initialDifficulty)
+    if (!wasResumedRef.current) track("game_started", initialDifficulty)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Sauvegarde continue de la partie en cours (persistance locale).
+  useEffect(() => {
+    if (state.status === "playing") {
+      writeJSON(STORAGE_KEY, { ...state, savedAt: Date.now() })
+    } else {
+      remove(STORAGE_KEY)
+    }
+  }, [state])
 
   // Victoire (une seule fois par partie).
   useEffect(() => {
     if (state.status === "won" && !wonTrackedRef.current) {
       wonTrackedRef.current = true
-      track("game_won", state.difficulty)
+      track("game_won", state.difficulty, { duration_seconds: state.seconds, mistakes: state.mistakes })
     }
     if (state.status === "playing") wonTrackedRef.current = false
-  }, [state.status, state.difficulty])
+  }, [state.status, state.difficulty, state.seconds, state.mistakes])
 
   // Met le minuteur en pause lorsque l'onglet n'est plus visible.
   useEffect(() => {

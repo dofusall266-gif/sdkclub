@@ -12,6 +12,8 @@ interface SudokuBoardProps {
   conflicts: Set<number>
   disabled?: boolean
   onSelect: (index: number) => void
+  /** Cases à mettre brièvement en surbrillance (ligne/colonne/bloc qui vient d'être complété). */
+  flashIndices?: Set<number>
 }
 
 export function SudokuBoard({
@@ -23,6 +25,7 @@ export function SudokuBoard({
   conflicts,
   disabled,
   onSelect,
+  flashIndices,
 }: SudokuBoardProps) {
   const selRow = selected !== null ? rowOf(selected) : -1
   const selCol = selected !== null ? colOf(selected) : -1
@@ -43,6 +46,7 @@ export function SudokuBoard({
         const sameNumber = value !== 0 && value === selValue
         const isConflict = conflicts.has(index)
         const isWrong = !isGiven && value !== 0 && value !== solution[index]
+        const isFlashing = flashIndices?.has(index) ?? false
 
         return (
           <button
@@ -69,6 +73,7 @@ export function SudokuBoard({
               isGiven ? "text-foreground" : "text-primary",
               isWrong && "text-destructive",
               isConflict && "text-destructive",
+              isFlashing && "animate-cell-flash",
               !disabled && "cursor-pointer",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
             )}
