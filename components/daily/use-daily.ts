@@ -41,11 +41,10 @@ export function useDailyGame() {
   }, [])
 
   useEffect(() => {
-    if (state.status === "playing") {
-      writeJSON(storageKey(dateKey), state)
-    }
-    // On garde volontairement l'état "won" en mémoire (pas de remove) : on veut
-    // pouvoir réafficher "défi déjà terminé" si la personne revient plus tard.
+    // On sauvegarde systématiquement, y compris l'état "won" : c'est ce qui
+    // permet à hasCompletedDailyToday() et à la reprise de page de savoir que
+    // le défi du jour est déjà terminé.
+    writeJSON(storageKey(dateKey), state)
   }, [state, dateKey])
 
   useEffect(() => {

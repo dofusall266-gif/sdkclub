@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { GamePageLayout } from "@/components/game-page-layout"
+import { DailyBanner } from "@/components/daily-banner"
 import { SudokuGame } from "@/components/sudoku/sudoku-game"
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <GamePageLayout>
+      <DailyBanner />
       <SudokuGame />
     </GamePageLayout>
   )

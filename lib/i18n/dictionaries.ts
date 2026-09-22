@@ -48,6 +48,7 @@ const fr = {
       mistakeWord: (n: number): string => (n > 1 ? "erreurs" : "erreur"),
       solutionLabel: "Solution",
       hintKeyboard: "Astuce : utilisez les flèches du clavier pour vous déplacer et les touches 1-9 pour saisir. Appuyez sur « N » pour les notes.",
+      dailyCta: "Essayer le défi du jour",
       bestTime: "Record",
       newRecord: "Nouveau record personnel !",
       streakLine: (n: number): string => `Série en cours : ${n} jour${n > 1 ? "s" : ""} !`,
@@ -55,7 +56,7 @@ const fr = {
 
     daily: {
       title: "Défi du jour",
-      subtitle: "Une seule grille, la même pour tout le monde, chaque jour. Difficulté : Difficile.",
+      subtitle: "Une seule grille, la même pour tout le monde. Qui sera le/la meilleur(e) aujourd'hui ?",
       alreadyPlayed: "Vous avez déjà joué le défi d'aujourd'hui.",
       submitHeading: "Bravo ! Inscrivez votre score au classement",
       pseudoLabel: "Pseudo",
@@ -72,6 +73,8 @@ const fr = {
       rank: "Rang",
       you: "Vous",
       noDbNotice: "Le classement n'est pas encore actif sur ce site (base de données non connectée).",
+      bannerText: "Le défi du jour vous attend — une seule grille, la même pour tout le monde.",
+      bannerDismiss: "Masquer pour aujourd'hui",
     },
 
     printDialog: {
@@ -272,6 +275,7 @@ const en: Dictionary = {
       mistakeWord: (n: number) => (n > 1 ? "mistakes" : "mistake"),
       solutionLabel: "Solution",
       hintKeyboard: "Tip: use the arrow keys to move around and keys 1-9 to enter numbers. Press \"N\" for notes.",
+      dailyCta: "Try today's challenge",
       bestTime: "Best",
       newRecord: "New personal record!",
       streakLine: (n: number) => `Current streak: ${n} day${n > 1 ? "s" : ""}!`,
@@ -279,7 +283,7 @@ const en: Dictionary = {
 
     daily: {
       title: "Daily challenge",
-      subtitle: "One single grid, the same for everyone, every day. Difficulty: Hard.",
+      subtitle: "One single grid, the same for everyone. Who'll be the best today?",
       alreadyPlayed: "You've already played today's challenge.",
       submitHeading: "Well done! Add your score to the leaderboard",
       pseudoLabel: "Nickname",
@@ -296,6 +300,8 @@ const en: Dictionary = {
       rank: "Rank",
       you: "You",
       noDbNotice: "The leaderboard isn't active on this site yet (no database connected).",
+      bannerText: "Today's challenge is waiting — one single grid, the same for everyone.",
+      bannerDismiss: "Hide for today",
     },
 
     printDialog: {

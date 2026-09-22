@@ -3,24 +3,33 @@
 import { Menu, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { LanguageToggle } from "@/components/language-toggle"
 import { StreakBadge } from "@/components/streak-badge"
 import { SudokuLogo } from "@/components/sudoku-logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
+import { hasCompletedDailyToday } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
 export function SiteHeader() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [dailyDone, setDailyDone] = useState(true) // true par défaut : pas de pastille tant qu'on n'a pas vérifié (évite un flash au chargement)
   const { t } = useLanguage()
 
-  const navLinks = [
+  useEffect(() => {
+    const check = () => setDailyDone(hasCompletedDailyToday())
+    check()
+    window.addEventListener("sc:streak-updated", check)
+    return () => window.removeEventListener("sc:streak-updated", check)
+  }, [])
+
+  const navLinks: { href: string; label: string; dot?: boolean }[] = [
     { href: "/", label: t.nav.play },
-    { href: "/defi", label: t.nav.daily },
+    { href: "/defi", label: t.nav.daily, dot: !dailyDone },
     { href: "/regles", label: t.nav.rules },
     { href: "/techniques", label: t.nav.techniques },
   ]
@@ -49,7 +58,12 @@ export function SiteHeader() {
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                 )}
               >
-                {link.label}
+                <span className="relative">
+                  {link.label}
+                  {link.dot && (
+                    <span className="absolute -right-2 -top-0.5 size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+                  )}
+                </span>
               </Link>
             )
           })}
@@ -89,7 +103,12 @@ export function SiteHeader() {
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground",
                   )}
                 >
-                  {link.label}
+                  <span className="relative">
+                    {link.label}
+                    {link.dot && (
+                      <span className="absolute -right-2 -top-0.5 size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+                    )}
+                  </span>
                 </Link>
               )
             })}

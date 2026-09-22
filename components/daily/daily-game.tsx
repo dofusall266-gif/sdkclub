@@ -12,7 +12,9 @@ import { SudokuBoard } from "@/components/sudoku/sudoku-board"
 import { useDailyGame } from "@/components/daily/use-daily"
 import { DailyLeaderboard } from "@/components/daily/daily-leaderboard"
 import { DailySubmitForm } from "@/components/daily/daily-submit-form"
+import { hasSubmittedDaily, markDailySubmitted } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
+import { getPlayerProfile } from "@/lib/player"
 import { colOf, groupIndices, rowOf } from "@/lib/sudoku"
 import { maybeRecordBest, recordWinForStreak } from "@/lib/streak"
 import { cn } from "@/lib/utils"
@@ -30,13 +32,18 @@ export function DailyGame() {
   const [notesMode, setNotesMode] = useState(false)
   const [flashIndices, setFlashIndices] = useState<Set<number>>(new Set())
   const [submitted, setSubmitted] = useState<string | null>(null)
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false)
   const [leaderboardKey, setLeaderboardKey] = useState(0)
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [printIncludeSolution, setPrintIncludeSolution] = useState<boolean | null>(null)
   const isOver = state.status === "won"
   const paused = !state.running && !isOver
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    setAlreadySubmitted(hasSubmittedDaily(dateKey))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const prevGridRef = useRef(state.grid)
   useEffect(() => {
@@ -180,17 +187,41 @@ export function DailyGame() {
           )}
 
           {isOver && (
-            <div className="absolute inset-0 grid place-items-center overflow-hidden rounded-xl bg-background/90 backdrop-blur-sm">
-              <Confetti />
-              <div className="relative text-center">
-                <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary/15">
-                  <Trophy className="size-7 text-primary" />
+            <div className="absolute inset-0 overflow-y-auto rounded-xl bg-background/95 backdrop-blur-sm">
+              <div className="relative min-h-full">
+                <Confetti />
+                <div className="flex flex-col items-center gap-3 px-4 py-6 text-center">
+                  <div className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/15">
+                    <Trophy className="size-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold">{t.game.wonTitle}</p>
+                    <p className="mt-1 flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                      <Flame className="size-4 text-orange-500" /> {formatTime(state.seconds)} · {state.mistakes}{" "}
+                      {t.game.mistakeWord(state.mistakes)}
+                    </p>
+                  </div>
+
+                  {!submitted && !alreadySubmitted ? (
+                    <div className="w-full max-w-xs text-left">
+                      <DailySubmitForm
+                        variant="inline"
+                        seconds={state.seconds}
+                        mistakes={state.mistakes}
+                        dateKey={dateKey}
+                        onSubmitted={(pseudo) => {
+                          setSubmitted(pseudo)
+                          markDailySubmitted(dateKey)
+                          setLeaderboardKey((k) => k + 1)
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <p className="rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary">
+                      {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
+                    </p>
+                  )}
                 </div>
-                <p className="mt-3 text-lg font-bold">{t.game.wonTitle}</p>
-                <p className="mt-1 flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                  <Flame className="size-4 text-orange-500" /> {formatTime(state.seconds)} · {state.mistakes}{" "}
-                  {t.game.mistakeWord(state.mistakes)}
-                </p>
               </div>
             </div>
           )}
@@ -210,31 +241,12 @@ export function DailyGame() {
         <NumberPad remaining={remaining} disabled={paused || isOver} onInput={(n) => actions.input(n, notesMode)} />
       </div>
 
-      {/* Défi terminé : formulaire de score + classement, sur toute la largeur. */}
-      {isOver && (
-        <div className="lg:col-span-2">
-          {!submitted && (
-            <DailySubmitForm
-              seconds={state.seconds}
-              mistakes={state.mistakes}
-              dateKey={dateKey}
-              onSubmitted={(pseudo) => {
-                setSubmitted(pseudo)
-                setLeaderboardKey((k) => k + 1)
-              }}
-            />
-          )}
-          <div className="mt-6">
-            <DailyLeaderboard playerPseudo={submitted} refreshKey={leaderboardKey} />
-          </div>
-        </div>
-      )}
-
-      {!isOver && (
-        <div className="lg:col-span-2">
-          <DailyLeaderboard playerPseudo={null} refreshKey={leaderboardKey} />
-        </div>
-      )}
+      {/* Classement, toujours visible sous la grille (le formulaire de score, lui,
+          est directement dans l'écran de victoire ci-dessus, pour rester visible
+          sans avoir à défiler une fois la grille terminée). */}
+      <div className="lg:col-span-2">
+        <DailyLeaderboard playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null} refreshKey={leaderboardKey} />
+      </div>
 
       <div id="print-area" className="hidden print:block">
         <PrintableGrid grid={state.given} title={`Sudoku — ${t.daily.title}`} />

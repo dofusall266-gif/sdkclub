@@ -3,23 +3,28 @@
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { COUNTRIES, countryFlag } from "@/lib/countries"
+import { sortedCountries, countryFlag } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
 import { getPlayerProfile, savePlayerProfile } from "@/lib/player"
+import { cn } from "@/lib/utils"
 
 interface Props {
   seconds: number
   mistakes: number
   dateKey: string
   onSubmitted: (pseudo: string) => void
+  /** "card" (par défaut) : bloc avec bordure, pour un affichage autonome.
+   *  "inline" : sans bordure/fond, pour être posé sur l'overlay de victoire. */
+  variant?: "card" | "inline"
 }
 
-export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted }: Props) {
+export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, variant = "card" }: Props) {
   const { t, locale } = useLanguage()
   const existing = getPlayerProfile()
   const [pseudo, setPseudo] = useState(existing?.pseudo ?? "")
   const [countryCode, setCountryCode] = useState(existing?.countryCode ?? "FR")
-  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error" | "invalid">("idle")
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error" | "invalid" | "no-db">("idle")
+  const countries = sortedCountries(locale)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,6 +54,8 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted }: Pro
         onSubmitted(trimmed)
       } else if (data.reason === "invalid-pseudo") {
         setStatus("invalid")
+      } else if (data.reason === "no-database") {
+        setStatus("no-db")
       } else {
         setStatus("error")
       }
@@ -61,9 +68,19 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted }: Pro
     return <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary">{t.daily.submitted}</p>
   }
 
+  if (status === "no-db") {
+    return <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">{t.daily.noDbNotice}</p>
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
-      <h3 className="font-semibold">{t.daily.submitHeading}</h3>
+    <form
+      onSubmit={handleSubmit}
+      className={cn(
+        "flex flex-col gap-3",
+        variant === "card" && "rounded-xl border border-border bg-card p-4",
+      )}
+    >
+      {variant === "card" && <h3 className="font-semibold">{t.daily.submitHeading}</h3>}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="daily-pseudo" className="text-sm font-medium text-muted-foreground">
@@ -90,7 +107,7 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted }: Pro
           onChange={(e) => setCountryCode(e.target.value)}
           className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {COUNTRIES.map((c) => (
+          {countries.map((c) => (
             <option key={c.code} value={c.code}>
               {countryFlag(c.code)} {locale === "fr" ? c.fr : c.en}
             </option>

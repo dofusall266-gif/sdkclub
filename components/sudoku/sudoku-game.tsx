@@ -1,6 +1,7 @@
 "use client"
 
 import { Flame, Pause, Play, Sparkles, Trophy } from "lucide-react"
+import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Confetti } from "@/components/sudoku/confetti"
@@ -11,6 +12,7 @@ import { PrintDialog } from "@/components/sudoku/print-dialog"
 import { SudokuBoard } from "@/components/sudoku/sudoku-board"
 import { useSudoku } from "@/components/sudoku/use-sudoku"
 import { Button } from "@/components/ui/button"
+import { hasCompletedDailyToday } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
 import { type Difficulty, colOf, groupIndices, rowOf } from "@/lib/sudoku"
 import { getBestTime, maybeRecordBest, recordWinForStreak } from "@/lib/streak"
@@ -77,8 +79,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
       const isRecord = maybeRecordBest(state.difficulty, state.seconds, state.mistakes)
       const { count } = recordWinForStreak()
       window.dispatchEvent(new Event("sc:streak-updated"))
-      setWinResult({ isRecord, streak: count })
-    }
+      setWinResult({ isRecord, streak: count })    }
     if (state.status === "playing") {
       winHandledRef.current = false
       setWinResult(null)
@@ -299,6 +300,15 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
               <Button className="mt-4" onClick={() => handleNewGame(state.difficulty)}>
                 <Sparkles className="size-4" /> {t.game.newGame}
               </Button>
+
+              {!hasCompletedDailyToday() && (
+                <Link
+                  href="/defi"
+                  className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-orange-600 hover:underline dark:text-orange-400"
+                >
+                  <Flame className="size-3.5" /> {t.game.dailyCta}
+                </Link>
+              )}
             </div>
           </div>
         )}
