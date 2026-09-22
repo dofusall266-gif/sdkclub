@@ -23,7 +23,7 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
   const existing = getPlayerProfile()
   const [pseudo, setPseudo] = useState(existing?.pseudo ?? "")
   const [countryCode, setCountryCode] = useState(existing?.countryCode ?? "FR")
-  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error" | "invalid" | "no-db">("idle")
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error" | "invalid" | "no-db" | "timeout">("idle")
   const countries = sortedCountries(locale)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,10 +35,19 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
     }
     setStatus("sending")
     const profile = savePlayerProfile(trimmed, countryCode)
+
+    // Filet de sécurité : si le serveur (ou la base Neon, qui peut mettre un
+    // instant à "se réveiller" sur le plan gratuit) met trop de temps à
+    // répondre, on arrête d'attendre plutôt que de laisser le bouton bloqué
+    // indéfiniment sur "Envoi...".
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
+
     try {
       const res = await fetch("/api/daily/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           date: dateKey,
           playerId: profile.id,
@@ -59,8 +68,10 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
       } else {
         setStatus("error")
       }
-    } catch {
-      setStatus("error")
+    } catch (err) {
+      setStatus(err instanceof DOMException && err.name === "AbortError" ? "timeout" : "error")
+    } finally {
+      clearTimeout(timeoutId)
     }
   }
 
@@ -117,6 +128,7 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
 
       {status === "invalid" && <p className="text-sm text-destructive">{t.daily.pseudoError}</p>}
       {status === "error" && <p className="text-sm text-destructive">{t.daily.submitError}</p>}
+      {status === "timeout" && <p className="text-sm text-destructive">{t.daily.submitTimeout}</p>}
 
       <Button type="submit" disabled={status === "sending"}>
         {status === "sending" ? t.daily.submitting : t.daily.submit}

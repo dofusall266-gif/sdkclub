@@ -35,7 +35,7 @@ export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
 
   return (
     <div className="w-full" role="group" aria-label={locale === "fr" ? "Pavé numérique" : "Number pad"}>
-      <div className="grid w-full grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid w-full grid-cols-9 gap-1 sm:grid-cols-3 sm:gap-2 lg:gap-3">
         {Array.from({ length: 9 }, (_, i) => {
           const n = i + 1
           const placed = remaining[n] ?? 0
@@ -50,7 +50,8 @@ export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
               onClick={() => onInput(n)}
               aria-label={label(n)}
               className={cn(
-                "relative flex h-14 items-center justify-center rounded-xl bg-primary/10 text-3xl font-medium text-primary transition-colors sm:h-16 lg:h-20 lg:text-4xl",
+                "relative flex h-11 items-center justify-center rounded-lg bg-primary/10 text-lg font-medium text-primary transition-colors",
+                "sm:h-14 sm:rounded-xl sm:text-3xl lg:h-20 lg:text-4xl",
                 "hover:bg-primary/20 active:bg-primary/25",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 "disabled:pointer-events-none disabled:opacity-30",
@@ -58,9 +59,10 @@ export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
               )}
             >
               {n}
-              {/* Nombre d'occurrences restantes à placer (discret, en coin). */}
+              {/* Nombre d'occurrences restantes à placer (discret, en coin) — masqué sur la
+                  version 1×9 mobile, trop étroite pour l'accueillir lisiblement. */}
               {!done && (
-                <span className="absolute top-1.5 right-2 text-[0.65rem] font-medium leading-none text-primary/60 tabular-nums">
+                <span className="absolute top-1 right-1 hidden text-[0.65rem] font-medium leading-none text-primary/60 tabular-nums sm:block">
                   {left}
                 </span>
               )}

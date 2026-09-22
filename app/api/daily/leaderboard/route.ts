@@ -3,16 +3,19 @@ import { NextResponse } from "next/server"
 import { ensureDailyScoresTable, getDb } from "@/lib/db"
 import { todayKey } from "@/lib/daily"
 
+const TOP_N = 20
+
 export async function GET(req: Request) {
   const sql = getDb()
   if (!sql) {
-    return NextResponse.json({ ok: false, reason: "no-database", scores: [] })
+    return NextResponse.json({ ok: false, reason: "no-database", scores: [], me: null })
   }
 
   const url = new URL(req.url)
   // Uniquement le jour courant pour l'instant : évite d'exposer une API de
   // requête libre sur des dates arbitraires.
   const date = url.searchParams.get("date") === todayKey() ? todayKey() : todayKey()
+  const playerId = url.searchParams.get("playerId")?.slice(0, 64) ?? null
 
   try {
     await ensureDailyScoresTable(sql)
@@ -21,10 +24,30 @@ export async function GET(req: Request) {
       FROM daily_scores
       WHERE date = ${date}
       ORDER BY seconds ASC
-      LIMIT 50
+      LIMIT ${TOP_N}
     `
-    return NextResponse.json({ ok: true, date, scores: rows })
+
+    // Rang exact du joueur (même s'il est en dehors du top 20), via une
+    // fonction fenêtrée : évite de charger tout le classement pour le calculer.
+    let me: { pseudo: string; country_code: string | null; seconds: number; rank: number } | null = null
+    if (playerId) {
+      const meRows = await sql`
+        SELECT pseudo, country_code, seconds, rank FROM (
+          SELECT pseudo, country_code, seconds, player_id,
+                 rank() OVER (ORDER BY seconds ASC) AS rank
+          FROM daily_scores
+          WHERE date = ${date}
+        ) ranked
+        WHERE player_id = ${playerId}
+      `
+      const row = meRows[0] as
+        | { pseudo: string; country_code: string | null; seconds: number; rank: number }
+        | undefined
+      me = row ?? null
+    }
+
+    return NextResponse.json({ ok: true, date, scores: rows, me })
   } catch {
-    return NextResponse.json({ ok: false, reason: "db-error", scores: [] }, { status: 500 })
+    return NextResponse.json({ ok: false, reason: "db-error", scores: [], me: null }, { status: 500 })
   }
 }

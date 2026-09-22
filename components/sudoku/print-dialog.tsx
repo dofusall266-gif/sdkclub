@@ -7,10 +7,14 @@ export function PrintDialog({
   open,
   onClose,
   onConfirm,
+  allowSolution = true,
 }: {
   open: boolean
   onClose: () => void
   onConfirm: (includeSolution: boolean) => void
+  /** Sur le défi du jour, on ne propose jamais d'imprimer la solution : ce
+   * serait un moyen trop simple de tricher sur un classement partagé. */
+  allowSolution?: boolean
 }) {
   const { t } = useLanguage()
   if (!open) return null
@@ -30,13 +34,21 @@ export function PrintDialog({
         <h2 id="print-dialog-title" className="text-lg font-bold">
           {t.printDialog.title}
         </h2>
-        <p className="mt-1.5 text-sm text-muted-foreground">{t.printDialog.question}</p>
-        <div className="mt-5 flex flex-col gap-2">
-          <Button onClick={() => onConfirm(false)}>{t.printDialog.without}</Button>
-          <Button variant="outline" onClick={() => onConfirm(true)}>
-            {t.printDialog.with}
-          </Button>
-        </div>
+        {allowSolution ? (
+          <>
+            <p className="mt-1.5 text-sm text-muted-foreground">{t.printDialog.question}</p>
+            <div className="mt-5 flex flex-col gap-2">
+              <Button onClick={() => onConfirm(false)}>{t.printDialog.without}</Button>
+              <Button variant="outline" onClick={() => onConfirm(true)}>
+                {t.printDialog.with}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="mt-5 flex flex-col gap-2">
+            <Button onClick={() => onConfirm(false)}>{t.printDialog.without}</Button>
+          </div>
+        )}
         <button
           type="button"
           onClick={onClose}

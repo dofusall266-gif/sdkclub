@@ -245,17 +245,23 @@ export function DailyGame() {
           est directement dans l'écran de victoire ci-dessus, pour rester visible
           sans avoir à défiler une fois la grille terminée). */}
       <div className="lg:col-span-2">
-        <DailyLeaderboard playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null} refreshKey={leaderboardKey} />
+        <DailyLeaderboard
+          playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
+          playerId={getPlayerProfile()?.id ?? null}
+          refreshKey={leaderboardKey}
+        />
       </div>
 
       <div id="print-area" className="hidden print:block">
         <PrintableGrid grid={state.given} title={`Sudoku — ${t.daily.title}`} />
-        {printIncludeSolution && <PrintableGrid grid={state.solution} title={t.game.solutionLabel} />}
+        {/* Volontairement pas de solution imprimable ici : ce serait un moyen
+            trivial de tricher sur un classement partagé entre tous les joueurs. */}
       </div>
 
       <PrintDialog
         open={printDialogOpen}
         onClose={() => setPrintDialogOpen(false)}
+        allowSolution={false}
         onConfirm={(includeSolution) => {
           setPrintDialogOpen(false)
           setPrintIncludeSolution(includeSolution)
