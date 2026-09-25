@@ -48,11 +48,14 @@ export async function POST(req: Request) {
   const seconds = typeof payload.seconds === "number" ? Math.round(payload.seconds) : NaN
   const mistakes = typeof payload.mistakes === "number" ? Math.round(payload.mistakes) : 0
 
-  // Anti-abus minimal : un temps réaliste (entre 10s et 2h) et au plus 3 erreurs.
+  // Anti-abus minimal : un temps réaliste (entre 10s et 2h). Pour les erreurs,
+  // le jeu ne s'arrête jamais à un certain nombre de fautes (on peut terminer
+  // la grille après en avoir fait beaucoup), donc on ne bloque qu'une valeur
+  // clairement absurde plutôt qu'un plafond bas qui rejetterait des scores réels.
   if (!Number.isFinite(seconds) || seconds < 10 || seconds > 7200) {
     return NextResponse.json({ ok: false, reason: "invalid-seconds" }, { status: 400 })
   }
-  if (mistakes < 0 || mistakes > 3) {
+  if (mistakes < 0 || mistakes > 300) {
     return NextResponse.json({ ok: false, reason: "invalid-mistakes" }, { status: 400 })
   }
 

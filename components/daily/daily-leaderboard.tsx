@@ -1,8 +1,10 @@
 "use client"
 
+import { Sparkles } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { countryFlag } from "@/lib/countries"
+import { PENALTY_SECONDS_PER_MISTAKE } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
@@ -17,6 +19,7 @@ interface MeRow {
   pseudo: string
   country_code: string | null
   seconds: number
+  mistakes: number
   rank: number
 }
 
@@ -60,12 +63,14 @@ export function DailyLeaderboard({
   }, [refreshKey, playerId])
 
   const topCount = scores?.length ?? 0
-  // On n'affiche la ligne "vous" séparément que si le joueur n'apparaît pas déjà dans le top affiché.
   const showMeSeparately = me !== null && me.rank > topCount
 
   return (
     <div>
       <h2 className="text-lg font-bold">{t.daily.leaderboardTitle}</h2>
+      {!noDb && (
+        <p className="mt-0.5 text-xs text-muted-foreground">{t.daily.rankingRule(PENALTY_SECONDS_PER_MISTAKE)}</p>
+      )}
 
       {noDb && <p className="mt-3 text-sm text-muted-foreground">{t.daily.noDbNotice}</p>}
 
@@ -101,6 +106,13 @@ export function DailyLeaderboard({
                     <span className="truncate font-medium">
                       {row.pseudo} {isYou && <span className="text-xs text-primary">({t.daily.you})</span>}
                     </span>
+                    {row.mistakes === 0 ? (
+                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.65rem] font-semibold text-primary">
+                        <Sparkles className="size-2.5" /> {t.daily.noMistakesBadge}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-xs text-muted-foreground">{t.daily.mistakesCount(row.mistakes)}</span>
+                    )}
                   </div>
                   <span className="shrink-0 font-semibold tabular-nums">{formatTime(row.seconds)}</span>
                 </li>
@@ -121,6 +133,13 @@ export function DailyLeaderboard({
                   <span className="truncate font-medium">
                     {me.pseudo} <span className="text-xs text-primary">({t.daily.you})</span>
                   </span>
+                  {me.mistakes === 0 ? (
+                    <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.65rem] font-semibold text-primary">
+                      <Sparkles className="size-2.5" /> {t.daily.noMistakesBadge}
+                    </span>
+                  ) : (
+                    <span className="shrink-0 text-xs text-muted-foreground">{t.daily.mistakesCount(me.mistakes)}</span>
+                  )}
                 </div>
                 <span className="shrink-0 font-semibold tabular-nums">{formatTime(me.seconds)}</span>
               </div>

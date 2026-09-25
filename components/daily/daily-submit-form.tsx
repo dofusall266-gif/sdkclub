@@ -23,7 +23,9 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
   const existing = getPlayerProfile()
   const [pseudo, setPseudo] = useState(existing?.pseudo ?? "")
   const [countryCode, setCountryCode] = useState(existing?.countryCode ?? "FR")
-  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error" | "invalid" | "no-db" | "timeout">("idle")
+  const [status, setStatus] = useState<
+    "idle" | "sending" | "done" | "error" | "invalid" | "no-db" | "timeout" | "invalid-score"
+  >("idle")
   const countries = sortedCountries(locale)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,6 +67,8 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
         setStatus("invalid")
       } else if (data.reason === "no-database") {
         setStatus("no-db")
+      } else if (data.reason === "invalid-seconds" || data.reason === "invalid-mistakes") {
+        setStatus("invalid-score")
       } else {
         setStatus("error")
       }
@@ -129,6 +133,7 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
       {status === "invalid" && <p className="text-sm text-destructive">{t.daily.pseudoError}</p>}
       {status === "error" && <p className="text-sm text-destructive">{t.daily.submitError}</p>}
       {status === "timeout" && <p className="text-sm text-destructive">{t.daily.submitTimeout}</p>}
+      {status === "invalid-score" && <p className="text-sm text-destructive">{t.daily.submitInvalidScore}</p>}
 
       <Button type="submit" disabled={status === "sending"}>
         {status === "sending" ? t.daily.submitting : t.daily.submit}

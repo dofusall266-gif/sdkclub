@@ -1,5 +1,11 @@
 import { createSeededRandom, generatePuzzle, hashSeed, type Puzzle } from "@/lib/sudoku"
 
+/** Pénalité (en secondes) ajoutée par erreur pour calculer le classement, pour
+ * qu'une grille propre mais un peu plus lente batte une grille rapide mais
+ * truffée d'erreurs. Le temps AFFICHÉ reste le temps réel — seule cette valeur
+ * sert au tri du classement. */
+export const PENALTY_SECONDS_PER_MISTAKE = 10
+
 /** Difficulté fixe du défi du jour : assez difficile pour être un vrai défi,
  * mais pas "expert" pour que le maximum de joueurs puisse le terminer. */
 export const DAILY_DIFFICULTY = "difficile" as const
