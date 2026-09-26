@@ -154,10 +154,12 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
       }
       let r = rowOf(sel)
       let c = colOf(sel)
-      if (e.key === "ArrowUp") r = Math.max(0, r - 1)
-      else if (e.key === "ArrowDown") r = Math.min(8, r + 1)
-      else if (e.key === "ArrowLeft") c = Math.max(0, c - 1)
-      else if (e.key === "ArrowRight") c = Math.min(8, c + 1)
+      // Navigation circulaire : sortir d'un bord ramène de l'autre côté
+      // (comme sur la plupart des grilles de sudoku mobiles).
+      if (e.key === "ArrowUp") r = (r + 8) % 9
+      else if (e.key === "ArrowDown") r = (r + 1) % 9
+      else if (e.key === "ArrowLeft") c = (c + 8) % 9
+      else if (e.key === "ArrowRight") c = (c + 1) % 9
       else return
       actions.select(r * 9 + c)
       e.preventDefault()

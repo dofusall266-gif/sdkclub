@@ -69,8 +69,10 @@ export function SudokuBoard({
               !isSelected && inScope && "bg-secondary/60",
               sameNumber && !isSelected && "bg-primary/15",
               isSelected && "bg-primary/25",
-              // Chiffres donnés vs saisis.
-              isGiven ? "text-foreground" : "text-primary",
+              // Chiffres donnés (toujours neutres) vs saisis par le joueur (teintés
+              // seulement pendant que la case est sélectionnée, pas en permanence —
+              // sinon la couleur reste "collée" même une fois qu'on a bougé ailleurs).
+              isGiven ? "text-foreground" : isSelected ? "text-primary" : "text-foreground",
               isWrong && "text-destructive",
               isConflict && "text-destructive",
               isFlashing && "animate-cell-flash",
