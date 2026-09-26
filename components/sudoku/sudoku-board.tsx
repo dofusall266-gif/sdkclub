@@ -59,9 +59,9 @@ export function SudokuBoard({
             onClick={() => onSelect(index)}
             className={cn(
               "relative flex aspect-square items-center justify-center text-xl font-semibold transition-colors select-none sm:text-2xl",
-              "border-r border-b border-border/70",
-              c % 3 === 2 && c !== 8 && "border-r-2 border-r-foreground/40",
-              r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/40",
+              "border-r border-b border-foreground/70",
+              c % 3 === 2 && c !== 8 && "border-r-2 border-r-foreground/70",
+              r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/70",
               c === 8 && "border-r-0",
               r === 8 && "border-b-0",
               // Couleurs de fond selon l'état de la case.
