@@ -67,7 +67,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
     if (newlyDone.size === 0) return
 
     setFlashIndices(newlyDone)
-    const t = setTimeout(() => setFlashIndices(new Set()), 600)
+    const t = setTimeout(() => setFlashIndices(new Set()), 900)
     return () => clearTimeout(t)
   }, [state.grid, state.solution])
 

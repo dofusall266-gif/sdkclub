@@ -4,7 +4,6 @@ import { Flame, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
 import { hasCompletedDailyToday, todayKey } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
 import { readJSON, writeJSON } from "@/lib/storage"
@@ -26,7 +25,11 @@ export function DailyBanner() {
   if (!visible) return null
 
   return (
-    <div className="relative mx-auto mb-5 w-full overflow-hidden rounded-2xl bg-[image:linear-gradient(135deg,var(--frame-a),var(--frame-b))] px-5 py-4 shadow-sm lg:max-w-none">
+    <div className="mx-auto mb-5 flex w-full max-w-[36rem] items-center justify-between gap-3 rounded-xl border border-orange-500/20 bg-orange-500/10 px-4 py-3 lg:max-w-none">
+      <Link href="/defi" className="flex min-w-0 items-center gap-2.5 text-sm font-medium text-orange-700 dark:text-orange-300">
+        <Flame className="size-4 shrink-0" />
+        <span className="truncate">{t.daily.bannerText}</span>
+      </Link>
       <button
         type="button"
         aria-label={t.daily.bannerDismiss}
@@ -34,26 +37,10 @@ export function DailyBanner() {
           writeJSON(DISMISS_KEY, todayKey())
           setVisible(false)
         }}
-        className="absolute right-3 top-3 rounded-full p-1 text-secondary/70 hover:bg-white/10 hover:text-secondary"
+        className="shrink-0 rounded-full p-1 text-orange-700/70 hover:bg-orange-500/15 dark:text-orange-300/70"
       >
         <X className="size-4" />
       </button>
-
-      <div className="flex flex-wrap items-center justify-between gap-4 pr-6">
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-secondary/80">
-            <Flame className="size-3.5" />
-            {t.nav.daily}
-          </span>
-          <span className="truncate text-base font-semibold text-secondary sm:text-lg">
-            {t.daily.bannerText}
-          </span>
-        </div>
-
-        <Button asChild size="lg" className="shrink-0 bg-secondary text-foreground hover:bg-secondary/90">
-          <Link href="/defi">{t.nav.play}</Link>
-        </Button>
-      </div>
     </div>
   )
 }

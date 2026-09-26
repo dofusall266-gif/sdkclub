@@ -31,78 +31,65 @@ export function SudokuBoard({
   const selCol = selected !== null ? colOf(selected) : -1
   const selValue = selected !== null ? grid[selected] : 0
 
-  function renderCell(index: number) {
-    const r = rowOf(index)
-    const c = colOf(index)
-    const value = grid[index]
-    const isGiven = given[index] !== 0
-    const isSelected = selected === index
-    const inScope = r === selRow || c === selCol || sameBox(index, selected)
-    const sameNumber = value !== 0 && value === selValue
-    const isConflict = conflicts.has(index)
-    const isWrong = !isGiven && value !== 0 && value !== solution[index]
-    const isFlashing = flashIndices?.has(index) ?? false
-
-    return (
-      <button
-        key={index}
-        type="button"
-        role="gridcell"
-        disabled={disabled}
-        aria-label={`Ligne ${r + 1}, colonne ${c + 1}${value ? `, valeur ${value}` : ", vide"}`}
-        aria-selected={isSelected}
-        onClick={() => onSelect(index)}
-        className={cn(
-          "relative flex aspect-square items-center justify-center text-xl font-semibold transition-colors select-none sm:text-2xl",
-          // Couleurs de fond pleines (jamais semi-transparentes : le cadre en
-          // dégradé derrière la grille ferait remonter du noir à travers une
-          // couleur translucide).
-          !isSelected && !inScope && "bg-card",
-          !isSelected && inScope && "bg-scope",
-          sameNumber && !isSelected && "bg-select",
-          isSelected && "bg-select ring-2 ring-inset ring-primary",
-          // Chiffres donnés vs saisis.
-          isGiven ? "text-foreground" : "text-primary",
-          isWrong && "text-destructive",
-          isConflict && "text-destructive",
-          isFlashing && "animate-cell-flash",
-          !disabled && "cursor-pointer",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
-        )}
-      >
-        {value !== 0 ? (
-          value
-        ) : notes[index].length > 0 ? (
-          <span className="grid h-full w-full grid-cols-3 grid-rows-3 p-0.5 text-[0.5rem] leading-none text-muted-foreground sm:text-[0.6rem]">
-            {Array.from({ length: 9 }, (_, n) => (
-              <span key={n} className="flex items-center justify-center">
-                {notes[index].includes(n + 1) ? n + 1 : ""}
-              </span>
-            ))}
-          </span>
-        ) : null}
-      </button>
-    )
-  }
-
   return (
     <div
-      className="grid aspect-square w-full grid-cols-3 grid-rows-3 gap-[3px] overflow-hidden rounded-xl p-[3px] shadow-sm bg-[image:linear-gradient(135deg,var(--frame-a),var(--frame-b))]"
+      className="grid aspect-square w-full grid-cols-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm"
       role="grid"
       aria-label="Grille de sudoku"
     >
-      {Array.from({ length: 9 }, (_, box) => {
-        const boxRow = Math.floor(box / 3)
-        const boxCol = box % 3
+      {grid.map((value, index) => {
+        const r = rowOf(index)
+        const c = colOf(index)
+        const isGiven = given[index] !== 0
+        const isSelected = selected === index
+        const inScope = r === selRow || c === selCol || sameBox(index, selected)
+        const sameNumber = value !== 0 && value === selValue
+        const isConflict = conflicts.has(index)
+        const isWrong = !isGiven && value !== 0 && value !== solution[index]
+        const isFlashing = flashIndices?.has(index) ?? false
+
         return (
-          <div key={box} className="grid grid-cols-3 grid-rows-3 gap-px bg-foreground/10">
-            {Array.from({ length: 9 }, (_, cell) => {
-              const localRow = Math.floor(cell / 3)
-              const localCol = cell % 3
-              const index = (boxRow * 3 + localRow) * 9 + (boxCol * 3 + localCol)
-              return renderCell(index)
-            })}
-          </div>
+          <button
+            key={index}
+            type="button"
+            role="gridcell"
+            disabled={disabled}
+            aria-label={`Ligne ${r + 1}, colonne ${c + 1}${value ? `, valeur ${value}` : ", vide"}`}
+            aria-selected={isSelected}
+            onClick={() => onSelect(index)}
+            className={cn(
+              "relative flex aspect-square items-center justify-center text-xl font-semibold transition-colors select-none sm:text-2xl",
+              "border-r border-b border-border/70",
+              c % 3 === 2 && c !== 8 && "border-r-2 border-r-foreground/55",
+              r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/55",
+              c === 8 && "border-r-0",
+              r === 8 && "border-b-0",
+              // Couleurs de fond selon l'état de la case.
+              !isSelected && !inScope && "bg-card",
+              !isSelected && inScope && "bg-secondary/60",
+              sameNumber && !isSelected && "bg-primary/15",
+              isSelected && "bg-primary/25",
+              // Chiffres donnés vs saisis.
+              isGiven ? "text-foreground" : "text-primary",
+              isWrong && "text-destructive",
+              isConflict && "text-destructive",
+              isFlashing && "animate-cell-flash",
+              !disabled && "cursor-pointer",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+            )}
+          >
+            {value !== 0 ? (
+              value
+            ) : notes[index].length > 0 ? (
+              <span className="grid h-full w-full grid-cols-3 grid-rows-3 p-0.5 text-[0.5rem] leading-none text-muted-foreground sm:text-[0.6rem]">
+                {Array.from({ length: 9 }, (_, n) => (
+                  <span key={n} className="flex items-center justify-center">
+                    {notes[index].includes(n + 1) ? n + 1 : ""}
+                  </span>
+                ))}
+              </span>
+            ) : null}
+          </button>
         )
       })}
     </div>

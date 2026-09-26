@@ -19,6 +19,7 @@
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
+  --color-flash: var(--flash);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
@@ -30,9 +31,6 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
-  --color-flash: var(--flash);
-  --color-scope: var(--scope);
-  --color-select: var(--select);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -69,15 +67,11 @@
   --input: #DFC9AE;
   --ring: #555934;
   --flash: #6E9B2E;
-  --frame-a: #8C5B3E;
-  --frame-b: #47301F;
-  --scope: #E4CDAE;
-  --select: #CBA57C;
   --chart-1: #555934;
   --chart-2: #8C5B3E;
-  --chart-3: #BF9B7A;
-  --chart-4: #593E2E;
-  --chart-5: #6E9B2E;
+  --chart-3: #CBA57C;
+  --chart-4: #7A5B45;
+  --chart-5: #C6382E;
   --radius: 0.75rem;
   --sidebar: #FBF6EF;
   --sidebar-foreground: #593E2E;
@@ -110,15 +104,11 @@
   --input: #43301F;
   --ring: #A7AD78;
   --flash: #9CCB55;
-  --frame-a: #7A5A3E;
-  --frame-b: #33241A;
-  --scope: #3C2A1F;
-  --select: #4E3626;
   --chart-1: #A7AD78;
-  --chart-2: #C9A27A;
-  --chart-3: #8C6B4F;
-  --chart-4: #F5EAD9;
-  --chart-5: #9CCB55;
+  --chart-2: #CBA57C;
+  --chart-3: #4E3626;
+  --chart-4: #C9B08A;
+  --chart-5: #E5695D;
   --sidebar: #2B1D15;
   --sidebar-foreground: #F5EAD9;
   --sidebar-primary: #A7AD78;
@@ -128,6 +118,7 @@
   --sidebar-border: #43301F;
   --sidebar-ring: #A7AD78;
 }
+
 
 @layer base {
   * {
@@ -172,11 +163,12 @@
 /* Effets "récompense" : complétion de ligne/colonne/bloc, chiffre épuisé,
    confettis de victoire, flamme de streak. */
 @keyframes cell-flash {
-  0% { background-color: color-mix(in srgb, var(--color-flash, #6E9B2E) 55%, var(--color-card, #fff)); }
-  100% { background-color: var(--color-card, #fff); }
+  0% { background-color: transparent; }
+  35% { background-color: color-mix(in srgb, var(--color-flash) 38%, transparent); }
+  100% { background-color: transparent; }
 }
 .animate-cell-flash {
-  animation: cell-flash 0.6s ease-out;
+  animation: cell-flash 0.85s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 @keyframes digit-pulse {
@@ -211,4 +203,65 @@
 }
 .animate-toast-in {
   animation: toast-in 0.25s ease-out;
+}
+
+/* Mise en forme du contenu des articles de blog (converti depuis Markdown). */
+.md-content {
+  color: var(--foreground);
+  line-height: 1.75;
+}
+.md-content > * + * {
+  margin-top: 1.1em;
+}
+.md-content h2 {
+  margin-top: 1.8em;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.md-content h3 {
+  margin-top: 1.5em;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.md-content p {
+  color: var(--foreground);
+}
+.md-content a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md-content ul,
+.md-content ol {
+  padding-left: 1.4em;
+}
+.md-content ul {
+  list-style: disc;
+}
+.md-content ol {
+  list-style: decimal;
+}
+.md-content li + li {
+  margin-top: 0.4em;
+}
+.md-content blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1em;
+  font-style: italic;
+  color: var(--muted-foreground);
+}
+.md-content img {
+  border-radius: var(--radius-lg);
+  width: 100%;
+  height: auto;
+}
+.md-content strong {
+  font-weight: 700;
+}
+.md-content code {
+  background: var(--muted);
+  padding: 0.15em 0.4em;
+  border-radius: 0.3em;
+  font-size: 0.9em;
 }

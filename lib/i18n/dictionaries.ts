@@ -2,7 +2,7 @@ export type Locale = "fr" | "en"
 export type Dictionary = typeof fr
 
 const fr = {
-    nav: { play: "Jouer", daily: "Défi du jour", rules: "Règles", techniques: "Techniques" },
+    nav: { play: "Jouer", daily: "Défi du jour", rules: "Règles", techniques: "Techniques", blog: "Blog" },
 
     footer: {
       tagline: "Le sudoku gratuit, sans inscription, généré à l'infini.",
@@ -77,6 +77,7 @@ const fr = {
       rankingRule: (penalty: number): string => `Classé par temps, +${penalty}s de pénalité par erreur`,
       noMistakesBadge: "Sans faute",
       mistakesCount: (n: number): string => `${n} erreur${n > 1 ? "s" : ""}`,
+      rankedTime: (t: string): string => `classé ${t} avec pénalités`,
       noDbNotice: "Le classement n'est pas encore actif sur ce site (base de données non connectée).",
       bannerText: "Le défi du jour vous attend — une seule grille, la même pour tout le monde.",
       bannerDismiss: "Masquer pour aujourd'hui",
@@ -234,7 +235,7 @@ const fr = {
 }
 
 const en: Dictionary = {
-    nav: { play: "Play", daily: "Daily challenge", rules: "Rules", techniques: "Techniques" },
+    nav: { play: "Play", daily: "Daily challenge", rules: "Rules", techniques: "Techniques", blog: "Blog" },
 
     footer: {
       tagline: "Free sudoku, no sign-up, endless unique puzzles.",
@@ -309,6 +310,7 @@ const en: Dictionary = {
       rankingRule: (penalty: number) => `Ranked by time, +${penalty}s penalty per mistake`,
       noMistakesBadge: "Flawless",
       mistakesCount: (n: number) => `${n} mistake${n > 1 ? "s" : ""}`,
+      rankedTime: (t: string) => `ranked ${t} with penalties`,
       noDbNotice: "The leaderboard isn't active on this site yet (no database connected).",
       bannerText: "Today's challenge is waiting — one single grid, the same for everyone.",
       bannerDismiss: "Hide for today",

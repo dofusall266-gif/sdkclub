@@ -29,6 +29,23 @@ function formatTime(total: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
 }
 
+/** Colonne de temps : le temps réel en gras, et — seulement s'il y a des
+ * erreurs — le temps "classé" (avec pénalité) juste en dessous, en petit.
+ * C'est ce qui rend la pénalité visible plutôt que purement théorique. */
+function TimeCell({ seconds, mistakes, penalty }: { seconds: number; mistakes: number; penalty: number }) {
+  const { t } = useLanguage()
+  return (
+    <div className="flex shrink-0 flex-col items-end">
+      <span className="font-semibold tabular-nums">{formatTime(seconds)}</span>
+      {mistakes > 0 && (
+        <span className="text-[0.65rem] tabular-nums text-muted-foreground">
+          {t.daily.rankedTime(formatTime(seconds + mistakes * penalty))}
+        </span>
+      )}
+    </div>
+  )
+}
+
 export function DailyLeaderboard({
   playerPseudo,
   playerId,
@@ -42,6 +59,7 @@ export function DailyLeaderboard({
   const [scores, setScores] = useState<ScoreRow[] | null>(null)
   const [me, setMe] = useState<MeRow | null>(null)
   const [noDb, setNoDb] = useState(false)
+  const [penalty, setPenalty] = useState(PENALTY_SECONDS_PER_MISTAKE)
 
   useEffect(() => {
     let cancelled = false
@@ -53,6 +71,7 @@ export function DailyLeaderboard({
         if (data.reason === "no-database") setNoDb(true)
         setScores(Array.isArray(data.scores) ? data.scores : [])
         setMe(data.me ?? null)
+        if (typeof data.penalty === "number") setPenalty(data.penalty)
       })
       .catch(() => {
         if (!cancelled) setScores([])
@@ -68,9 +87,7 @@ export function DailyLeaderboard({
   return (
     <div>
       <h2 className="text-lg font-bold">{t.daily.leaderboardTitle}</h2>
-      {!noDb && (
-        <p className="mt-0.5 text-xs text-muted-foreground">{t.daily.rankingRule(PENALTY_SECONDS_PER_MISTAKE)}</p>
-      )}
+      {!noDb && <p className="mt-0.5 text-xs text-muted-foreground">{t.daily.rankingRule(penalty)}</p>}
 
       {noDb && <p className="mt-3 text-sm text-muted-foreground">{t.daily.noDbNotice}</p>}
 
@@ -114,7 +131,7 @@ export function DailyLeaderboard({
                       <span className="shrink-0 text-xs text-muted-foreground">{t.daily.mistakesCount(row.mistakes)}</span>
                     )}
                   </div>
-                  <span className="shrink-0 font-semibold tabular-nums">{formatTime(row.seconds)}</span>
+                  <TimeCell seconds={row.seconds} mistakes={row.mistakes} penalty={penalty} />
                 </li>
               )
             })}
@@ -141,7 +158,7 @@ export function DailyLeaderboard({
                     <span className="shrink-0 text-xs text-muted-foreground">{t.daily.mistakesCount(me.mistakes)}</span>
                   )}
                 </div>
-                <span className="shrink-0 font-semibold tabular-nums">{formatTime(me.seconds)}</span>
+                <TimeCell seconds={me.seconds} mistakes={me.mistakes} penalty={penalty} />
               </div>
             </div>
           )}

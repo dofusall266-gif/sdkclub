@@ -67,7 +67,7 @@ export function DailyGame() {
     if (complete(box)) box.forEach((i) => newlyDone.add(i))
     if (newlyDone.size === 0) return
     setFlashIndices(newlyDone)
-    const timeout = setTimeout(() => setFlashIndices(new Set()), 600)
+    const timeout = setTimeout(() => setFlashIndices(new Set()), 900)
     return () => clearTimeout(timeout)
   }, [state.grid, state.solution])
 

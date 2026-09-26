@@ -32,6 +32,7 @@ export function SiteHeader() {
     { href: "/defi", label: t.nav.daily, dot: !dailyDone },
     { href: "/regles", label: t.nav.rules },
     { href: "/techniques", label: t.nav.techniques },
+    { href: "/blog", label: t.nav.blog },
   ]
 
   return (
