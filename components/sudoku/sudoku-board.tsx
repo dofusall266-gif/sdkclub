@@ -54,11 +54,13 @@ export function SudokuBoard({
         onClick={() => onSelect(index)}
         className={cn(
           "relative flex aspect-square items-center justify-center text-xl font-semibold transition-colors select-none sm:text-2xl",
-          // Couleurs de fond selon l'état de la case.
+          // Couleurs de fond pleines (jamais semi-transparentes : le cadre en
+          // dégradé derrière la grille ferait remonter du noir à travers une
+          // couleur translucide).
           !isSelected && !inScope && "bg-card",
-          !isSelected && inScope && "bg-secondary/60",
-          sameNumber && !isSelected && "bg-primary/15",
-          isSelected && "bg-primary/25",
+          !isSelected && inScope && "bg-scope",
+          sameNumber && !isSelected && "bg-select",
+          isSelected && "bg-select ring-2 ring-inset ring-primary",
           // Chiffres donnés vs saisis.
           isGiven ? "text-foreground" : "text-primary",
           isWrong && "text-destructive",

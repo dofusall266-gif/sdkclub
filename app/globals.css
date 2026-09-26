@@ -31,6 +31,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-flash: var(--flash);
+  --color-scope: var(--scope);
+  --color-select: var(--select);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -69,6 +71,8 @@
   --flash: #6E9B2E;
   --frame-a: #8C5B3E;
   --frame-b: #47301F;
+  --scope: #E4CDAE;
+  --select: #CBA57C;
   --chart-1: #555934;
   --chart-2: #8C5B3E;
   --chart-3: #BF9B7A;
@@ -108,6 +112,8 @@
   --flash: #9CCB55;
   --frame-a: #7A5A3E;
   --frame-b: #33241A;
+  --scope: #3C2A1F;
+  --select: #4E3626;
   --chart-1: #A7AD78;
   --chart-2: #C9A27A;
   --chart-3: #8C6B4F;
@@ -166,8 +172,8 @@
 /* Effets "récompense" : complétion de ligne/colonne/bloc, chiffre épuisé,
    confettis de victoire, flamme de streak. */
 @keyframes cell-flash {
-  0% { background-color: color-mix(in srgb, var(--color-flash, #6E9B2E) 45%, transparent); }
-  100% { background-color: transparent; }
+  0% { background-color: color-mix(in srgb, var(--color-flash, #6E9B2E) 55%, var(--color-card, #fff)); }
+  100% { background-color: var(--color-card, #fff); }
 }
 .animate-cell-flash {
   animation: cell-flash 0.6s ease-out;
