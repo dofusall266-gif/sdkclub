@@ -223,6 +223,17 @@ export function DailyGame() {
                       {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
                     </p>
                   )}
+
+                  {/* Classement directement dans l'écran de victoire : on vient de
+                      terminer, c'est le moment où on veut le voir, pas après avoir
+                      dû défiler en dehors de cette carte. */}
+                  <div className="mt-2 w-full max-w-xs text-left">
+                    <DailyLeaderboard
+                      playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
+                      playerId={getPlayerProfile()?.id ?? null}
+                      refreshKey={leaderboardKey}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -243,16 +254,18 @@ export function DailyGame() {
         <NumberPad remaining={remaining} disabled={paused || isOver} onInput={(n) => actions.input(n, notesMode)} />
       </div>
 
-      {/* Classement, toujours visible sous la grille (le formulaire de score, lui,
-          est directement dans l'écran de victoire ci-dessus, pour rester visible
-          sans avoir à défiler une fois la grille terminée). */}
-      <div className="lg:col-span-2">
-        <DailyLeaderboard
-          playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
-          playerId={getPlayerProfile()?.id ?? null}
-          refreshKey={leaderboardKey}
-        />
-      </div>
+      {/* Classement sous la grille : utile pour se situer avant de jouer. Une
+          fois la grille terminée, il est déjà affiché dans l'écran de victoire
+          ci-dessus (pas besoin de le dupliquer, ni de défiler pour le voir). */}
+      {!isOver && (
+        <div className="lg:col-span-2">
+          <DailyLeaderboard
+            playerPseudo={getPlayerProfile()?.pseudo ?? null}
+            playerId={getPlayerProfile()?.id ?? null}
+            refreshKey={leaderboardKey}
+          />
+        </div>
+      )}
 
       <div id="print-area" className="hidden print:block">
         <PrintableGrid grid={state.given} title={`Sudoku — ${t.daily.title}`} />

@@ -59,10 +59,10 @@ export function NumberPad({ remaining, disabled, onInput }: NumberPadProps) {
               )}
             >
               {n}
-              {/* Nombre d'occurrences restantes à placer (discret, en coin) — masqué sur la
-                  version 1×9 mobile, trop étroite pour l'accueillir lisiblement. */}
+              {/* Nombre d'occurrences restantes à placer (discret, en coin) — taille
+                  réduite sur la version 1×9 mobile, plus étroite. */}
               {!done && (
-                <span className="absolute top-1 right-1 hidden text-[0.65rem] font-medium leading-none text-primary/60 tabular-nums sm:block">
+                <span className="absolute top-0.5 right-0.5 text-[0.5rem] font-medium leading-none text-primary/60 tabular-nums sm:top-1 sm:right-1 sm:text-[0.65rem]">
                   {left}
                 </span>
               )}

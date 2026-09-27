@@ -7,6 +7,7 @@ import {
   type Grid,
   findConflicts,
   generatePuzzle,
+  groupIndices,
   isComplete,
 } from "@/lib/sudoku"
 import { readJSON, remove, writeJSON } from "@/lib/storage"
@@ -71,6 +72,19 @@ function snapshot(state: State): Snapshot {
   return { grid: [...state.grid], notes: state.notes.map((n) => [...n]) }
 }
 
+/** Quand on pose un vrai chiffre dans une case, ce chiffre n'est plus un
+ * candidat possible ailleurs dans sa ligne, sa colonne et son bloc 3×3 — on
+ * retire donc automatiquement l'annotation correspondante sur ces cases
+ * (mutation en place de `notes`, déjà une copie fraîche côté appelant). */
+function clearNotesInScope(notes: number[][], index: number, value: number): void {
+  const { row, col, box } = groupIndices(index)
+  for (const idx of new Set([...row, ...col, ...box])) {
+    if (idx !== index && notes[idx].includes(value)) {
+      notes[idx] = notes[idx].filter((v) => v !== value)
+    }
+  }
+}
+
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "new":
@@ -114,6 +128,7 @@ export function reducer(state: State, action: Action): State {
 
       grid[i] = action.value
       notes[i] = []
+      clearNotesInScope(notes, i, action.value)
 
       const wrong = state.solution[i] !== action.value
       const mistakes = wrong ? state.mistakes + 1 : state.mistakes
@@ -151,6 +166,7 @@ export function reducer(state: State, action: Action): State {
       const notes = state.notes.map((n) => [...n])
       grid[i] = state.solution[i]
       notes[i] = []
+      clearNotesInScope(notes, i, state.solution[i])
       const won = isComplete(grid) && grid.every((v, k) => v === state.solution[k])
       return { ...state, grid, notes, history, status: won ? "won" : "playing", running: won ? false : state.running }
     }
