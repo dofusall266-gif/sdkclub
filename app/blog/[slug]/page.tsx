@@ -33,7 +33,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     <PageLayout>
       <article className="mx-auto max-w-[42rem]">
         <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Retour au blog
+          ← Retour aux articles
         </Link>
 
         <header className="mt-4 mb-8">

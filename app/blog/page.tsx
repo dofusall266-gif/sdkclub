@@ -5,7 +5,7 @@ import { PageLayout } from "@/components/page-layout"
 import { getAllPosts, formatBlogDate } from "@/lib/blog"
 
 export const metadata: Metadata = {
-  title: "Blog — Histoire, techniques et bienfaits du sudoku",
+  title: "Articles — Histoire, techniques et bienfaits du sudoku",
   description:
     "Articles sur l'histoire du sudoku, ses techniques de résolution avancées (X-Wing, Swordfish...) et ses bienfaits pour le cerveau.",
   alternates: { canonical: "/blog" },
@@ -17,7 +17,7 @@ export default function BlogIndexPage() {
   return (
     <PageLayout>
       <header className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Blog</h1>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Articles</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           Histoire du sudoku, techniques de résolution avancées et bienfaits sur le cerveau.
         </p>

@@ -29,18 +29,18 @@ function formatTime(total: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
 }
 
-/** Colonne de temps : le temps réel en gras, et — seulement s'il y a des
- * erreurs — le temps "classé" (avec pénalité) juste en dessous, en petit.
- * C'est ce qui rend la pénalité visible plutôt que purement théorique. */
+/** Colonne de temps : le temps CORRIGÉ (celui qui sert réellement au
+ * classement, pénalité incluse) affiché en gras — c'est la valeur qui compte
+ * pour la compétition. Le temps réel, sans pénalité, reste visible juste en
+ * dessous en plus petit, seulement si les deux diffèrent. */
 function TimeCell({ seconds, mistakes, penalty }: { seconds: number; mistakes: number; penalty: number }) {
   const { t } = useLanguage()
+  const effective = seconds + mistakes * penalty
   return (
     <div className="flex shrink-0 flex-col items-end">
-      <span className="font-semibold tabular-nums">{formatTime(seconds)}</span>
+      <span className="font-semibold tabular-nums">{formatTime(effective)}</span>
       {mistakes > 0 && (
-        <span className="text-[0.65rem] tabular-nums text-muted-foreground">
-          {t.daily.rankedTime(formatTime(seconds + mistakes * penalty))}
-        </span>
+        <span className="text-[0.65rem] tabular-nums text-muted-foreground">{t.daily.realTime(formatTime(seconds))}</span>
       )}
     </div>
   )
@@ -128,7 +128,7 @@ export function DailyLeaderboard({
                         <Sparkles className="size-2.5" /> {t.daily.noMistakesBadge}
                       </span>
                     ) : (
-                      <span className="shrink-0 text-xs text-muted-foreground">{t.daily.mistakesCount(row.mistakes)}</span>
+                      <span className="shrink-0 text-xs font-medium text-destructive">{t.daily.mistakesCount(row.mistakes)}</span>
                     )}
                   </div>
                   <TimeCell seconds={row.seconds} mistakes={row.mistakes} penalty={penalty} />
@@ -155,7 +155,7 @@ export function DailyLeaderboard({
                       <Sparkles className="size-2.5" /> {t.daily.noMistakesBadge}
                     </span>
                   ) : (
-                    <span className="shrink-0 text-xs text-muted-foreground">{t.daily.mistakesCount(me.mistakes)}</span>
+                    <span className="shrink-0 text-xs font-medium text-destructive">{t.daily.mistakesCount(me.mistakes)}</span>
                   )}
                 </div>
                 <TimeCell seconds={me.seconds} mistakes={me.mistakes} penalty={penalty} />

@@ -20,6 +20,7 @@ export function SiteFooter() {
     { href: "/", label: t.footer.play },
     { href: "/regles", label: t.footer.rules },
     { href: "/techniques", label: t.footer.techniques },
+    { href: "/blog", label: t.nav.blog },
   ]
 
   return (

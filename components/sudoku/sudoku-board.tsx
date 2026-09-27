@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useRef } from "react"
+
 import { colOf, rowOf, type Grid } from "@/lib/sudoku"
 import { cn } from "@/lib/utils"
 
@@ -31,6 +33,16 @@ export function SudokuBoard({
   const selCol = selected !== null ? colOf(selected) : -1
   const selValue = selected !== null ? grid[selected] : 0
 
+  // Le focus réel du navigateur (celui qui dessine l'anneau de sélection via
+  // :focus-visible) ne bouge pas tout seul quand on change de case au clavier
+  // (les flèches déplacent l'état React `selected`, pas le focus DOM). Sans ce
+  // recalage, l'anneau restait visuellement "collé" sur la dernière case
+  // cliquée à la souris pendant qu'on naviguait ailleurs au clavier.
+  const cellRefs = useRef<Array<HTMLButtonElement | null>>([])
+  useEffect(() => {
+    if (selected !== null) cellRefs.current[selected]?.focus({ preventScroll: true })
+  }, [selected])
+
   return (
     <div
       className="grid aspect-square w-full grid-cols-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm"
@@ -51,6 +63,9 @@ export function SudokuBoard({
         return (
           <button
             key={index}
+            ref={(el) => {
+              cellRefs.current[index] = el
+            }}
             type="button"
             role="gridcell"
             disabled={disabled}

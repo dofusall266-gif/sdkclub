@@ -212,6 +212,10 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
   const [state, dispatch] = useReducer(reducer, resumedRef.current)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const wonTrackedRef = useRef(false)
+  // Grille présente au tout premier rendu (potentiellement une reprise) : sert
+  // uniquement à ne jamais re-compter une partie déjà en cours avant ce chargement.
+  const initialGivenRef = useRef(resumedRef.current.given)
+  const startTrackedGivenRef = useRef<Grid | null>(null)
 
   useEffect(() => {
     intervalRef.current = setInterval(() => dispatch({ type: "tick" }), 1000)
@@ -220,13 +224,20 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
     }
   }, [])
 
-  // Grille initiale au chargement du composant : comptée comme "partie lancée"
-  // seulement si c'est une toute nouvelle grille (pas une reprise), sinon une
-  // simple visite gonflerait artificiellement les statistiques.
+  // "Partie lancée" côté statistiques : compté seulement une fois qu'au moins
+  // 2 chiffres ont été placés (pas à la simple ouverture d'une grille), pour ne
+  // pas gonfler les stats avec de simples visites sans réelle interaction. Ne
+  // s'applique jamais à la grille reprise au chargement (déjà comptée, le cas
+  // échéant, lors de la session où elle a été commencée).
   useEffect(() => {
-    if (!wasResumedRef.current) track("game_started", initialDifficulty)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (state.given === initialGivenRef.current && wasResumedRef.current) return
+    if (startTrackedGivenRef.current === state.given) return
+    const filled = state.grid.reduce((n, v, i) => n + (state.given[i] === 0 && v !== 0 ? 1 : 0), 0)
+    if (filled >= 2) {
+      startTrackedGivenRef.current = state.given
+      track("game_started", state.difficulty)
+    }
+  }, [state.grid, state.given, state.difficulty])
 
   // Sauvegarde continue de la partie en cours (persistance locale).
   useEffect(() => {
@@ -265,7 +276,6 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
 
   const newGame = useCallback((difficulty: Difficulty) => {
     dispatch({ type: "new", difficulty })
-    track("game_started", difficulty)
   }, [])
   const select = useCallback((index: number) => dispatch({ type: "select", index }), [])
   const input = useCallback((value: number, notesMode: boolean) => dispatch({ type: "input", value, notesMode }), [])
