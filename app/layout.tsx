@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { Suspense } from "react"
 
+import { CookieConsent } from "@/components/cookie-consent"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { LanguageProvider } from "@/lib/i18n/context"
 import { SiteFooter } from "@/components/site-footer"
@@ -48,9 +49,12 @@ export default function RootLayout({
       <head>
         {/*
           Google Consent Mode v2 : par défaut, tout est refusé (aucun cookie pub/analytics
-          n'est posé) tant que l'utilisateur n'a pas répondu au bandeau de consentement
-          Google (configuré dans AdSense > Confidentialité et messages). Ce bandeau met
-          ensuite ce signal à jour automatiquement via gtag('consent', 'update', ...).
+          n'est réellement posé) tant que l'utilisateur n'a pas répondu à NOTRE bandeau
+          (components/cookie-consent.tsx, affiché ci-dessous). C'est ce bandeau, et lui
+          seul, qui met ce signal à jour via gtag('consent', 'update', ...) — voir
+          lib/consent.ts. Important : si un bandeau de consentement Google est activé
+          dans AdSense > Confidentialité et messages, désactivez-le pour éviter d'en
+          afficher deux aux visiteurs.
         */}
         <Script id="consent-default" strategy="beforeInteractive">
           {`
@@ -82,6 +86,7 @@ export default function RootLayout({
               <SiteFooter />
             </div>
             <GoogleAnalytics />
+            <CookieConsent />
           </ThemeProvider>
         </LanguageProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}

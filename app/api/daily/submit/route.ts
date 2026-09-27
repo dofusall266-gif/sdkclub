@@ -61,11 +61,16 @@ export async function POST(req: Request) {
 
   try {
     await ensureDailyScoresTable(sql)
+    // Le défi n'est censé être joué qu'une fois, mais un double envoi (double
+    // clic, requête réseau relancée) reste possible : on ne garde alors que
+    // la meilleure tentative EN ENTIER (temps + erreurs ensemble), jamais un
+    // mélange du temps d'une tentative et des erreurs d'une autre.
     await sql`
       INSERT INTO daily_scores (date, player_id, pseudo, country_code, seconds, mistakes)
       VALUES (${date}, ${playerId}, ${pseudo}, ${countryCode}, ${seconds}, ${mistakes})
       ON CONFLICT (date, player_id) DO UPDATE SET
-        seconds = LEAST(daily_scores.seconds, EXCLUDED.seconds),
+        seconds = CASE WHEN EXCLUDED.seconds < daily_scores.seconds THEN EXCLUDED.seconds ELSE daily_scores.seconds END,
+        mistakes = CASE WHEN EXCLUDED.seconds < daily_scores.seconds THEN EXCLUDED.mistakes ELSE daily_scores.mistakes END,
         pseudo = EXCLUDED.pseudo,
         country_code = EXCLUDED.country_code
     `

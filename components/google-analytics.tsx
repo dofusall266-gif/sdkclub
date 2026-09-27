@@ -1,17 +1,27 @@
 "use client"
 
 import Script from "next/script"
+import { useEffect } from "react"
+
+import { reapplyStoredConsent } from "@/lib/consent"
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
 /**
  * Charge Google Analytics (gtag.js) si l'identifiant de mesure (NEXT_PUBLIC_GA_ID)
  * est configuré. Le respect du consentement est géré par Google Consent Mode v2
- * (voir app/layout.tsx + le bandeau CMP configuré dans AdSense) : tant que
- * l'utilisateur n'a pas accepté, aucun cookie analytics n'est réellement posé,
- * même si ce script est chargé.
+ * (défaut "denied" posé dans app/layout.tsx, mis à jour par notre bandeau
+ * cookies — voir components/cookie-consent.tsx) : tant que l'utilisateur n'a
+ * pas accepté, aucun cookie analytics n'est réellement posé, même si ce
+ * script est chargé.
  */
 export function GoogleAnalytics() {
+  // Visiteur qui revient et avait déjà fait un choix : on le réapplique
+  // (Consent Mode repart sinon toujours à "denied" par défaut à chaque page).
+  useEffect(() => {
+    reapplyStoredConsent()
+  }, [])
+
   if (!GA_ID) return null
 
   return (

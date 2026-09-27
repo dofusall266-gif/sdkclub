@@ -13,8 +13,9 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url)
   // Uniquement le jour courant pour l'instant : évite d'exposer une API de
-  // requête libre sur des dates arbitraires.
-  const date = url.searchParams.get("date") === todayKey() ? todayKey() : todayKey()
+  // requête libre sur des dates arbitraires (le paramètre "date" éventuel
+  // dans l'URL est donc ignoré).
+  const date = todayKey()
   const playerId = url.searchParams.get("playerId")?.slice(0, 64) ?? null
   const penalty = PENALTY_SECONDS_PER_MISTAKE
 

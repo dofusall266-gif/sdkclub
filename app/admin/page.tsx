@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto"
+
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
@@ -13,13 +15,19 @@ export const metadata: Metadata = {
 
 const COOKIE_NAME = "sc_admin_auth"
 
+/** Empreinte du mot de passe admin : on ne met jamais le mot de passe lui-même
+ * dans le cookie, seulement ce hash, pour rien exposer s'il fuit un jour. */
+function hashPassword(password: string): string {
+  return createHash("sha256").update(password).digest("hex")
+}
+
 async function login(formData: FormData) {
   "use server"
   const password = String(formData.get("password") ?? "")
   const expected = process.env.ADMIN_PASSWORD
   if (expected && password === expected) {
     const cookieStore = await cookies()
-    cookieStore.set(COOKIE_NAME, expected, {
+    cookieStore.set(COOKIE_NAME, hashPassword(expected), {
       httpOnly: true,
       sameSite: "lax",
       path: "/admin",
@@ -37,7 +45,7 @@ async function logout() {
 async function checkAuthed() {
   const cookieStore = await cookies()
   const expected = process.env.ADMIN_PASSWORD
-  return Boolean(expected) && cookieStore.get(COOKIE_NAME)?.value === expected
+  return Boolean(expected) && cookieStore.get(COOKIE_NAME)?.value === hashPassword(expected)
 }
 
 /** Vide la table des événements (parties jouées). Ne touche pas au classement du défi du jour. */

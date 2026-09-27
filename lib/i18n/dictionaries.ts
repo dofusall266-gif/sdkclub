@@ -177,10 +177,13 @@ const fr = {
       emailLabel: "Adresse e-mail",
       messageLabel: "Message",
       send: "Envoyer le message",
-      sentTitle: "Message envoyé !",
-      sentText: "Merci de nous avoir contactés. Nous reviendrons vers vous dès que possible.",
+      sentTitle: "Votre messagerie a dû s'ouvrir",
+      sentText:
+        "Une fenêtre pré-remplie a dû s'ouvrir dans votre logiciel de messagerie : il ne reste plus qu'à cliquer sur \"Envoyer\". Si rien ne s'est ouvert, écrivez-nous directement à l'adresse ci-dessous, ou copiez votre message.",
       sendAnother: "Envoyer un autre message",
       directEmail: "Vous pouvez aussi nous écrire directement à",
+      copyMessage: "Copier mon message",
+      copied: "Message copié !",
     },
 
     legal: {
@@ -414,10 +417,13 @@ const en: Dictionary = {
       emailLabel: "Email address",
       messageLabel: "Message",
       send: "Send message",
-      sentTitle: "Message sent!",
-      sentText: "Thanks for reaching out. We'll get back to you as soon as possible.",
+      sentTitle: "Your mail app should have opened",
+      sentText:
+        "A pre-filled message should have opened in your email app: all that's left is to hit \"Send\". If nothing opened, write to us directly at the address below, or copy your message.",
       sendAnother: "Send another message",
       directEmail: "You can also write to us directly at",
+      copyMessage: "Copy my message",
+      copied: "Message copied!",
     },
 
     legal: {

@@ -47,8 +47,13 @@ export function useDailyGame() {
     writeJSON(storageKey(dateKey), state)
   }, [state, dateKey])
 
+  // Pause automatique au changement d'onglet, jamais de reprise automatique
+  // (voir la même logique dans components/sudoku/use-sudoku.ts) : une pause
+  // volontaire du joueur ne doit pas être écrasée à son retour sur l'onglet.
   useEffect(() => {
-    const onVisibility = () => dispatch({ type: "toggleRunning", running: !document.hidden })
+    const onVisibility = () => {
+      if (document.hidden) dispatch({ type: "toggleRunning", running: false })
+    }
     document.addEventListener("visibilitychange", onVisibility)
     return () => document.removeEventListener("visibilitychange", onVisibility)
   }, [])

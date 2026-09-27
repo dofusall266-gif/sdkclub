@@ -273,10 +273,13 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
     if (state.status === "playing") wonTrackedRef.current = false
   }, [state.status, state.difficulty, state.seconds, state.mistakes])
 
-  // Met le minuteur en pause lorsque l'onglet n'est plus visible.
+  // Met le minuteur en pause lorsque l'onglet n'est plus visible. On ne fait
+  // JAMAIS repartir automatiquement au retour sur l'onglet : si le joueur
+  // avait mis pause volontairement avant de changer d'onglet, ce choix doit
+  // être respecté — c'est à lui de cliquer "reprendre".
   useEffect(() => {
     const onVisibility = () => {
-      dispatch({ type: "toggleRunning", running: !document.hidden })
+      if (document.hidden) dispatch({ type: "toggleRunning", running: false })
     }
     document.addEventListener("visibilitychange", onVisibility)
     return () => document.removeEventListener("visibilitychange", onVisibility)
