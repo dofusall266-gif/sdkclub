@@ -80,7 +80,6 @@ export const COUNTRIES: Country[] = [
   { code: "EC", fr: "Équateur", en: "Ecuador" },
   { code: "EE", fr: "Estonie", en: "Estonia" },
   { code: "EG", fr: "Égypte", en: "Egypt" },
-  { code: "EH", fr: "Sahara occidental", en: "Western Sahara" },
   { code: "ER", fr: "Érythrée", en: "Eritrea" },
   { code: "ES", fr: "Espagne", en: "Spain" },
   { code: "ET", fr: "Éthiopie", en: "Ethiopia" },

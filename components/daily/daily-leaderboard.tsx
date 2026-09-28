@@ -46,6 +46,60 @@ function TimeCell({ seconds, mistakes, penalty }: { seconds: number; mistakes: n
   )
 }
 
+/** Pastille "sans faute" / "N erreurs". Sous le pseudo (et non à côté), pour
+ * que le pseudo garde toute la largeur disponible sur petit écran. */
+function MistakesBadge({ mistakes }: { mistakes: number }) {
+  const { t } = useLanguage()
+  if (mistakes === 0) {
+    return (
+      <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.65rem] font-semibold text-primary">
+        <Sparkles className="size-2.5" /> {t.daily.noMistakesBadge}
+      </span>
+    )
+  }
+  return <span className="text-xs font-medium text-destructive">{t.daily.mistakesCount(mistakes)}</span>
+}
+
+/** Une ligne du classement. Deux lignes de texte dans le bloc identité :
+ * pseudo (tronqué seulement s'il dépasse vraiment la largeur) puis erreurs. */
+function ScoreLine({
+  rank,
+  row,
+  penalty,
+  isYou,
+  highlightRank,
+}: {
+  rank: number
+  row: { pseudo: string; country_code: string | null; seconds: number; mistakes: number }
+  penalty: number
+  isYou: boolean
+  highlightRank?: boolean
+}) {
+  const { t } = useLanguage()
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <span
+          className={cn(
+            "w-6 shrink-0 text-right font-semibold tabular-nums",
+            highlightRank ? "text-primary" : "text-muted-foreground",
+          )}
+        >
+          {rank}
+        </span>
+        <span className="text-lg leading-none">{row.country_code ? countryFlag(row.country_code) : "🏳️"}</span>
+        <div className="flex min-w-0 flex-col items-start gap-0.5">
+          <span className="max-w-full truncate font-medium">
+            {row.pseudo} {isYou && <span className="text-xs text-primary">({t.daily.you})</span>}
+          </span>
+          <MistakesBadge mistakes={row.mistakes} />
+        </div>
+      </div>
+      <TimeCell seconds={row.seconds} mistakes={row.mistakes} penalty={penalty} />
+    </div>
+  )
+}
+
 export function DailyLeaderboard({
   playerPseudo,
   playerId,
@@ -109,29 +163,8 @@ export function DailyLeaderboard({
             {scores.map((row, i) => {
               const isYou = playerPseudo !== null && row.pseudo === playerPseudo && !showMeSeparately
               return (
-                <li
-                  key={`${row.pseudo}-${i}`}
-                  className={cn("flex items-center justify-between gap-3 px-4 py-2.5 text-sm", isYou && "bg-primary/10")}
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="w-6 shrink-0 text-right font-semibold tabular-nums text-muted-foreground">
-                      {i + 1}
-                    </span>
-                    <span className="text-lg leading-none">
-                      {row.country_code ? countryFlag(row.country_code) : "🏳️"}
-                    </span>
-                    <span className="truncate font-medium">
-                      {row.pseudo} {isYou && <span className="text-xs text-primary">({t.daily.you})</span>}
-                    </span>
-                    {row.mistakes === 0 ? (
-                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.65rem] font-semibold text-primary">
-                        <Sparkles className="size-2.5" /> {t.daily.noMistakesBadge}
-                      </span>
-                    ) : (
-                      <span className="shrink-0 text-xs font-medium text-destructive">{t.daily.mistakesCount(row.mistakes)}</span>
-                    )}
-                  </div>
-                  <TimeCell seconds={row.seconds} mistakes={row.mistakes} penalty={penalty} />
+                <li key={`${row.pseudo}-${i}`} className={cn(isYou && "bg-primary/10")}>
+                  <ScoreLine rank={i + 1} row={row} penalty={penalty} isYou={isYou} />
                 </li>
               )
             })}
@@ -141,25 +174,7 @@ export function DailyLeaderboard({
               rang exact, pour qu'il puisse se situer et revenir faire mieux. */}
           {showMeSeparately && me && (
             <div className="mt-2 overflow-hidden rounded-xl border border-primary/30 bg-primary/5">
-              <div className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="w-6 shrink-0 text-right font-semibold tabular-nums text-primary">{me.rank}</span>
-                  <span className="text-lg leading-none">
-                    {me.country_code ? countryFlag(me.country_code) : "🏳️"}
-                  </span>
-                  <span className="truncate font-medium">
-                    {me.pseudo} <span className="text-xs text-primary">({t.daily.you})</span>
-                  </span>
-                  {me.mistakes === 0 ? (
-                    <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.65rem] font-semibold text-primary">
-                      <Sparkles className="size-2.5" /> {t.daily.noMistakesBadge}
-                    </span>
-                  ) : (
-                    <span className="shrink-0 text-xs font-medium text-destructive">{t.daily.mistakesCount(me.mistakes)}</span>
-                  )}
-                </div>
-                <TimeCell seconds={me.seconds} mistakes={me.mistakes} penalty={penalty} />
-              </div>
+              <ScoreLine rank={me.rank} row={me} penalty={penalty} isYou highlightRank />
             </div>
           )}
         </>
