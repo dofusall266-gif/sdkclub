@@ -22,6 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+const SITE_URL = "https://sudoku-club.com"
+
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = getPostBySlug(slug)
@@ -29,8 +31,26 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const html = marked.parse(post.content, { async: false }) as string
 
+  // Données structurées (schema.org/BlogPosting) : aident Google (rich results)
+  // et les moteurs de réponse basés sur l'IA (ChatGPT, Perplexity, AI Overviews...)
+  // à comprendre et citer correctement l'article — invisible pour le lecteur.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    dateModified: post.date,
+    inLanguage: "fr-FR",
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${post.slug}` },
+    author: { "@type": "Organization", name: "Sudoku Club", url: SITE_URL },
+    publisher: { "@type": "Organization", name: "Sudoku Club", url: SITE_URL },
+    ...(post.category ? { articleSection: post.category } : {}),
+  }
+
   return (
     <PageLayout>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className="mx-auto max-w-[42rem]">
         <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
           ← Retour aux articles

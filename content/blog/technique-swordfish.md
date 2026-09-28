@@ -5,6 +5,8 @@ excerpt: "Sur les grilles les plus difficiles, même le X-Wing ne suffit plus. L
 category: "Technique"
 ---
 
+**En résumé** : le Swordfish étend le principe du X-Wing à trois lignes et trois colonnes au lieu de deux — dès que trois lignes contiennent un même chiffre limité à un total de trois colonnes, ce chiffre peut être éliminé partout ailleurs dans ces trois colonnes.
+
 Si vous avez déjà pris l'habitude de repérer des [X-Wing](/blog/technique-x-wing) dans vos grilles, le **Swordfish** ne devrait pas vous dépayser : c'est exactement le même principe logique, simplement étendu de deux à trois lignes (ou colonnes). C'est une des techniques les plus avancées qu'on puisse rencontrer sur une grille **Expert**, et elle suffit souvent, à elle seule, à débloquer une grille qui semblait complètement figée.
 
 ## Rappel rapide du principe du X-Wing
@@ -43,4 +45,15 @@ Le Swordfish a mauvaise réputation parce qu'il demande de suivre trois lignes e
 
 Le même principe peut théoriquement continuer avec quatre lignes et quatre colonnes (une technique appelée *Jellyfish*), mais ces configurations deviennent extrêmement rares en pratique — la plupart des grilles, même en difficulté Expert, se résolvent sans jamais avoir besoin d'aller au-delà du Swordfish. Si vous maîtrisez le X-Wing et le Swordfish, vous disposez déjà des deux techniques les plus utiles pour venir à bout des grilles les plus exigeantes.
 
-Retrouvez toutes nos autres techniques de résolution, du niveau débutant au niveau expert, sur notre [page dédiée aux techniques](/techniques).
+## Questions fréquentes
+
+**Le Swordfish nécessite-t-il que les trois lignes aient chacune trois candidats ?**
+Non. Chaque ligne peut n'avoir que 2 ou 3 candidats — ce qui compte, c'est que l'ensemble des colonnes couvertes par les trois lignes ne dépasse pas trois colonnes au total.
+
+**Le Swordfish est-il plus rare que le X-Wing ?**
+Oui, nettement — il demande une configuration plus spécifique. Mais sur des grilles Expert, il suffit souvent, à lui seul, à débloquer une grille qui semblait figée.
+
+**Existe-t-il une technique encore plus avancée ?**
+Oui, le *Jellyfish* (quatre lignes et quatre colonnes), mais il reste extrêmement rare en pratique — le Swordfish couvre déjà la grande majorité des cas.
+
+Retrouvez toutes nos autres techniques de résolution, du niveau débutant au niveau expert, sur notre [page dédiée aux techniques](/techniques), et entraînez-vous directement sur une [grille Expert](/jouer?niveau=expert).

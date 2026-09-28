@@ -5,6 +5,8 @@ excerpt: "Le sudoku traîne une réputation de passe-temps pour retraités. C'es
 category: "Santé"
 ---
 
+**En résumé** : le sudoku n'est pas réservé aux retraités — ses vrais atouts (structure, objectif clair, déconnexion des écrans passifs) profitent à n'importe quel âge, et aucune expérience préalable n'est nécessaire pour commencer.
+
 Le sudoku a une image bien ancrée : celle du jeu qu'on associe aux salles d'attente, aux trajets en train, à une génération plutôt qu'à une autre. Cette image n'est pas totalement fausse — beaucoup de retraités y trouvent effectivement une occupation quotidienne appréciée. Mais la réduire à ça serait passer à côté de ce qui en fait, à tout âge, un jeu particulièrement bien conçu.
 
 ## Pourquoi le sudoku plaît particulièrement après la retraite
@@ -28,3 +30,14 @@ On lit parfois que le sudoku « préviendrait » le déclin cognitif lié à l'�
 La meilleure nouvelle, c'est qu'il n'est jamais ni trop tôt ni trop tard pour s'y mettre. Le sudoku ne demande aucune connaissance préalable, aucun vocabulaire, aucune culture générale particulière — seulement la logique, qui se réapprend et se muscle à tout âge, à son propre rythme. Commencez par une grille **Facile**, sans chronomètre, sans objectif de performance ; la vitesse et les techniques avancées viennent naturellement avec la pratique, jamais l'inverse.
 
 Si vous n'avez jamais joué ou que les règles vous semblent encore floues, notre page [Comment jouer au sudoku](/regles) explique tout, pas à pas, avec une courte vidéo — de quoi être prêt à poser votre premier chiffre en quelques minutes, quel que soit votre âge.
+
+## Questions fréquentes
+
+**Y a-t-il un âge idéal pour commencer le sudoku ?**
+Non — les enfants dès qu'ils maîtrisent les chiffres, comme les adultes de tout âge, peuvent commencer directement en niveau Facile, sans connaissance préalable requise.
+
+**Le sudoku est-il seulement pour les seniors ?**
+Non, c'est une idée reçue. Les compétitions internationales sont d'ailleurs largement dominées par de jeunes solveurs — la vitesse de résolution demande une agilité mentale qui n'a rien d'un exercice « de fin de carrière ».
+
+**Par quel niveau commencer ?**
+Une grille **Facile**, sans chronomètre ni objectif de performance. [Essayez-en une gratuitement](/jouer) pour voir où vous en êtes.

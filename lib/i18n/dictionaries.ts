@@ -18,6 +18,7 @@ const fr = {
       privacy: "Politique de confidentialité",
       legal: "Mentions légales",
       contact: "Contact",
+      youtube: "Notre chaîne YouTube",
       rights: "Tous droits réservés.",
     },
 
@@ -258,6 +259,7 @@ const en: Dictionary = {
       privacy: "Privacy policy",
       legal: "Legal notice",
       contact: "Contact",
+      youtube: "Our YouTube channel",
       rights: "All rights reserved.",
     },
 
