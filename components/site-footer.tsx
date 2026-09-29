@@ -1,6 +1,6 @@
 "use client"
 
-import { Mail } from "lucide-react"
+import { Mail, Play } from "lucide-react"
 import Link from "next/link"
 
 import { SudokuLogo } from "@/components/sudoku-logo"
@@ -11,7 +11,6 @@ export function SiteFooter() {
   const { t } = useLanguage()
 
   const legalLinks = [
-    { href: "/a-propos", label: t.footer.about },
     { href: "/politique-de-confidentialite", label: t.footer.privacy },
     { href: "/mentions-legales", label: t.footer.legal },
     { href: "/contact", label: t.footer.contact },
@@ -41,6 +40,15 @@ export function SiteFooter() {
           >
             <Mail className="size-4" />
             {CONTACT_EMAIL}
+          </a>
+          <a
+            href="https://www.youtube.com/@StudyMd667"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Play className="size-4" />
+            {t.footer.youtube}
           </a>
         </div>
 

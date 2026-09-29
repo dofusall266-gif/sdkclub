@@ -21,13 +21,23 @@ export const metadata: Metadata = {
     "Jouez au sudoku gratuitement en ligne : grilles uniques, 4 niveaux de difficulté, minuteur, indices et impression PDF. Optimisé pour mobile.",
   keywords: ["sudoku", "sudoku en ligne", "sudoku gratuit", "jeu de sudoku", "grille de sudoku", "sudoku à imprimer"],
   generator: "v0.app",
+  // Aperçu de lien (X, WhatsApp, Discord…) : les robots ne lisent pas le
+  // sélecteur de langue, donc titre/description bilingues ici. L'image est
+  // générée par app/opengraph-image.tsx et app/twitter-image.tsx.
   openGraph: {
     type: "website",
     locale: "fr_FR",
+    alternateLocale: ["en_US"],
     siteName: "Sudoku Club",
-    title: "Sudoku Club — Jouer au sudoku gratuit en ligne",
+    title: "Sudoku Club — Free online Sudoku · Sudoku gratuit en ligne",
     description:
-      "Jouez au sudoku gratuitement en ligne : grilles uniques, 4 niveaux de difficulté, minuteur, indices et impression PDF.",
+      "Play free Sudoku online: unlimited puzzles, 4 difficulty levels, daily challenge, no sign-up. Jouez au sudoku gratuitement en ligne.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sudoku Club — Free online Sudoku · Sudoku gratuit en ligne",
+    description:
+      "Play free Sudoku online: unlimited puzzles, 4 difficulty levels, daily challenge, no sign-up. Jouez au sudoku gratuitement en ligne.",
   },
 }
 

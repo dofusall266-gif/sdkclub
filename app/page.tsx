@@ -14,14 +14,13 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  const latestPostsFr = getAllPosts("fr").slice(0, 3)
-  const latestPostsEn = getAllPosts("en").slice(0, 3)
+  const latestPosts = getAllPosts().slice(0, 3)
 
   return (
     <GamePageLayout>
       <DailyBanner />
       <SudokuGame />
-      <BlogTeaser fr={latestPostsFr} en={latestPostsEn} />
+      <BlogTeaser posts={latestPosts} />
     </GamePageLayout>
   )
 }

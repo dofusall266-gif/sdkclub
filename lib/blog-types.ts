@@ -11,22 +11,8 @@ export interface BlogPostMeta {
   category: string
 }
 
-export interface FaqItem {
-  q: string
-  a: string
-}
-
 export interface BlogPost extends BlogPostMeta {
   content: string
-  /** Questions/réponses déclarées dans le frontmatter (champ `faq:`), affichées
-   * à part du corps de l'article plutôt qu'au fil du texte. */
-  faq: FaqItem[]
-}
-
-/** Enrobe chaque <table> générée par le markdown dans un conteneur scrollable
- * horizontalement, pour ne jamais casser la mise en page sur mobile. */
-export function wrapTablesForScroll(html: string): string {
-  return html.replace(/<table>/g, '<div class="table-scroll"><table>').replace(/<\/table>/g, "</table></div>")
 }
 
 export function formatBlogDate(dateStr: string, locale: "fr" | "en"): string {

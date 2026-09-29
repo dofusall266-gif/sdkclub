@@ -3,13 +3,6 @@ title: "La technique du X-Wing en sudoku : comment l'utiliser (avec exemple)"
 date: "2026-03-10"
 excerpt: "Bloqué sur une grille difficile alors que toutes les techniques de base sont épuisées ? Le X-Wing est souvent la clé. Explication pas à pas, avec un exemple concret."
 category: "Technique"
-faq:
-  - q: "Le X-Wing fonctionne-t-il avec n'importe quel chiffre ?"
-    a: "Oui, mais un seul chiffre à la fois : c'est en cherchant candidat par candidat (1, puis 2, puis 3...) qu'on repère un X-Wing, jamais en regardant plusieurs chiffres en même temps."
-  - q: "Le X-Wing garantit-il de résoudre une case immédiatement ?"
-    a: "Pas forcément. Il élimine des candidats, ce qui débloque souvent — mais pas toujours instantanément — une autre case par simple élimination juste après."
-  - q: "Quelle technique apprendre après le X-Wing ?"
-    a: "Le Swordfish, qui applique exactement le même raisonnement à trois lignes et trois colonnes."
 ---
 
 **En résumé** : le X-Wing permet d'éliminer un candidat quand un même chiffre n'a que deux emplacements possibles dans deux lignes, situés exactement dans les deux mêmes colonnes (ou inversement, par colonnes). Ce verrouillage force à retirer ce candidat de tout le reste de ces deux colonnes.
@@ -57,5 +50,16 @@ En pratique, repérer un X-Wing à l'œil nu sur une grille complète peut être
 ## Une technique à combiner avec d'autres
 
 Le X-Wing fait partie d'une famille de techniques dites « à motifs de verrouillage » (*locked candidates*), aux côtés de techniques encore plus avancées comme le [**Swordfish**](/blog/technique-swordfish) — son grand frère, qui applique le même principe à trois lignes et trois colonnes à la fois plutôt que deux. Si le X-Wing devient un réflexe, le Swordfish sera beaucoup plus facile à comprendre.
+
+## Questions fréquentes
+
+**Le X-Wing fonctionne-t-il avec n'importe quel chiffre ?**
+Oui, mais un seul chiffre à la fois : c'est en cherchant candidat par candidat (1, puis 2, puis 3...) qu'on repère un X-Wing, jamais en regardant plusieurs chiffres en même temps.
+
+**Le X-Wing garantit-il de résoudre une case immédiatement ?**
+Pas forcément. Il élimine des candidats, ce qui débloque souvent — mais pas toujours instantanément — une autre case par simple élimination juste après.
+
+**Quelle technique apprendre après le X-Wing ?**
+Le [Swordfish](/blog/technique-swordfish), qui applique exactement le même raisonnement à trois lignes et trois colonnes.
 
 Retrouvez d'autres techniques de résolution, du niveau débutant au niveau expert, sur notre [page dédiée aux techniques](/techniques), et mettez-les en pratique sur une [grille Expert](/jouer?niveau=expert).
