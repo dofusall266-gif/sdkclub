@@ -1,18 +1,21 @@
 import { marked } from "marked"
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { BlogPostBody, type BlogPostLocaleData } from "@/components/blog-post-body"
 import { PageLayout } from "@/components/page-layout"
-import { formatBlogDate, getAllPosts, getPostBySlug } from "@/lib/blog"
+import { getAllPosts, getPostBySlug, wrapTablesForScroll, type BlogPost } from "@/lib/blog"
 
 export function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }))
+  return getAllPosts("fr").map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = getPostBySlug(slug)
+  // Les métadonnées (balises <head>, aperçus de partage) restent en français,
+  // langue par défaut du rendu serveur — cohérent avec le reste du site, qui
+  // ne bascule qu'après hydratation côté client selon la préférence stockée.
+  const post = getPostBySlug(slug, "fr")
   if (!post) return {}
   return {
     title: post.title,
@@ -24,52 +27,53 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 const SITE_URL = "https://sudoku-club.com"
 
+function toLocaleData(post: BlogPost): BlogPostLocaleData {
+  const html = wrapTablesForScroll(marked.parse(post.content, { async: false }) as string)
+  return { title: post.title, date: post.date, category: post.category, html, faq: post.faq }
+}
+
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = getPostBySlug(slug)
-  if (!post) notFound()
+  const postFr = getPostBySlug(slug, "fr")
+  if (!postFr) notFound()
+  const postEn = getPostBySlug(slug, "en") ?? postFr
 
-  const html = marked.parse(post.content, { async: false }) as string
-
-  // Données structurées (schema.org/BlogPosting) : aident Google (rich results)
-  // et les moteurs de réponse basés sur l'IA (ChatGPT, Perplexity, AI Overviews...)
-  // à comprendre et citer correctement l'article — invisible pour le lecteur.
-  const jsonLd = {
+  // Données structurées (schema.org) : aident Google (rich results) et les
+  // moteurs de réponse basés sur l'IA (ChatGPT, Perplexity, AI Overviews...)
+  // à comprendre et citer correctement l'article — invisible pour le
+  // lecteur. Générées à partir de la version française (langue de rendu par
+  // défaut), FAQPage incluse si l'article a des questions fréquentes.
+  const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.date,
-    dateModified: post.date,
+    headline: postFr.title,
+    description: postFr.excerpt,
+    datePublished: postFr.date,
+    dateModified: postFr.date,
     inLanguage: "fr-FR",
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${post.slug}` },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${postFr.slug}` },
     author: { "@type": "Organization", name: "Sudoku Club", url: SITE_URL },
     publisher: { "@type": "Organization", name: "Sudoku Club", url: SITE_URL },
-    ...(post.category ? { articleSection: post.category } : {}),
+    ...(postFr.category ? { articleSection: postFr.category } : {}),
   }
+  const faqJsonLd =
+    postFr.faq.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: postFr.faq.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: { "@type": "Answer", text: item.a },
+          })),
+        }
+      : null
 
   return (
     <PageLayout>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <article className="mx-auto max-w-[42rem]">
-        <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Retour aux articles
-        </Link>
-
-        <header className="mt-4 mb-8">
-          {post.category && (
-            <span className="mb-3 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-              {post.category}
-            </span>
-          )}
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{post.title}</h1>
-          <time dateTime={post.date} className="mt-3 block text-sm text-muted-foreground">
-            Publié le {formatBlogDate(post.date, "fr")}
-          </time>
-        </header>
-
-        <div className="md-content" dangerouslySetInnerHTML={{ __html: html }} />
-      </article>
+      {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />}
+      <BlogPostBody fr={toLocaleData(postFr)} en={toLocaleData(postEn)} />
     </PageLayout>
   )
 }

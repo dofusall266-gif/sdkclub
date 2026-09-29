@@ -3,6 +3,13 @@ title: "L'histoire du sudoku : des carrés latins d'Euler au phénomène mondial
 date: "2026-01-12"
 excerpt: "Le sudoku n'est ni japonais à l'origine, ni très ancien. Retour sur l'histoire méconnue d'un puzzle né aux États-Unis, popularisé au Japon, et devenu mondial en quelques années à peine."
 category: "Histoire"
+faq:
+  - q: "Le sudoku est-il vraiment japonais ?"
+    a: "Non. Le principe est publié pour la première fois aux États-Unis en 1979, sous le nom « Number Place ». Le Japon lui donne son nom actuel en 1984 et une version affinée, mais l'origine est américaine."
+  - q: "Qui a inventé le sudoku ?"
+    a: "Le format 9×9 moderne est généralement attribué à Howard Garns, un architecte à la retraite, dans le magazine américain Dell Pencil Puzzles and Word Games en 1979."
+  - q: "Depuis quand le sudoku est-il mondialement populaire ?"
+    a: "Depuis 2004-2005, quand Wayne Gould a convaincu le quotidien britannique The Times de publier une grille quotidienne — le déclencheur de sa diffusion mondiale."
 ---
 
 **En résumé** : le sudoku n'est pas une tradition japonaise ancienne. Il est publié pour la première fois en 1979 aux États-Unis sous le nom de « Number Place », repris et renommé « Sudoku » par l'éditeur japonais Nikoli en 1984, puis mondialisé à partir de 2004-2005 grâce au juge néo-zélandais Wayne Gould et au quotidien britannique *The Times*.
@@ -38,16 +45,5 @@ En 2004, il parvient à convaincre le quotidien britannique **The Times** de pub
 Depuis, le sudoku n'a jamais vraiment quitté la culture populaire. Des championnats du monde existent depuis 2006 (le **World Sudoku Championship**), rassemblant des solveurs capables de terminer une grille difficile en à peine plus d'une minute. Le jeu a aussi donné naissance à de nombreuses variantes — sudoku diagonal, killer sudoku, sudoku à secteurs irréguliers — qui perpétuent le même principe logique de base, quarante ans après sa première publication dans un magazine américain.
 
 De carré latin étudié par Euler à jeu quotidien de millions de personnes dans le monde, le sudoku est l'un des rares exemples de puzzle mathématique devenu culture populaire mondiale — et il continue, chaque jour, d'occuper les mêmes 81 cases qu'en 1979.
-
-## Questions fréquentes
-
-**Le sudoku est-il vraiment japonais ?**
-Non. Le principe est publié pour la première fois aux États-Unis en 1979, sous le nom « Number Place ». Le Japon lui donne son nom actuel en 1984 et une version affinée, mais l'origine est américaine.
-
-**Qui a inventé le sudoku ?**
-Le format 9×9 moderne est généralement attribué à Howard Garns, un architecte à la retraite, dans le magazine américain *Dell Pencil Puzzles and Word Games* en 1979.
-
-**Depuis quand le sudoku est-il mondialement populaire ?**
-Depuis 2004-2005, quand Wayne Gould a convaincu le quotidien britannique *The Times* de publier une grille quotidienne — le déclencheur de sa diffusion mondiale.
 
 Envie de vous y mettre, quarante ans après sa première publication ? [Jouez à une grille gratuitement](/jouer), à votre niveau.

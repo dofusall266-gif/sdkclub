@@ -3,6 +3,14 @@ export type Dictionary = typeof fr
 
 const fr = {
     nav: { play: "Jouer", daily: "Défi du jour", rules: "Règles", techniques: "Techniques", blog: "Articles" },
+    blog: {
+      heading: "Articles",
+      subheading: "Histoire du sudoku, techniques de résolution avancées et bienfaits sur le cerveau.",
+      empty: "Aucun article publié pour le moment.",
+      back: "← Retour aux articles",
+      publishedOn: "Publié le",
+      faqHeading: "Questions fréquentes",
+    },
     home: {
       articlesHeading: "À lire aussi",
       articlesSeeAll: "Tous les articles",
@@ -18,7 +26,7 @@ const fr = {
       privacy: "Politique de confidentialité",
       legal: "Mentions légales",
       contact: "Contact",
-      youtube: "Notre chaîne YouTube",
+      about: "Qui sommes-nous ?",
       rights: "Tous droits réservés.",
     },
 
@@ -187,6 +195,26 @@ const fr = {
       copied: "Message copié !",
     },
 
+    about: {
+      title: "Qui sommes-nous ?",
+      intro:
+        "Sudoku Club est né de la passion pour ce jeu de logique — l'envie de proposer, sans détour, le site qu'on aurait aimé trouver en cherchant simplement une grille de sudoku bien conçue : sans compte à créer, sans grille douteuse, sans paywall pour débloquer un niveau de difficulté.",
+      sections: [
+        {
+          title: "Notre approche",
+          text: "Chaque grille est générée puis vérifiée algorithmiquement avant d'être proposée : une seule solution possible, atteignable par pure logique, jamais par essai-erreur. C'est un détail technique, mais c'est celui qui fait la différence entre une bonne et une mauvaise grille de sudoku.",
+        },
+        {
+          title: "Notre chaîne YouTube",
+          text: "Notre passion pour le sudoku se prolonge aussi en vidéo, sur notre chaîne YouTube, où l'on partage des résolutions de grilles et des explications des techniques de résolution — pour celles et ceux qui préfèrent apprendre à l'oral, avec des exemples à l'écran, plutôt qu'en lisant un article.",
+        },
+      ],
+      youtubeLinkLabel: "Voir la chaîne YouTube",
+      contactHeading: "Une question, un bug à signaler ?",
+      contactText: "Notre page contact est ouverte à tous les messages — on les lit tous.",
+      contactLinkLabel: "Nous écrire",
+    },
+
     legal: {
       title: "Mentions légales",
       updated: "Dernière mise à jour :",
@@ -244,6 +272,14 @@ const fr = {
 
 const en: Dictionary = {
     nav: { play: "Play", daily: "Daily challenge", rules: "Rules", techniques: "Techniques", blog: "Articles" },
+    blog: {
+      heading: "Articles",
+      subheading: "The history of sudoku, advanced solving techniques and brain benefits.",
+      empty: "No articles published yet.",
+      back: "← Back to articles",
+      publishedOn: "Published on",
+      faqHeading: "Frequently asked questions",
+    },
     home: {
       articlesHeading: "You might also like",
       articlesSeeAll: "All articles",
@@ -259,7 +295,7 @@ const en: Dictionary = {
       privacy: "Privacy policy",
       legal: "Legal notice",
       contact: "Contact",
-      youtube: "Our YouTube channel",
+      about: "About us",
       rights: "All rights reserved.",
     },
 
@@ -426,6 +462,26 @@ const en: Dictionary = {
       directEmail: "You can also write to us directly at",
       copyMessage: "Copy my message",
       copied: "Message copied!",
+    },
+
+    about: {
+      title: "About us",
+      intro:
+        "Sudoku Club was born out of a passion for this logic game — the wish to build, without detours, the site we wished we'd found ourselves while looking for a well-made sudoku puzzle: no account to create, no dubious grids, no paywall to unlock a difficulty level.",
+      sections: [
+        {
+          title: "Our approach",
+          text: "Every grid is generated and then algorithmically checked before being served: a single possible solution, reachable through pure logic, never trial and error. It's a technical detail, but it's the one that separates a good sudoku puzzle from a bad one.",
+        },
+        {
+          title: "Our YouTube channel",
+          text: "Our passion for sudoku also carries over to video, on our YouTube channel, where we share puzzle solves and explain solving techniques — for anyone who'd rather learn by watching, with examples on screen, than by reading an article.",
+        },
+      ],
+      youtubeLinkLabel: "Watch the YouTube channel",
+      contactHeading: "A question, a bug to report?",
+      contactText: "Our contact page is open to any message — we read them all.",
+      contactLinkLabel: "Write to us",
     },
 
     legal: {

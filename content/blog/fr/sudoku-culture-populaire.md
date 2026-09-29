@@ -3,6 +3,13 @@ title: "Le sudoku dans la culture populaire : d'un jeu de journal à un rituel q
 date: "2026-02-03"
 excerpt: "Compartiment de train, pause déjeuner, salle d'attente : comment un simple jeu de logique est devenu un rituel quotidien partagé par des dizaines de millions de personnes dans le monde."
 category: "Culture"
+faq:
+  - q: "Pourquoi le sudoku reste-t-il aussi populaire ?"
+    a: "Parce qu'il combine un rituel quotidien simple (une grille, un moment dans la journée), l'absence de barrière de langue, et depuis peu un rôle de pause « anti-scroll » face à la fatigue des réseaux sociaux."
+  - q: "Existe-t-il des compétitions de sudoku ?"
+    a: "Oui, le World Sudoku Championship existe depuis 2006 et réunit des solveurs capables de terminer une grille difficile en un peu plus d'une minute."
+  - q: "Où trouver un défi de sudoku quotidien comme celui des journaux ?"
+    a: "Le défi du jour de Sudoku Club reprend exactement ce principe : une grille identique pour tous, chaque jour, avec un classement public."
 ---
 
 **En résumé** : depuis son essor mondial en 2005, le sudoku n'a jamais quitté la culture populaire — du rituel quotidien des journaux au format défi-du-jour repris par des jeux comme Wordle, en passant par une véritable scène compétitive et des chaînes YouTube spécialisées suivies par des communautés entières de passionnés.
@@ -31,13 +38,4 @@ Enfin, une des raisons du succès durable du sudoku tient à sa nature même : c
 
 Du compartiment de train au live-stream, le sudoku a su se réinventer sans jamais changer sa règle de base, vieille de plus de quarante ans. C'est peut-être ça, le vrai secret de sa longévité : un jeu suffisamment simple pour être universel, et suffisamment profond pour rester intéressant, grille après grille.
 
-## Questions fréquentes
-
-**Pourquoi le sudoku reste-t-il aussi populaire ?**
-Parce qu'il combine un rituel quotidien simple (une grille, un moment dans la journée), l'absence de barrière de langue, et depuis peu un rôle de pause « anti-scroll » face à la fatigue des réseaux sociaux.
-
-**Existe-t-il des compétitions de sudoku ?**
-Oui, le World Sudoku Championship existe depuis 2006 et réunit des solveurs capables de terminer une grille difficile en un peu plus d'une minute.
-
-**Où trouver un défi de sudoku quotidien comme celui des journaux ?**
-Le [défi du jour de Sudoku Club](/defi) reprend exactement ce principe : une grille identique pour tous, chaque jour, avec un classement public.
+Envie de reproduire ce rituel quotidien vous-même ? Le [défi du jour de Sudoku Club](/defi) propose une grille identique pour tous, chaque jour, avec un classement public.

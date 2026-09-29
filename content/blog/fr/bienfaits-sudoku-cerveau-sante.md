@@ -3,6 +3,13 @@ title: "Sudoku et cerveau : ce que dit vraiment la science (et ce qu'elle ne dit
 date: "2026-04-14"
 excerpt: "Le sudoku muscle-t-il vraiment le cerveau ? On fait le tri entre les effets réels, bien documentés, et les promesses trop belles pour être vraies qu'on lit souvent ailleurs."
 category: "Santé"
+faq:
+  - q: "Le sudoku prévient-il la maladie d'Alzheimer ?"
+    a: "Ce n'est pas démontré. Des études d'observation associent activités stimulantes et bon vieillissement cognitif, mais une association n'est pas une preuve de cause — l'inverse (causalité inverse) reste possible."
+  - q: "Le sudoku rend-il plus intelligent ?"
+    a: "Pas de façon générale, non. La recherche montre surtout qu'on s'améliore au sudoku lui-même ; la preuve d'un transfert vers d'autres capacités cognitives est faible."
+  - q: "Quel est le vrai bénéfice, alors ?"
+    a: "Une vraie pause mentale structurée (état de « flow ») et un travail réel de mémoire de travail, d'attention et de logique pendant que vous jouez."
 ---
 
 **En résumé** : le sudoku sollicite réellement la mémoire de travail, l'attention et le raisonnement logique *pendant* que vous jouez — c'est bien établi scientifiquement. En revanche, la preuve qu'il muscle durablement l'intelligence générale ou prévient l'Alzheimer est faible et non démontrée ; ce sont surtout les habitudes de vie globales (sommeil, activité physique, vie sociale) qui protègent la santé cognitive à long terme.
@@ -39,15 +46,4 @@ Il y a en revanche un effet moins souvent mis en avant, et tout aussi précieux 
 
 ## En résumé
 
-Le sudoku est un excellent exercice de concentration et de logique, dans l'instant, et une activité de détente légitime à intégrer dans sa routine. En revanche, méfiez-vous des promesses de prévention de maladies ou d'amélioration générale de l'intelligence : la science n'est pas encore là pour les confirmer aussi simplement. Jouez pour le plaisir de la logique et la pause qu'il vous offre — c'est déjà une excellente raison.
-
-## Questions fréquentes
-
-**Le sudoku prévient-il la maladie d'Alzheimer ?**
-Ce n'est pas démontré. Des études d'observation associent activités stimulantes et bon vieillissement cognitif, mais une association n'est pas une preuve de cause — l'inverse (causalité inverse) reste possible.
-
-**Le sudoku rend-il plus intelligent ?**
-Pas de façon générale, non. La recherche montre surtout qu'on s'améliore **au sudoku lui-même** ; la preuve d'un transfert vers d'autres capacités cognitives est faible.
-
-**Quel est le vrai bénéfice, alors ?**
-Une vraie pause mentale structurée (état de « flow ») et un travail réel de mémoire de travail, d'attention et de logique pendant que vous jouez — déjà une bonne raison d'y consacrer quelques minutes. [Testez par vous-même](/jouer).
+Le sudoku est un excellent exercice de concentration et de logique, dans l'instant, et une activité de détente légitime à intégrer dans sa routine. En revanche, méfiez-vous des promesses de prévention de maladies ou d'amélioration générale de l'intelligence : la science n'est pas encore là pour les confirmer aussi simplement. Jouez pour le plaisir de la logique et la pause qu'il vous offre — c'est déjà une excellente raison. [Testez par vous-même](/jouer).

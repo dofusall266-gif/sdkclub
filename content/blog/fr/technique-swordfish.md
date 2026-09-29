@@ -3,6 +3,13 @@ title: "La technique du Swordfish en sudoku : le grand frère du X-Wing"
 date: "2026-03-24"
 excerpt: "Sur les grilles les plus difficiles, même le X-Wing ne suffit plus. Le Swordfish applique le même principe à trois lignes et trois colonnes à la fois. Explication et exemple."
 category: "Technique"
+faq:
+  - q: "Le Swordfish nécessite-t-il que les trois lignes aient chacune trois candidats ?"
+    a: "Non. Chaque ligne peut n'avoir que 2 ou 3 candidats — ce qui compte, c'est que l'ensemble des colonnes couvertes par les trois lignes ne dépasse pas trois colonnes au total."
+  - q: "Le Swordfish est-il plus rare que le X-Wing ?"
+    a: "Oui, nettement — il demande une configuration plus spécifique. Mais sur des grilles Expert, il suffit souvent, à lui seul, à débloquer une grille qui semblait figée."
+  - q: "Existe-t-il une technique encore plus avancée ?"
+    a: "Oui, le Jellyfish (quatre lignes et quatre colonnes), mais il reste extrêmement rare en pratique — le Swordfish couvre déjà la grande majorité des cas."
 ---
 
 **En résumé** : le Swordfish étend le principe du X-Wing à trois lignes et trois colonnes au lieu de deux — dès que trois lignes contiennent un même chiffre limité à un total de trois colonnes, ce chiffre peut être éliminé partout ailleurs dans ces trois colonnes.
@@ -44,16 +51,5 @@ Le Swordfish a mauvaise réputation parce qu'il demande de suivre trois lignes e
 ## Le Swordfish n'est pas la fin de l'histoire
 
 Le même principe peut théoriquement continuer avec quatre lignes et quatre colonnes (une technique appelée *Jellyfish*), mais ces configurations deviennent extrêmement rares en pratique — la plupart des grilles, même en difficulté Expert, se résolvent sans jamais avoir besoin d'aller au-delà du Swordfish. Si vous maîtrisez le X-Wing et le Swordfish, vous disposez déjà des deux techniques les plus utiles pour venir à bout des grilles les plus exigeantes.
-
-## Questions fréquentes
-
-**Le Swordfish nécessite-t-il que les trois lignes aient chacune trois candidats ?**
-Non. Chaque ligne peut n'avoir que 2 ou 3 candidats — ce qui compte, c'est que l'ensemble des colonnes couvertes par les trois lignes ne dépasse pas trois colonnes au total.
-
-**Le Swordfish est-il plus rare que le X-Wing ?**
-Oui, nettement — il demande une configuration plus spécifique. Mais sur des grilles Expert, il suffit souvent, à lui seul, à débloquer une grille qui semblait figée.
-
-**Existe-t-il une technique encore plus avancée ?**
-Oui, le *Jellyfish* (quatre lignes et quatre colonnes), mais il reste extrêmement rare en pratique — le Swordfish couvre déjà la grande majorité des cas.
 
 Retrouvez toutes nos autres techniques de résolution, du niveau débutant au niveau expert, sur notre [page dédiée aux techniques](/techniques), et entraînez-vous directement sur une [grille Expert](/jouer?niveau=expert).

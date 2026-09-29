@@ -9,9 +9,11 @@ import { useLanguage } from "@/lib/i18n/context"
 
 /** Bloc "à lire aussi" en bas de l'accueil : donne un accès direct aux
  * articles depuis la page la plus visitée du site, plutôt que de compter
- * uniquement sur le lien du menu. */
-export function BlogTeaser({ posts }: { posts: BlogPostMeta[] }) {
+ * uniquement sur le lien du menu. Les deux jeux de métadonnées (fr/en) sont
+ * préparés côté serveur ; le choix se fait ici selon la langue active. */
+export function BlogTeaser({ fr, en }: { fr: BlogPostMeta[]; en: BlogPostMeta[] }) {
   const { t, locale } = useLanguage()
+  const posts = locale === "en" ? en : fr
   if (posts.length === 0) return null
 
   return (
