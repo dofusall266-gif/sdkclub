@@ -9,6 +9,7 @@ import { GameToolbar } from "@/components/sudoku/game-toolbar"
 import { NumberPad } from "@/components/sudoku/number-pad"
 import { PrintableGrid } from "@/components/sudoku/printable-grid"
 import { PrintDialog } from "@/components/sudoku/print-dialog"
+import { digitFromKeyEvent } from "@/components/sudoku/keyboard"
 import { SudokuBoard } from "@/components/sudoku/sudoku-board"
 import { useSudoku } from "@/components/sudoku/use-sudoku"
 import { Button } from "@/components/ui/button"
@@ -130,10 +131,16 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isOver) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
       const sel = state.selected
-      if (e.key >= "1" && e.key <= "9") {
-        actions.input(Number(e.key), notesMode)
+      const digit = digitFromKeyEvent(e)
+      if (digit !== null) {
+        actions.input(digit, notesMode)
         e.preventDefault()
+        return
+      }
+      if (e.key === "Escape" && sel !== null && state.multi.length > 0) {
+        actions.select(sel)
         return
       }
       if (e.key === "Backspace" || e.key === "Delete" || e.key === "0") {
@@ -161,12 +168,14 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
       else if (e.key === "ArrowLeft") c = (c + 8) % 9
       else if (e.key === "ArrowRight") c = (c + 1) % 9
       else return
-      actions.select(r * 9 + c)
+      // Maj + flèche : étend la sélection à la case voisine.
+      if (e.shiftKey) actions.extend(r * 9 + c)
+      else actions.select(r * 9 + c)
       e.preventDefault()
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [actions, notesMode, state.selected, isOver])
+  }, [actions, notesMode, state.selected, state.multi, isOver])
 
   const paused = !state.running && !isOver
 
@@ -261,6 +270,8 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
           conflicts={conflicts}
           disabled={paused || isOver}
           onSelect={actions.select}
+          onExtend={actions.extend}
+          multi={state.multi}
           flashIndices={flashIndices}
         />
 
@@ -321,7 +332,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
         <div className="hidden lg:block">{stats}</div>
 
         <GameToolbar
-          notesMode={notesMode}
+          notesMode={notesMode || state.multi.length > 0}
           canUndo={state.history.length > 0}
           disabled={paused || isOver}
           onToggleNotes={() => setNotesMode((v) => !v)}

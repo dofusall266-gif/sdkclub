@@ -1,10 +1,9 @@
 import { marked } from "marked"
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { PageLayout } from "@/components/page-layout"
-import { formatBlogDate, getAllPosts, getPostBySlug } from "@/lib/blog"
+import { BlogPostContent } from "@/components/blog-post-content"
+import { getAllPosts, getPostBySlug } from "@/lib/blog"
 
 export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }))
@@ -30,6 +29,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post) notFound()
 
   const html = marked.parse(post.content, { async: false }) as string
+  const enHtml = post.enContent ? (marked.parse(post.enContent, { async: false }) as string) : null
 
   // Données structurées (schema.org/BlogPosting) : aident Google (rich results)
   // et les moteurs de réponse basés sur l'IA (ChatGPT, Perplexity, AI Overviews...)
@@ -49,27 +49,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   }
 
   return (
-    <PageLayout>
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <article className="mx-auto max-w-[42rem]">
-        <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Retour aux articles
-        </Link>
-
-        <header className="mt-4 mb-8">
-          {post.category && (
-            <span className="mb-3 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-              {post.category}
-            </span>
-          )}
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{post.title}</h1>
-          <time dateTime={post.date} className="mt-3 block text-sm text-muted-foreground">
-            Publié le {formatBlogDate(post.date, "fr")}
-          </time>
-        </header>
-
-        <div className="md-content" dangerouslySetInnerHTML={{ __html: html }} />
-      </article>
-    </PageLayout>
+      <BlogPostContent
+        date={post.date}
+        fr={{ title: post.title, category: post.category, html }}
+        en={post.en && enHtml ? { title: post.en.title, category: post.en.category, html: enHtml } : undefined}
+      />
+    </>
   )
 }

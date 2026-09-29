@@ -14,7 +14,7 @@ function storageKey(dateKey: string) {
 function loadPersisted(dateKey: string): State | null {
   const persisted = readJSON<State>(storageKey(dateKey))
   if (!persisted || !Array.isArray(persisted.grid) || persisted.grid.length !== 81) return null
-  return { ...persisted, running: false }
+  return { ...persisted, multi: persisted.multi ?? [], running: false }
 }
 
 export function useDailyGame() {
@@ -66,6 +66,7 @@ export function useDailyGame() {
   }, [state.grid])
 
   const select = useCallback((index: number) => dispatch({ type: "select", index }), [])
+  const extend = useCallback((index: number, toggle?: boolean) => dispatch({ type: "extend", index, toggle }), [])
   const input = useCallback((value: number, notesMode: boolean) => dispatch({ type: "input", value, notesMode }), [])
   const erase = useCallback(() => dispatch({ type: "erase" }), [])
   const undo = useCallback(() => dispatch({ type: "undo" }), [])
@@ -76,7 +77,7 @@ export function useDailyGame() {
     state,
     conflicts,
     remaining,
-    actions: { select, input, erase, undo, togglePause },
+    actions: { select, extend, input, erase, undo, togglePause },
   }
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { Mail, Play } from "lucide-react"
+import { Mail, Users } from "lucide-react"
 import Link from "next/link"
 
 import { SudokuLogo } from "@/components/sudoku-logo"
@@ -41,15 +41,13 @@ export function SiteFooter() {
             <Mail className="size-4" />
             {CONTACT_EMAIL}
           </a>
-          <a
-            href="https://www.youtube.com/@StudyMd667"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/qui-sommes-nous"
             className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            <Play className="size-4" />
-            {t.footer.youtube}
-          </a>
+            <Users className="size-4" />
+            {t.footer.about}
+          </Link>
         </div>
 
         <nav aria-label={t.footer.gameHeading}>

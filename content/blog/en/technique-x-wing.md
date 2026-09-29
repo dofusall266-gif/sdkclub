@@ -1,0 +1,65 @@
+---
+title: "The X-Wing technique in sudoku: how to use it (with an example)"
+date: "2026-03-10"
+excerpt: "Stuck on a hard grid with all the basic techniques used up? The X-Wing is often the key. A step-by-step explanation, with a concrete example."
+category: "Technique"
+---
+
+**In short**: the X-Wing lets you eliminate a candidate when a given digit has only two possible positions in each of two rows, located in exactly the same two columns (or vice versa, by columns). This lock forces you to remove that candidate from the rest of those two columns.
+
+If you regularly play at the **Hard** or **Expert** difficulty, you've probably already had that frustrating moment: the grid seems stuck, no cell has a single obvious possibility, and yet it isn't finished. This is very often a sign that it's time to move beyond the basic techniques and on to a so-called "elimination" technique, like the **X-Wing**.
+
+## A prerequisite: play with notes
+
+The X-Wing doesn't apply directly to a digit you place, but to **candidates** — the little notes listing, for each empty cell, the digits still possible. If you're not using them yet, now is the time: on Sudoku Club, turn on "Notes" mode (the pencil in the toolbar) to write down, in each empty cell, all the digits that could theoretically go there. It's on this map of candidates that the X-Wing gets spotted.
+
+## The X-Wing principle
+
+The X-Wing looks at **one digit at a time** — let's call it 4 for the example. The idea: look for two rows in which the digit 4 has only **two possible positions**, and where those two positions fall, in both rows, in **exactly the same columns**.
+
+Concretely, imagine that:
+- In **row 2**, the digit 4 can only go in column 3 or column 7.
+- In **row 6**, the digit 4 can *also* only go in column 3 or column 7.
+
+These four cells (R2C3, R2C7, R6C3, R6C7) form a rectangle — that shape is what gives the "X-Wing" its name.
+
+## Why this lets you eliminate candidates
+
+Here is the logical reasoning: the digit 4 must appear once in row 2, and once in row 6. In both cases, it can only go in column 3 or column 7. There are only two ways to place these two 4s:
+
+- 4 in R2C3 and 4 in R6C7, **or**
+- 4 in R2C7 and 4 in R6C3.
+
+In both possible scenarios, **each of columns 3 and 7 receives exactly one 4**, coming from one of the two rows. But a column can only contain a single 4. Direct consequence: **the digit 4 can no longer appear anywhere else in columns 3 and 7**, nor in the other rows of those columns.
+
+You can therefore erase the candidate 4 from all the other cells of columns 3 and 7 (outside rows 2 and 6, of course) — even though you don't yet know *which* of the two scenarios is the right one. That's the whole strength of this technique: it doesn't tell you where to place a digit, but it eliminates possibilities elsewhere, which often unlocks another cell by simple elimination.
+
+## The "flipped" version: X-Wing by columns
+
+The same reasoning works starting from two **columns** rather than two rows: if a digit has only two possible positions in each of two different columns, and those positions fall on the same two rows, you can then eliminate that digit from the rest of those two rows. It's exactly the same principle, simply applied at 90 degrees.
+
+## How to spot it efficiently
+
+In practice, spotting an X-Wing with the naked eye on a full grid can be tedious. The most efficient method:
+
+1. Pick one digit at a time (start with the ones that seem most constrained).
+2. Find all the rows where this digit has only two possible candidates.
+3. Compare their columns: as soon as two rows share exactly the same two columns, you have an X-Wing.
+4. Erase that candidate everywhere else in those two columns.
+
+## A technique to combine with others
+
+The X-Wing belongs to a family of techniques known as "locked patterns" (*locked candidates*), alongside even more advanced techniques like the [**Swordfish**](/blog/technique-swordfish) — its big brother, which applies the same principle to three rows and three columns at once rather than two. Once the X-Wing becomes a reflex, the Swordfish will be much easier to understand.
+
+## Frequently asked questions
+
+**Does the X-Wing work with any digit?**
+Yes, but one digit at a time: it's by searching candidate by candidate (1, then 2, then 3...) that you spot an X-Wing, never by looking at several digits at once.
+
+**Does the X-Wing guarantee solving a cell immediately?**
+Not necessarily. It eliminates candidates, which often — but not always instantly — unlocks another cell by simple elimination right afterwards.
+
+**Which technique should I learn after the X-Wing?**
+The [Swordfish](/blog/technique-swordfish), which applies exactly the same reasoning to three rows and three columns.
+
+Find other solving techniques, from beginner to expert level, on our [techniques page](/techniques), and put them into practice on an [Expert grid](/jouer?niveau=expert).

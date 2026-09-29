@@ -24,6 +24,8 @@ export interface State {
   grid: Grid
   notes: number[][] // notes[index] = array of pencil marks
   selected: number | null
+  /** Autres cases de la sélection multiple (Shift + clic / glisser), en plus de `selected`. */
+  multi: number[]
   history: Snapshot[]
   mistakes: number
   status: "playing" | "won"
@@ -34,6 +36,7 @@ export interface State {
 export type Action =
   | { type: "new"; difficulty: Difficulty }
   | { type: "select"; index: number }
+  | { type: "extend"; index: number; toggle?: boolean }
   | { type: "input"; value: number; notesMode: boolean }
   | { type: "erase" }
   | { type: "hint" }
@@ -60,12 +63,19 @@ export function createGameFromPuzzle(puzzle: Grid, solution: Grid, difficulty: D
     grid: [...puzzle],
     notes: emptyNotes(),
     selected: null,
+    multi: [],
     history: [],
     mistakes: 0,
     status: "playing",
     seconds: 0,
     running: true,
   }
+}
+
+/** Toutes les cases sélectionnées (case principale + sélection multiple). */
+export function selectedCells(state: Pick<State, "selected" | "multi">): number[] {
+  if (state.selected === null) return []
+  return [state.selected, ...(state.multi ?? [])]
 }
 
 function snapshot(state: State): Snapshot {
@@ -91,7 +101,24 @@ export function reducer(state: State, action: Action): State {
       return createGame(action.difficulty)
 
     case "select":
-      return { ...state, selected: action.index }
+      return { ...state, selected: action.index, multi: [] }
+
+    // Shift + clic / glisser : ajoute une case à la sélection (ou la retire
+    // avec `toggle`). La dernière case ajoutée devient la case principale.
+    case "extend": {
+      const sel = state.selected
+      if (sel === null) return { ...state, selected: action.index, multi: [] }
+      const all = new Set(selectedCells(state))
+      if (all.has(action.index)) {
+        if (!action.toggle || all.size === 1) return state
+        all.delete(action.index)
+        const rest = [...all]
+        const primary = action.index === sel ? rest[rest.length - 1] : sel
+        return { ...state, selected: primary, multi: rest.filter((k) => k !== primary) }
+      }
+      all.add(action.index)
+      return { ...state, selected: action.index, multi: [...all].filter((k) => k !== action.index) }
+    }
 
     case "tick":
       return state.running && state.status === "playing"
@@ -102,6 +129,26 @@ export function reducer(state: State, action: Action): State {
       return { ...state, running: action.running ?? !state.running }
 
     case "input": {
+      // Plusieurs cases sélectionnées : on écrit toujours au crayon (poser un
+      // vrai chiffre dans plusieurs cases n'aurait pas de sens). Si toutes les
+      // cases vides ont déjà ce chiffre en note, on le retire de toutes ;
+      // sinon on l'ajoute partout où il manque.
+      if ((state.multi ?? []).length > 0) {
+        if (state.status !== "playing") return state
+        const targets = selectedCells(state).filter((k) => state.given[k] === 0 && state.grid[k] === 0)
+        if (targets.length === 0) return state
+        const allHave = targets.every((k) => state.notes[k].includes(action.value))
+        const history = [...state.history, snapshot(state)]
+        const notes = state.notes.map((n) => [...n])
+        for (const k of targets) {
+          const set = new Set(notes[k])
+          if (allHave) set.delete(action.value)
+          else set.add(action.value)
+          notes[k] = [...set].sort((a, b) => a - b)
+        }
+        return { ...state, notes, history }
+      }
+
       const i = state.selected
       if (i === null || state.given[i] !== 0 || state.status !== "playing") return state
 
@@ -146,6 +193,22 @@ export function reducer(state: State, action: Action): State {
     }
 
     case "erase": {
+      if ((state.multi ?? []).length > 0) {
+        if (state.status !== "playing") return state
+        const targets = selectedCells(state).filter(
+          (k) => state.given[k] === 0 && (state.grid[k] !== 0 || state.notes[k].length > 0),
+        )
+        if (targets.length === 0) return state
+        const history = [...state.history, snapshot(state)]
+        const grid = [...state.grid]
+        const notes = state.notes.map((n) => [...n])
+        for (const k of targets) {
+          grid[k] = 0
+          notes[k] = []
+        }
+        return { ...state, grid, notes, history }
+      }
+
       const i = state.selected
       if (i === null || state.given[i] !== 0 || state.status !== "playing") return state
       if (state.grid[i] === 0 && state.notes[i].length === 0) return state
@@ -214,7 +277,7 @@ function loadPersisted(): State | null {
   // Une grille corrompue/obsolète (ancien format) ne doit jamais faire planter le jeu.
   if (!Array.isArray(persisted.grid) || persisted.grid.length !== 81) return null
   const { savedAt: _savedAt, ...state } = persisted
-  return { ...state, running: false } // on redémarre toujours en pause : l'utilisateur reprend volontairement
+  return { ...state, multi: state.multi ?? [], running: false } // on redémarre toujours en pause : l'utilisateur reprend volontairement
 }
 
 export function useSudoku(initialDifficulty: Difficulty = "facile") {
@@ -297,6 +360,7 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
     dispatch({ type: "new", difficulty })
   }, [])
   const select = useCallback((index: number) => dispatch({ type: "select", index }), [])
+  const extend = useCallback((index: number, toggle?: boolean) => dispatch({ type: "extend", index, toggle }), [])
   const input = useCallback((value: number, notesMode: boolean) => dispatch({ type: "input", value, notesMode }), [])
   const erase = useCallback(() => dispatch({ type: "erase" }), [])
   const hint = useCallback(() => dispatch({ type: "hint" }), [])
@@ -307,6 +371,6 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
     state,
     conflicts,
     remaining,
-    actions: { newGame, select, input, erase, hint, undo, togglePause },
+    actions: { newGame, select, extend, input, erase, hint, undo, togglePause },
   }
 }

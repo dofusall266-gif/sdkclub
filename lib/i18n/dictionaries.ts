@@ -18,7 +18,7 @@ const fr = {
       privacy: "Politique de confidentialité",
       legal: "Mentions légales",
       contact: "Contact",
-      youtube: "Notre chaîne YouTube",
+      about: "Qui sommes-nous",
       rights: "Tous droits réservés.",
     },
 
@@ -52,7 +52,7 @@ const fr = {
       wonText: "Vous avez résolu cette grille sans aucune erreur.",
       mistakeWord: (n: number): string => (n > 1 ? "erreurs" : "erreur"),
       solutionLabel: "Solution",
-      hintKeyboard: "Astuce : utilisez les flèches du clavier pour vous déplacer et les touches 1-9 pour saisir. Appuyez sur « N » pour les notes.",
+      hintKeyboard: "Astuce : utilisez les flèches du clavier pour vous déplacer et les touches 1-9 pour saisir. Appuyez sur « N » pour les notes. Maintenez Maj et cliquez (ou glissez) pour sélectionner plusieurs cases et y noter un chiffre d'un coup.",
       dailyCta: "Essayer le défi du jour",
       bestTime: "Record",
       newRecord: "Nouveau record personnel !",
@@ -187,6 +187,35 @@ const fr = {
       copied: "Message copié !",
     },
 
+    blog: {
+      title: "Articles",
+      intro: "Histoire du sudoku, techniques de résolution avancées et bienfaits sur le cerveau.",
+      empty: "Aucun article publié pour le moment.",
+      back: "← Retour aux articles",
+      publishedOn: "Publié le",
+    },
+
+    about: {
+      title: "Qui sommes-nous ?",
+      intro: "Sudoku Club est né de la passion d'une petite équipe pour ce jeu de logique.",
+      sections: [
+        {
+          title: "Pourquoi ce site",
+          text: "L'envie de proposer, sans détour, le site qu'on aurait aimé trouver en cherchant simplement une grille de sudoku bien conçue : sans compte à créer, sans grille douteuse, sans paywall pour débloquer un niveau de difficulté.",
+        },
+        {
+          title: "Ce qu'on vous propose",
+          text: "Un jeu 100 % gratuit, jouable immédiatement, avec 4 niveaux de difficulté, des grilles vérifiées à solution unique, un défi quotidien classé, l'impression PDF et un suivi de vos statistiques qui reste sur votre appareil. Le site est disponible en français et en anglais.",
+        },
+        {
+          title: "Nous écrire",
+          text: "Une question, une grille bugguée à signaler, une suggestion ? Tous les messages sont les bienvenus, on les lit tous.",
+        },
+      ],
+      playCta: "Jouer maintenant",
+      contactCta: "Nous contacter",
+    },
+
     legal: {
       title: "Mentions légales",
       updated: "Dernière mise à jour :",
@@ -259,7 +288,7 @@ const en: Dictionary = {
       privacy: "Privacy policy",
       legal: "Legal notice",
       contact: "Contact",
-      youtube: "Our YouTube channel",
+      about: "Who we are",
       rights: "All rights reserved.",
     },
 
@@ -293,7 +322,7 @@ const en: Dictionary = {
       wonText: "You solved this grid without any mistake.",
       mistakeWord: (n: number) => (n > 1 ? "mistakes" : "mistake"),
       solutionLabel: "Solution",
-      hintKeyboard: "Tip: use the arrow keys to move around and keys 1-9 to enter numbers. Press \"N\" for notes.",
+      hintKeyboard: "Tip: use the arrow keys to move around and keys 1-9 to enter numbers. Press \"N\" for notes. Hold Shift and click (or drag) to select several cells and pencil in a number at once.",
       dailyCta: "Try today's challenge",
       bestTime: "Best",
       newRecord: "New personal record!",
@@ -426,6 +455,35 @@ const en: Dictionary = {
       directEmail: "You can also write to us directly at",
       copyMessage: "Copy my message",
       copied: "Message copied!",
+    },
+
+    blog: {
+      title: "Articles",
+      intro: "The history of sudoku, advanced solving techniques and benefits for the brain.",
+      empty: "No articles published yet.",
+      back: "← Back to articles",
+      publishedOn: "Published on",
+    },
+
+    about: {
+      title: "Who we are",
+      intro: "Sudoku Club was born from a small team's passion for this logic game.",
+      sections: [
+        {
+          title: "Why this site",
+          text: "We wanted to offer, plainly, the site we would have liked to find when simply looking for a well-designed sudoku grid: no account to create, no dubious grids, no paywall to unlock a difficulty level.",
+        },
+        {
+          title: "What we offer",
+          text: "A 100% free game you can play right away, with 4 difficulty levels, verified single-solution grids, a ranked daily challenge, PDF printing, and stats tracking that stays on your device. The site is available in French and English.",
+        },
+        {
+          title: "Get in touch",
+          text: "A question, a buggy grid to report, a suggestion? All messages are welcome, and we read every one.",
+        },
+      ],
+      playCta: "Play now",
+      contactCta: "Contact us",
     },
 
     legal: {

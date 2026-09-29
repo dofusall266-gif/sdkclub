@@ -60,3 +60,10 @@ Google Images sans vérifier sa licence.
 
 En local, lancez le site (`npm run dev`) et ouvrez `/blog` : votre article doit
 apparaître automatiquement dans la liste, sans rien configurer d'autre.
+
+## 5. Traduction anglaise (facultatif)
+
+Pour qu'un article s'affiche en anglais quand le visiteur passe le site en EN,
+créez un fichier **du même nom** dans `content/blog/en/` (même squelette :
+`title`, `date`, `excerpt`, `category`, mais en anglais). Sans fichier anglais,
+l'article s'affiche simplement en français pour tout le monde.
