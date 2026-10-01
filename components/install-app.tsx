@@ -17,12 +17,20 @@ function isStandalone(): boolean {
   )
 }
 
+/** Téléphone ou tablette (Android, iPhone, iPad, y compris iPadOS qui se fait passer pour un Mac). */
+function isMobileOrTablet(): boolean {
+  const ua = navigator.userAgent
+  return /android|iphone|ipad|ipod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+}
+
 function isIos(): boolean {
   const ua = navigator.userAgent
   return /iphone|ipad|ipod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
 }
 
-/** Lien « Installer l'app » du pied de page.
+/** Lien « Installer l'app » du pied de page, réservé aux téléphones et tablettes :
+ * sur ordinateur, personne n'a besoin d'installer le site, et l'installation
+ * dépend trop du navigateur pour être proposée à tout le monde.
  * - Chrome / Edge / Android : déclenche la vraie fenêtre d'installation.
  * - iPhone / iPad (Safari n'a pas d'API) : affiche les 2 étapes à suivre.
  * - Déjà installée, ou navigateur incompatible : rien n'est affiché. */
@@ -33,7 +41,7 @@ export function InstallApp() {
   const [showIosHelp, setShowIosHelp] = useState(false)
 
   useEffect(() => {
-    if (isStandalone()) return
+    if (isStandalone() || !isMobileOrTablet()) return
     setIos(isIos())
     const onPrompt = (e: Event) => {
       e.preventDefault()

@@ -62,7 +62,7 @@ export function SudokuBoard({
 
   return (
     <div
-      className="grid aspect-square w-full grid-cols-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm"
+      className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm"
       role="grid"
       aria-label="Grille de sudoku"
     >
@@ -103,7 +103,7 @@ export function SudokuBoard({
               onSelect(index)
             }}
             className={cn(
-              "relative flex aspect-square items-center justify-center text-xl font-semibold transition-colors select-none sm:text-2xl",
+              "relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden text-xl font-semibold transition-colors select-none sm:text-2xl",
               "border-r border-b border-border/70",
               c % 3 === 2 && c !== 8 && "border-r-2 border-r-foreground/55",
               r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/55",
@@ -129,7 +129,7 @@ export function SudokuBoard({
             {value !== 0 ? (
               value
             ) : notes[index].length > 0 ? (
-              <span className="grid h-full w-full grid-cols-3 grid-rows-3 p-0.5 text-[0.5rem] leading-none text-muted-foreground sm:text-[0.6rem]">
+              <span className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-0.5 text-[0.5rem] leading-none text-muted-foreground sm:text-[0.6rem]">
                 {Array.from({ length: 9 }, (_, n) => (
                   <span key={n} className="flex items-center justify-center">
                     {notes[index].includes(n + 1) ? n + 1 : ""}
