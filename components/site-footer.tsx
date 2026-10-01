@@ -3,6 +3,7 @@
 import { Mail, Users } from "lucide-react"
 import Link from "next/link"
 
+import { InstallApp } from "@/components/install-app"
 import { SudokuLogo } from "@/components/sudoku-logo"
 import { useLanguage } from "@/lib/i18n/context"
 import { CONTACT_EMAIL } from "@/lib/site-config"
@@ -48,6 +49,7 @@ export function SiteFooter() {
             <Users className="size-4" />
             {t.footer.about}
           </Link>
+          <InstallApp />
         </div>
 
         <nav aria-label={t.footer.gameHeading}>

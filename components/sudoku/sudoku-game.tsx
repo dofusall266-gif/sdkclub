@@ -10,6 +10,7 @@ import { NumberPad } from "@/components/sudoku/number-pad"
 import { PrintableGrid } from "@/components/sudoku/printable-grid"
 import { PrintDialog } from "@/components/sudoku/print-dialog"
 import { digitFromKeyEvent } from "@/components/sudoku/keyboard"
+import { ShareResult } from "@/components/share-result"
 import { SudokuBoard } from "@/components/sudoku/sudoku-board"
 import { useSudoku } from "@/components/sudoku/use-sudoku"
 import { Button } from "@/components/ui/button"
@@ -313,6 +314,16 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
               <Button className="mt-4" onClick={() => handleNewGame(state.difficulty)}>
                 <Sparkles className="size-4" /> {t.game.newGame}
               </Button>
+
+              <ShareResult
+                className="mt-3"
+                text={t.share.free(
+                  difficultyLabel,
+                  formatTime(state.seconds),
+                  state.mistakes,
+                  t.game.mistakeWord(state.mistakes),
+                )}
+              />
 
               {!hasCompletedDailyToday() && (
                 <Link

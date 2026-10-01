@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Confetti } from "@/components/sudoku/confetti"
 import { GameToolbar } from "@/components/sudoku/game-toolbar"
 import { NumberPad } from "@/components/sudoku/number-pad"
+import { ShareResult } from "@/components/share-result"
 import { PrintableGrid } from "@/components/sudoku/printable-grid"
 import { PrintDialog } from "@/components/sudoku/print-dialog"
 import { digitFromKeyEvent } from "@/components/sudoku/keyboard"
@@ -26,9 +27,15 @@ function formatTime(total: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
 }
 
+/** « 2026-09-30 » → « 30 septembre » / « September 30 » (sans décalage de fuseau). */
+function formatDateKey(dateKey: string, locale: string): string {
+  const [y, m, d] = dateKey.split("-").map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString(locale === "en" ? "en-US" : "fr-FR", { day: "numeric", month: "long" })
+}
+
 export function DailyGame() {
   const { dateKey, state, conflicts, remaining, actions } = useDailyGame()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [mounted, setMounted] = useState(false)
   const [notesMode, setNotesMode] = useState(false)
   const [flashIndices, setFlashIndices] = useState<Set<number>>(new Set())
@@ -234,6 +241,15 @@ export function DailyGame() {
                       {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
                     </p>
                   )}
+
+                  <ShareResult
+                    text={t.share.daily(
+                      formatDateKey(dateKey, locale),
+                      formatTime(state.seconds),
+                      state.mistakes,
+                      t.game.mistakeWord(state.mistakes),
+                    )}
+                  />
 
                   {/* Classement directement dans l'écran de victoire : on vient de
                       terminer, c'est le moment où on veut le voir, pas après avoir

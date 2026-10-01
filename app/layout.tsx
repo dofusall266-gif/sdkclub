@@ -5,6 +5,7 @@ import { Suspense } from "react"
 
 import { CookieConsent } from "@/components/cookie-consent"
 import { GoogleAnalytics } from "@/components/google-analytics"
+import { PwaRegister } from "@/components/pwa-register"
 import { LanguageProvider } from "@/lib/i18n/context"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -33,6 +34,7 @@ export const metadata: Metadata = {
     description:
       "Play free Sudoku online: unlimited puzzles, 4 difficulty levels, daily challenge, no sign-up. Jouez au sudoku gratuitement en ligne.",
   },
+  appleWebApp: { capable: true, title: "Sudoku Club" },
   twitter: {
     card: "summary_large_image",
     title: "Sudoku Club — Free online Sudoku · Sudoku gratuit en ligne",
@@ -44,8 +46,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f8fb" },
-    { media: "(prefers-color-scheme: dark)", color: "#22242e" },
+    { media: "(prefers-color-scheme: light)", color: "#EDE0CE" },
+    { media: "(prefers-color-scheme: dark)", color: "#1E140F" },
   ],
 }
 
@@ -97,6 +99,7 @@ export default function RootLayout({
             </div>
             <GoogleAnalytics />
             <CookieConsent />
+            <PwaRegister />
           </ThemeProvider>
         </LanguageProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}

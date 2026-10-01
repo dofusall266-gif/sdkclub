@@ -187,6 +187,21 @@ const fr = {
       copied: "Message copié !",
     },
 
+    install: {
+      button: "Installer l'app",
+      iosHelp: "Sur iPhone / iPad : touchez le bouton Partager de Safari, puis « Sur l'écran d'accueil ».",
+    },
+
+    share: {
+      button: "Partager mon résultat",
+      copied: "Copié !",
+      onX: "Publier sur X",
+      daily: (date: string, time: string, mistakes: number, mistakeWord: string): string =>
+        `Défi du jour Sudoku Club (${date})\n⏱ ${time} · ${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}\nTu fais mieux ? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
+      free: (level: string, time: string, mistakes: number, mistakeWord: string): string =>
+        `J'ai terminé une grille de sudoku ${level.toLowerCase()} en ${time} (${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}) sur Sudoku Club\nÀ ton tour 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
+    },
+
     blog: {
       title: "Articles",
       intro: "Histoire du sudoku, techniques de résolution avancées et bienfaits sur le cerveau.",
@@ -455,6 +470,21 @@ const en: Dictionary = {
       directEmail: "You can also write to us directly at",
       copyMessage: "Copy my message",
       copied: "Message copied!",
+    },
+
+    install: {
+      button: "Install the app",
+      iosHelp: "On iPhone / iPad: tap Safari's Share button, then \"Add to Home Screen\".",
+    },
+
+    share: {
+      button: "Share my result",
+      copied: "Copied!",
+      onX: "Post on X",
+      daily: (date: string, time: string, mistakes: number, mistakeWord: string): string =>
+        `Sudoku Club daily challenge (${date})\n⏱ ${time} · ${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}\nThink you can beat it? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
+      free: (level: string, time: string, mistakes: number, mistakeWord: string): string =>
+        `I just solved a ${level.toLowerCase()} sudoku in ${time} (${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}) on Sudoku Club\nYour turn 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
     },
 
     blog: {
