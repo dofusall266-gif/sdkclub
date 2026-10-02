@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import { LanguageToggle } from "@/components/language-toggle"
 import { StreakBadge } from "@/components/streak-badge"
 import { SudokuLogo } from "@/components/sudoku-logo"
+import { SudokuWordmark } from "@/components/sudoku-wordmark"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { hasCompletedDailyToday } from "@/lib/daily"
@@ -40,9 +41,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
           <SudokuLogo className="size-9" />
-          <span className="text-lg font-bold tracking-tight">
-            Sudoku<span className="text-primary">Club</span>
-          </span>
+          <SudokuWordmark className="text-lg" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Navigation principale">

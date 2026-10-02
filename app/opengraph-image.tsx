@@ -53,7 +53,20 @@ export default function OpengraphImage() {
                 <line x1="4.5" y1="14.67" x2="19.5" y2="14.67" />
               </g>
             </svg>
-            <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1 }}>Sudoku Club</div>
+            <div style={{ display: "flex", alignItems: "center", fontSize: 44, fontWeight: 800, letterSpacing: -1 }}>
+              <span>Sudoku</span>
+              <div
+                style={{
+                  display: "flex",
+                  width: 27,
+                  height: 10,
+                  borderRadius: 6,
+                  background: `linear-gradient(90deg, ${FG}, ${PRIMARY})`,
+                  margin: "5px 5px 0 5px",
+                }}
+              />
+              <span style={{ color: PRIMARY }}>Club</span>
+            </div>
           </div>
 
           <div style={{ marginTop: 44, fontSize: 68, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>

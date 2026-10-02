@@ -5,6 +5,7 @@ import Link from "next/link"
 
 import { InstallApp } from "@/components/install-app"
 import { SudokuLogo } from "@/components/sudoku-logo"
+import { SudokuWordmark } from "@/components/sudoku-wordmark"
 import { useLanguage } from "@/lib/i18n/context"
 import { CONTACT_EMAIL } from "@/lib/site-config"
 
@@ -30,9 +31,7 @@ export function SiteFooter() {
         <div>
           <div className="flex items-center gap-2">
             <SudokuLogo className="size-8" />
-            <span className="text-base font-bold tracking-tight">
-              Sudoku<span className="text-primary">Club</span>
-            </span>
+            <SudokuWordmark className="text-base" />
           </div>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">{t.footer.tagline}</p>
           <a
