@@ -163,6 +163,15 @@ export function DailyGame() {
               <p className="text-xs font-medium text-muted-foreground">{t.game.time}</p>
               <p className="text-xl font-semibold tabular-nums">{formatTime(state.seconds)}</p>
             </div>
+            {state.rating !== undefined && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">{t.game.ratingLabel}</p>
+                <p className="text-xl font-semibold tabular-nums">
+                  {state.rating}
+                  <span className="text-xs font-medium text-muted-foreground">/100</span>
+                </p>
+              </div>
+            )}
           </div>
           <button
             type="button"
@@ -248,6 +257,7 @@ export function DailyGame() {
                       formatTime(state.seconds),
                       state.mistakes,
                       t.game.mistakeWord(state.mistakes),
+                      state.rating,
                     )}
                   />
 

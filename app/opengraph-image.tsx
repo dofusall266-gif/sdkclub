@@ -75,7 +75,7 @@ export default function OpengraphImage() {
           <div style={{ marginTop: 14, fontSize: 36, color: PRIMARY, fontWeight: 600 }}>Sudoku gratuit en ligne</div>
 
           <div style={{ marginTop: 40, display: "flex", flexWrap: "wrap", gap: 12 }}>
-            {["4 levels · 4 niveaux", "Daily challenge", "No sign-up"].map((label) => (
+            {["6 levels · 6 niveaux", "Daily challenge", "No sign-up"].map((label) => (
               <div
                 key={label}
                 style={{

@@ -44,7 +44,8 @@ const fr = {
       difficultyLabel: "Difficulté :",
       filled: "Grille remplie",
       newGame: "Nouvelle grille",
-      difficulties: { facile: "Facile", moyen: "Moyen", difficile: "Difficile", expert: "Expert" },
+      difficulties: { facile: "Facile", moyen: "Moyen", difficile: "Difficile", expert: "Expert", diabolique: "Diabolique", fou: "Fou" },
+      ratingLabel: "Difficulté",
       pause: "Mettre en pause",
       resume: "Reprendre",
       paused: "Partie en pause",
@@ -196,10 +197,10 @@ const fr = {
       button: "Partager mon résultat",
       copied: "Copié !",
       onX: "Publier sur X",
-      daily: (date: string, time: string, mistakes: number, mistakeWord: string): string =>
-        `Défi du jour Sudoku Club (${date})\n⏱ ${time} · ${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}\nTu fais mieux ? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
-      free: (level: string, time: string, mistakes: number, mistakeWord: string): string =>
-        `J'ai terminé une grille de sudoku ${level.toLowerCase()} en ${time} (${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}) sur Sudoku Club\nÀ ton tour 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
+      daily: (date: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
+        `Défi du jour Sudoku Club (${date})\n⏱ ${time} · ${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulté ${rating}/100` : ""}\nTu fais mieux ? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
+      free: (level: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
+        `J'ai terminé une grille de sudoku ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} en ${time} (${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}) sur Sudoku Club\nÀ ton tour 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
     },
 
     blog: {
@@ -220,7 +221,7 @@ const fr = {
         },
         {
           title: "Ce qu'on vous propose",
-          text: "Un jeu 100 % gratuit, jouable immédiatement, avec 4 niveaux de difficulté, des grilles vérifiées à solution unique, un défi quotidien classé, l'impression PDF et un suivi de vos statistiques qui reste sur votre appareil. Le site est disponible en français et en anglais.",
+          text: "Un jeu 100 % gratuit, jouable immédiatement, avec 6 niveaux de difficulté, des grilles vérifiées à solution unique, un défi quotidien classé, l'impression PDF et un suivi de vos statistiques qui reste sur votre appareil. Le site est disponible en français et en anglais.",
         },
         {
           title: "Nous écrire",
@@ -329,7 +330,8 @@ const en: Dictionary = {
       difficultyLabel: "Difficulty:",
       filled: "Grid filled",
       newGame: "New puzzle",
-      difficulties: { facile: "Easy", moyen: "Medium", difficile: "Hard", expert: "Expert" },
+      difficulties: { facile: "Easy", moyen: "Medium", difficile: "Hard", expert: "Expert", diabolique: "Diabolical", fou: "Crazy" },
+      ratingLabel: "Difficulty",
       pause: "Pause",
       resume: "Resume",
       paused: "Game paused",
@@ -481,10 +483,10 @@ const en: Dictionary = {
       button: "Share my result",
       copied: "Copied!",
       onX: "Post on X",
-      daily: (date: string, time: string, mistakes: number, mistakeWord: string): string =>
-        `Sudoku Club daily challenge (${date})\n⏱ ${time} · ${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}\nThink you can beat it? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
-      free: (level: string, time: string, mistakes: number, mistakeWord: string): string =>
-        `I just solved a ${level.toLowerCase()} sudoku in ${time} (${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}) on Sudoku Club\nYour turn 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
+      daily: (date: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
+        `Sudoku Club daily challenge (${date})\n⏱ ${time} · ${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulty ${rating}/100` : ""}\nThink you can beat it? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
+      free: (level: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
+        `I just solved a ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} sudoku in ${time} (${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}) on Sudoku Club\nYour turn 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
     },
 
     blog: {
@@ -505,7 +507,7 @@ const en: Dictionary = {
         },
         {
           title: "What we offer",
-          text: "A 100% free game you can play right away, with 4 difficulty levels, verified single-solution grids, a ranked daily challenge, PDF printing, and stats tracking that stays on your device. The site is available in French and English.",
+          text: "A 100% free game you can play right away, with 6 difficulty levels, verified single-solution grids, a ranked daily challenge, PDF printing, and stats tracking that stays on your device. The site is available in French and English.",
         },
         {
           title: "Get in touch",

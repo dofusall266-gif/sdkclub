@@ -19,6 +19,8 @@ export interface Snapshot {
 
 export interface State {
   difficulty: Difficulty
+  /** Note de difficulté de la grille (1-100). Absente sur les anciennes sauvegardes. */
+  rating?: number
   given: Grid
   solution: Grid
   grid: Grid
@@ -49,15 +51,16 @@ export function emptyNotes(): number[][] {
 }
 
 export function createGame(difficulty: Difficulty): State {
-  const { puzzle, solution } = generatePuzzle(difficulty)
-  return createGameFromPuzzle(puzzle, solution, difficulty)
+  const { puzzle, solution, rating } = generatePuzzle(difficulty)
+  return createGameFromPuzzle(puzzle, solution, difficulty, rating)
 }
 
 /** Construit un état de jeu initial à partir d'une grille déjà générée
  * (utilisé par le hook du défi du jour, dont la grille est déterministe). */
-export function createGameFromPuzzle(puzzle: Grid, solution: Grid, difficulty: Difficulty): State {
+export function createGameFromPuzzle(puzzle: Grid, solution: Grid, difficulty: Difficulty, rating?: number): State {
   return {
     difficulty,
+    rating,
     given: puzzle,
     solution,
     grid: [...puzzle],

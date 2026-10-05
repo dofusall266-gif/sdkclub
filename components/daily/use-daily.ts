@@ -25,8 +25,8 @@ export function useDailyGame() {
     if (persisted) {
       initialRef.current = persisted
     } else {
-      const { puzzle, solution } = getDailyPuzzle(dateKey)
-      initialRef.current = createGameFromPuzzle(puzzle, solution, DAILY_DIFFICULTY)
+      const { puzzle, solution, rating } = getDailyPuzzle(dateKey)
+      initialRef.current = createGameFromPuzzle(puzzle, solution, DAILY_DIFFICULTY, rating)
     }
   }
 

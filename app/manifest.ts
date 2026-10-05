@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "Sudoku Club",
     short_name: "SudokuClub",
-    description: "Free online Sudoku · Sudoku gratuit en ligne — grilles uniques, 4 niveaux, défi du jour.",
+    description: "Free online Sudoku · Sudoku gratuit en ligne — grilles uniques, 6 niveaux, défi du jour.",
     start_url: "/jouer",
     scope: "/",
     display: "standalone",

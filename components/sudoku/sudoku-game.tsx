@@ -16,11 +16,9 @@ import { useSudoku } from "@/components/sudoku/use-sudoku"
 import { Button } from "@/components/ui/button"
 import { hasCompletedDailyToday } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
-import { type Difficulty, colOf, groupIndices, rowOf } from "@/lib/sudoku"
+import { DIFFICULTIES, type Difficulty, colOf, groupIndices, rowOf } from "@/lib/sudoku"
 import { getBestTime, maybeRecordBest, recordWinForStreak } from "@/lib/streak"
 import { cn } from "@/lib/utils"
-
-const DIFFICULTIES: Difficulty[] = ["facile", "moyen", "difficile", "expert"]
 
 function formatTime(total: number): string {
   const m = Math.floor(total / 60)
@@ -211,6 +209,15 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
           <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.time}</p>
           <p className="text-xl font-semibold tabular-nums lg:text-2xl">{formatTime(state.seconds)}</p>
         </div>
+        {state.rating !== undefined && (
+          <div>
+            <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.ratingLabel}</p>
+            <p className="text-xl font-semibold tabular-nums lg:text-2xl">
+              {state.rating}
+              <span className="text-xs font-medium text-muted-foreground lg:text-sm">/100</span>
+            </p>
+          </div>
+        )}
         {bestTime !== null && (
           <div className="hidden sm:block">
             <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.bestTime}</p>
@@ -322,6 +329,7 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
                   formatTime(state.seconds),
                   state.mistakes,
                   t.game.mistakeWord(state.mistakes),
+                  state.rating,
                 )}
               />
 
