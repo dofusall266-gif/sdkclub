@@ -5,7 +5,7 @@ import { DailyGame } from "@/components/daily/daily-game"
 import { DailyIntro } from "@/components/daily/daily-intro"
 
 export const metadata: Metadata = {
-  title: "Défi du jour — Sudoku Club",
+  title: "Défi du jour — Sudoku-Club",
   description:
     "Une seule grille de sudoku par jour, la même pour tout le monde. Terminez-la et inscrivez votre score au classement du jour.",
   alternates: { canonical: "/defi" },

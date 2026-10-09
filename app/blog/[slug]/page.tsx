@@ -43,8 +43,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     dateModified: post.date,
     inLanguage: "fr-FR",
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${post.slug}` },
-    author: { "@type": "Organization", name: "Sudoku Club", url: SITE_URL },
-    publisher: { "@type": "Organization", name: "Sudoku Club", url: SITE_URL },
+    author: { "@type": "Organization", name: "Sudoku-Club", url: SITE_URL },
+    publisher: { "@type": "Organization", name: "Sudoku-Club", url: SITE_URL },
     ...(post.category ? { articleSection: post.category } : {}),
   }
 

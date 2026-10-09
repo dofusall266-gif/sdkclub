@@ -5,8 +5,8 @@ import type { MetadataRoute } from "next"
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Sudoku Club",
-    short_name: "SudokuClub",
+    name: "Sudoku-Club",
+    short_name: "Sudoku-Club",
     description: "Free online Sudoku · Sudoku gratuit en ligne — grilles uniques, 6 niveaux, défi du jour.",
     start_url: "/jouer",
     scope: "/",

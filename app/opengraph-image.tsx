@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og"
 // Image de partage (Open Graph) générée au build : affichée par X/Twitter,
 // Facebook, WhatsApp, Discord, iMessage, LinkedIn… quand on colle le lien.
 // Texte bilingue : les robots des réseaux ne lisent pas le sélecteur de langue.
-export const alt = "Sudoku Club — Free online Sudoku · Sudoku gratuit en ligne"
+export const alt = "Sudoku-Club — Free online Sudoku · Sudoku gratuit en ligne"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 

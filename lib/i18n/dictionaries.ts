@@ -198,9 +198,9 @@ const fr = {
       copied: "Copié !",
       onX: "Publier sur X",
       daily: (date: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
-        `Défi du jour Sudoku Club (${date})\n⏱ ${time} · ${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulté ${rating}/100` : ""}\nTu fais mieux ? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
+        `Défi du jour Sudoku-Club (${date})\n⏱ ${time} · ${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulté ${rating}/100` : ""}\nTu fais mieux ? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
       free: (level: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
-        `J'ai terminé une grille de sudoku ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} en ${time} (${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}) sur Sudoku Club\nÀ ton tour 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
+        `J'ai terminé une grille de sudoku ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} en ${time} (${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}) sur Sudoku-Club\nÀ ton tour 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
     },
 
     blog: {
@@ -213,7 +213,7 @@ const fr = {
 
     about: {
       title: "Qui sommes-nous ?",
-      intro: "Sudoku Club est né de la passion d'une petite équipe pour ce jeu de logique.",
+      intro: "Sudoku-Club est né de la passion d'une petite équipe pour ce jeu de logique.",
       sections: [
         {
           title: "Pourquoi ce site",
@@ -238,7 +238,7 @@ const fr = {
       sections: [
         {
           title: "Éditeur du site",
-          text: "Le site Sudoku Club est un projet de jeu en ligne gratuit. Les informations relatives à l'éditeur peuvent être obtenues via la page Contact.",
+          text: "Le site Sudoku-Club est un projet de jeu en ligne gratuit. Les informations relatives à l'éditeur peuvent être obtenues via la page Contact.",
         },
         {
           title: "Hébergement",
@@ -250,7 +250,7 @@ const fr = {
         },
         {
           title: "Responsabilité",
-          text: "Sudoku Club s'efforce d'assurer l'exactitude des informations et le bon fonctionnement du jeu, sans toutefois pouvoir le garantir en toutes circonstances. L'utilisation du site se fait sous la seule responsabilité de l'utilisateur.",
+          text: "Sudoku-Club s'efforce d'assurer l'exactitude des informations et le bon fonctionnement du jeu, sans toutefois pouvoir le garantir en toutes circonstances. L'utilisation du site se fait sous la seule responsabilité de l'utilisateur.",
         },
       ],
     },
@@ -261,7 +261,7 @@ const fr = {
       sections: [
         {
           title: "1. Introduction",
-          text: "La présente politique de confidentialité décrit la manière dont Sudoku Club (« nous ») traite les informations lorsque vous utilisez notre site. Nous accordons une grande importance au respect de votre vie privée et à la protection de vos données personnelles.",
+          text: "La présente politique de confidentialité décrit la manière dont Sudoku-Club (« nous ») traite les informations lorsque vous utilisez notre site. Nous accordons une grande importance au respect de votre vie privée et à la protection de vos données personnelles.",
         },
         {
           title: "2. Données collectées",
@@ -484,9 +484,9 @@ const en: Dictionary = {
       copied: "Copied!",
       onX: "Post on X",
       daily: (date: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
-        `Sudoku Club daily challenge (${date})\n⏱ ${time} · ${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulty ${rating}/100` : ""}\nThink you can beat it? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
+        `Sudoku-Club daily challenge (${date})\n⏱ ${time} · ${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulty ${rating}/100` : ""}\nThink you can beat it? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
       free: (level: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
-        `I just solved a ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} sudoku in ${time} (${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}) on Sudoku Club\nYour turn 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
+        `I just solved a ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} sudoku in ${time} (${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}) on Sudoku-Club\nYour turn 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
     },
 
     blog: {
@@ -499,7 +499,7 @@ const en: Dictionary = {
 
     about: {
       title: "Who we are",
-      intro: "Sudoku Club was born from a small team's passion for this logic game.",
+      intro: "Sudoku-Club was born from a small team's passion for this logic game.",
       sections: [
         {
           title: "Why this site",
@@ -524,7 +524,7 @@ const en: Dictionary = {
       sections: [
         {
           title: "Site publisher",
-          text: "Sudoku Club is a free online game project. Information about the publisher can be obtained via the Contact page.",
+          text: "Sudoku-Club is a free online game project. Information about the publisher can be obtained via the Contact page.",
         },
         {
           title: "Hosting",
@@ -536,7 +536,7 @@ const en: Dictionary = {
         },
         {
           title: "Liability",
-          text: "Sudoku Club strives to ensure the accuracy of information and the proper functioning of the game, without being able to guarantee it in all circumstances. Use of the site is at the user's own responsibility.",
+          text: "Sudoku-Club strives to ensure the accuracy of information and the proper functioning of the game, without being able to guarantee it in all circumstances. Use of the site is at the user's own responsibility.",
         },
       ],
     },
@@ -547,7 +547,7 @@ const en: Dictionary = {
       sections: [
         {
           title: "1. Introduction",
-          text: "This privacy policy describes how Sudoku Club (\"we\") handles information when you use our site. We place great importance on respecting your privacy and protecting your personal data.",
+          text: "This privacy policy describes how Sudoku-Club (\"we\") handles information when you use our site. We place great importance on respecting your privacy and protecting your personal data.",
         },
         {
           title: "2. Data collected",

@@ -15,11 +15,11 @@ import "./globals.css"
 export const metadata: Metadata = {
   metadataBase: new URL("https://sudoku-club.com"),
   title: {
-    default: "Sudoku Club — Jouer au sudoku gratuit en ligne",
-    template: "%s | Sudoku Club",
+    default: "Sudoku-Club — Jouer au sudoku gratuit, défi du jour",
+    template: "%s | Sudoku-Club",
   },
   description:
-    "Jouez au sudoku gratuitement en ligne : grilles uniques, 6 niveaux de difficulté, minuteur, indices et impression PDF. Optimisé pour mobile.",
+    "Jouez au sudoku gratuit en ligne, sans inscription : 6 niveaux du Facile au Fou, un défi du jour classé et des grilles à imprimer en PDF.",
   keywords: ["sudoku", "sudoku en ligne", "sudoku gratuit", "jeu de sudoku", "grille de sudoku", "sudoku à imprimer"],
   generator: "v0.app",
   // Aperçu de lien (X, WhatsApp, Discord…) : les robots ne lisent pas le
@@ -29,15 +29,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     alternateLocale: ["en_US"],
-    siteName: "Sudoku Club",
-    title: "Sudoku Club — Free online Sudoku · Sudoku gratuit en ligne",
+    siteName: "Sudoku-Club",
+    title: "Sudoku-Club — Free online Sudoku · Sudoku gratuit en ligne",
     description:
       "Play free Sudoku online: unlimited puzzles, 6 difficulty levels, daily challenge, no sign-up. Jouez au sudoku gratuitement en ligne.",
   },
-  appleWebApp: { capable: true, title: "Sudoku Club" },
+  appleWebApp: { capable: true, title: "Sudoku-Club" },
   twitter: {
     card: "summary_large_image",
-    title: "Sudoku Club — Free online Sudoku · Sudoku gratuit en ligne",
+    title: "Sudoku-Club — Free online Sudoku · Sudoku gratuit en ligne",
     description:
       "Play free Sudoku online: unlimited puzzles, 6 difficulty levels, daily challenge, no sign-up. Jouez au sudoku gratuitement en ligne.",
   },

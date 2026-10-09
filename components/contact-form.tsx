@@ -55,7 +55,7 @@ export function ContactForm() {
         const name = String(data.get("name") ?? "")
         const email = String(data.get("email") ?? "")
         const message = String(data.get("message") ?? "")
-        const subject = encodeURIComponent(`Message de ${name} — Sudoku Club`)
+        const subject = encodeURIComponent(`Message de ${name} — Sudoku-Club`)
         const body = encodeURIComponent(`${message}\n\n—\n${email}`)
         setRawMessage(`De : ${name} (${email})\n\n${message}`)
         window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
