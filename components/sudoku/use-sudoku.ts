@@ -178,9 +178,12 @@ export function reducer(state: State, action: Action): State {
 
       grid[i] = action.value
       notes[i] = []
-      clearNotesInScope(notes, i, action.value)
 
       const wrong = state.solution[i] !== action.value
+      // Un chiffre juste nettoie les notes voisines. Un chiffre FAUX n'y touche pas :
+      // sinon, en le retirant, on se retrouverait avec des notes fausses (le bon
+      // candidat effacé) et la grille paraîtrait sans issue.
+      if (!wrong) clearNotesInScope(notes, i, action.value)
       const mistakes = wrong ? state.mistakes + 1 : state.mistakes
       const won = !wrong && isComplete(grid) && grid.every((v, k) => v === state.solution[k])
 

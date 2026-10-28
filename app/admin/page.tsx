@@ -5,6 +5,7 @@ import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 
 import { ResetStatsButton } from "@/components/admin/reset-stats-button"
+import { TrendChart, type TrendPoint } from "@/components/admin/trend-chart"
 import { ensureDailyScoresTable, ensureEventsTable, getDb } from "@/lib/db"
 import { todayKey } from "@/lib/daily"
 
@@ -118,6 +119,7 @@ export default async function AdminPage() {
   let byDevice: Row[] = []
   let dailyStats: Row | null = null
   let dbError = false
+  let trend: TrendPoint[] = []
 
   if (sql) {
     try {
@@ -164,6 +166,15 @@ export default async function AdminPage() {
         GROUP BY date_trunc('day', created_at)
         ORDER BY date_trunc('day', created_at)
       `) as Row[]
+
+      // Les jours sans aucune partie n'existent pas en base : on les remet à zéro pour le graphique.
+      const byDay = new Map(last30Days.map((r) => [String(r.day), r]))
+      trend = Array.from({ length: 30 }, (_, i) => {
+        const d = new Date(Date.now() - (29 - i) * 86_400_000)
+        const day = `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}`
+        const row = byDay.get(day)
+        return { day, started: Number(row?.started ?? 0), won: Number(row?.won ?? 0) }
+      })
 
       const dailyRows = await sql`
         SELECT count(*) AS participants, round(avg(seconds)) AS avg_seconds, min(seconds) AS best_seconds
@@ -266,16 +277,12 @@ export default async function AdminPage() {
 
           <div className="mt-8">
             <h2 className="text-sm font-semibold">Tendance — 30 derniers jours</h2>
-            <div className="mt-3 max-h-72 space-y-2 overflow-y-auto">
-              {last30Days.length === 0 && <p className="text-sm text-muted-foreground">Pas encore de données.</p>}
-              {last30Days.map((row) => (
-                <div key={String(row.day)} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{row.day}</span>
-                  <span>
-                    {row.started} lancées · {row.won} gagnées
-                  </span>
-                </div>
-              ))}
+            <div className="mt-3">
+              {trend.every((p) => p.started === 0) ? (
+                <p className="text-sm text-muted-foreground">Pas encore de données.</p>
+              ) : (
+                <TrendChart points={trend} />
+              )}
             </div>
           </div>
 
