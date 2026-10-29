@@ -5,9 +5,9 @@ import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 
 import { ResetStatsButton } from "@/components/admin/reset-stats-button"
-import { TrendChart, type TrendPoint } from "@/components/admin/trend-chart"
+import { Dash } from "@/components/admin/dashboard"
+import { loadDashboard, type Dashboard } from "@/lib/admin-stats"
 import { ensureDailyScoresTable, ensureEventsTable, getDb } from "@/lib/db"
-import { todayKey } from "@/lib/daily"
 
 export const metadata: Metadata = {
   title: "Statistiques",
@@ -71,9 +71,11 @@ async function resetDaily() {
   revalidatePath("/admin")
 }
 
-type Row = Record<string, string | number | null>
+const PERIODS = [7, 30, 90]
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ jours?: string }> }) {
+  const { jours } = await searchParams
+  const days = PERIODS.includes(Number(jours)) ? Number(jours) : 30
   const authed = await checkAuthed()
   const expected = process.env.ADMIN_PASSWORD
 
@@ -113,90 +115,35 @@ export default async function AdminPage() {
   }
 
   const sql = getDb()
-  let totals: Row | null = null
-  let byDifficulty: Row[] = []
-  let last30Days: Row[] = []
-  let byDevice: Row[] = []
-  let dailyStats: Row | null = null
+  let dash: Dashboard | null = null
   let dbError = false
-  let trend: TrendPoint[] = []
 
   if (sql) {
     try {
       await ensureEventsTable(sql)
       await ensureDailyScoresTable(sql)
-
-      const totalsRows = await sql`
-        SELECT
-          count(*) FILTER (WHERE type = 'game_started') AS games_started,
-          count(*) FILTER (WHERE type = 'game_won') AS games_won,
-          round(avg(duration_seconds) FILTER (WHERE type = 'game_won')) AS avg_seconds,
-          round(avg(mistakes) FILTER (WHERE type = 'game_won'), 1) AS avg_mistakes
-        FROM events
-      `
-      totals = totalsRows[0] as Row
-
-      byDifficulty = (await sql`
-        SELECT
-          difficulty,
-          count(*) FILTER (WHERE type = 'game_started') AS started,
-          count(*) FILTER (WHERE type = 'game_won') AS won,
-          round(avg(duration_seconds) FILTER (WHERE type = 'game_won')) AS avg_seconds
-        FROM events
-        WHERE difficulty IS NOT NULL
-        GROUP BY difficulty
-        ORDER BY started DESC
-      `) as Row[]
-
-      byDevice = (await sql`
-        SELECT device, count(*) AS count
-        FROM events
-        WHERE type = 'game_started' AND device IS NOT NULL
-        GROUP BY device
-        ORDER BY count DESC
-      `) as Row[]
-
-      last30Days = (await sql`
-        SELECT
-          to_char(date_trunc('day', created_at), 'DD/MM') AS day,
-          count(*) FILTER (WHERE type = 'game_started') AS started,
-          count(*) FILTER (WHERE type = 'game_won') AS won
-        FROM events
-        WHERE created_at > now() - interval '30 days'
-        GROUP BY date_trunc('day', created_at)
-        ORDER BY date_trunc('day', created_at)
-      `) as Row[]
-
-      // Les jours sans aucune partie n'existent pas en base : on les remet à zéro pour le graphique.
-      const byDay = new Map(last30Days.map((r) => [String(r.day), r]))
-      trend = Array.from({ length: 30 }, (_, i) => {
-        const d = new Date(Date.now() - (29 - i) * 86_400_000)
-        const day = `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}`
-        const row = byDay.get(day)
-        return { day, started: Number(row?.started ?? 0), won: Number(row?.won ?? 0) }
-      })
-
-      const dailyRows = await sql`
-        SELECT count(*) AS participants, round(avg(seconds)) AS avg_seconds, min(seconds) AS best_seconds
-        FROM daily_scores
-        WHERE date = ${todayKey()}
-      `
-      dailyStats = dailyRows[0] as Row
+      dash = await loadDashboard(sql, days)
     } catch {
       dbError = true
     }
   }
 
-  const gamesStarted = Number(totals?.games_started ?? 0)
-  const gamesWon = Number(totals?.games_won ?? 0)
-  const completionRate = gamesStarted > 0 ? Math.round((gamesWon / gamesStarted) * 100) : 0
-  const abandoned = Math.max(0, gamesStarted - gamesWon)
-
   return (
     <Shell wide>
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-bold">Statistiques du site</h1>
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-xl font-bold">Tableau de bord</h1>
+        <div className="flex items-center gap-4">
+          <nav className="flex gap-1 rounded-lg border border-border p-0.5 text-sm" aria-label="Période">
+            {PERIODS.map((p) => (
+              <a
+                key={p}
+                href={`/admin?jours=${p}`}
+                className={`rounded-md px-3 py-1 ${p === days ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {p} jours
+              </a>
+            ))}
+          </nav>
           <form action={logout}>
             <button type="submit" className="text-xs text-muted-foreground hover:text-foreground">
               Se déconnecter
@@ -218,113 +165,32 @@ export default async function AdminPage() {
         </p>
       )}
 
+      {dash && <Dash d={dash} />}
+
       {sql && !dbError && (
-        <>
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            <StatCard label="Parties lancées" value={gamesStarted} />
-            <StatCard label="Parties terminées" value={gamesWon} />
-            <StatCard label="Taux de complétion" value={`${completionRate}%`} />
-            <StatCard label="Parties abandonnées" value={abandoned} />
-            <StatCard label="Temps moyen" value={totals?.avg_seconds ? formatSeconds(Number(totals.avg_seconds)) : "—"} />
-            <StatCard label="Erreurs moyennes" value={totals?.avg_mistakes ?? "—"} />
+        <div className="mt-12 rounded-xl border border-dashed border-destructive/30 p-4">
+          <h2 className="text-sm font-semibold text-destructive">Zone sensible</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Repart de zéro pour recommencer la prise de données (utile après des tests, par exemple).
+          </p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <ResetStatsButton
+              action={resetEvents}
+              label="Réinitialiser les parties jouées"
+              confirmText="Supprimer définitivement toutes les statistiques de parties (temps, erreurs, appareils) ? Cette action est irréversible."
+            />
+            <ResetStatsButton
+              action={resetDaily}
+              label="Réinitialiser le classement du défi"
+              confirmText="Supprimer définitivement tous les scores du défi du jour (tous les jours confondus) ? Cette action est irréversible."
+            />
           </div>
-
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-semibold">Par niveau de difficulté</h2>
-              <div className="mt-3 space-y-2">
-                {byDifficulty.length === 0 && <p className="text-sm text-muted-foreground">Pas encore de données.</p>}
-                {byDifficulty.map((row) => (
-                  <div key={String(row.difficulty)} className="flex items-center justify-between text-sm">
-                    <span className="capitalize text-muted-foreground">{row.difficulty}</span>
-                    <span className="font-semibold">
-                      {row.started} lancées · {row.won} gagnées
-                      {row.avg_seconds ? ` · ~${formatSeconds(Number(row.avg_seconds))}` : ""}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-semibold">Appareils</h2>
-              <div className="mt-3 space-y-2">
-                {byDevice.length === 0 && <p className="text-sm text-muted-foreground">Pas encore de données.</p>}
-                {byDevice.map((row) => (
-                  <div key={String(row.device)} className="flex items-center justify-between text-sm">
-                    <span className="capitalize text-muted-foreground">{row.device}</span>
-                    <span className="font-semibold">{row.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h2 className="text-sm font-semibold">Défi du jour — aujourd&apos;hui</h2>
-            <div className="mt-3 grid grid-cols-3 gap-4">
-              <StatCard label="Participants" value={Number(dailyStats?.participants ?? 0)} />
-              <StatCard
-                label="Temps moyen"
-                value={dailyStats?.avg_seconds ? formatSeconds(Number(dailyStats.avg_seconds)) : "—"}
-              />
-              <StatCard
-                label="Meilleur temps"
-                value={dailyStats?.best_seconds ? formatSeconds(Number(dailyStats.best_seconds)) : "—"}
-              />
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h2 className="text-sm font-semibold">Tendance — 30 derniers jours</h2>
-            <div className="mt-3">
-              {trend.every((p) => p.started === 0) ? (
-                <p className="text-sm text-muted-foreground">Pas encore de données.</p>
-              ) : (
-                <TrendChart points={trend} />
-              )}
-            </div>
-          </div>
-
-          <div className="mt-10 rounded-xl border border-dashed border-destructive/30 p-4">
-            <h2 className="text-sm font-semibold text-destructive">Zone sensible</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Repart de zéro pour recommencer la prise de données (utile après des tests, par exemple).
-            </p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              <ResetStatsButton
-                action={resetEvents}
-                label="Réinitialiser les parties jouées"
-                confirmText="Supprimer définitivement toutes les statistiques de parties (temps, erreurs, appareils) ? Cette action est irréversible."
-              />
-              <ResetStatsButton
-                action={resetDaily}
-                label="Réinitialiser le classement du défi"
-                confirmText="Supprimer définitivement tous les scores du défi du jour (tous les jours confondus) ? Cette action est irréversible."
-              />
-            </div>
-          </div>
-        </>
+        </div>
       )}
     </Shell>
   )
 }
 
-function formatSeconds(total: number): string {
-  const m = Math.floor(total / 60)
-  const s = Math.round(total % 60)
-  return `${m}m ${String(s).padStart(2, "0")}s`
-}
-
-function StatCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-2xl font-bold tabular-nums">{value}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
-    </div>
-  )
-}
-
 function Shell({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
-  return <div className={`mx-auto w-full px-4 py-10 ${wide ? "max-w-4xl" : "max-w-sm"}`}>{children}</div>
+  return <div className={`mx-auto w-full px-4 py-10 ${wide ? "max-w-5xl" : "max-w-sm"}`}>{children}</div>
 }

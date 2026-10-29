@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { CookieConsent } from "@/components/cookie-consent"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { PwaRegister } from "@/components/pwa-register"
+import { SourceCapture } from "@/components/source-capture"
 import { LanguageProvider } from "@/lib/i18n/context"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -100,6 +101,7 @@ export default function RootLayout({
             <GoogleAnalytics />
             <CookieConsent />
             <PwaRegister />
+            <SourceCapture />
           </ThemeProvider>
         </LanguageProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}

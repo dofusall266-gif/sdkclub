@@ -6,9 +6,9 @@ import { createSeededRandom, generatePuzzle, hashSeed, type Puzzle } from "@/lib
  * sert au tri du classement. */
 export const PENALTY_SECONDS_PER_MISTAKE = 30
 
-/** Difficulté fixe du défi du jour : assez difficile pour être un vrai défi,
- * mais pas "expert" pour que le maximum de joueurs puisse le terminer. */
-export const DAILY_DIFFICULTY = "difficile" as const
+/** Difficulté fixe du défi du jour : « moyen », pour que le plus grand nombre de joueurs
+ * puisse le terminer sans erreur et que le classement se joue sur la vitesse. */
+export const DAILY_DIFFICULTY = "moyen" as const
 
 /** Date du jour au format YYYY-MM-DD, en UTC : tout le monde a la même grille
  * le même jour, quel que soit son fuseau horaire (léger décalage possible au

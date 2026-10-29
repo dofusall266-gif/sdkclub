@@ -14,7 +14,10 @@ export function getDb() {
 /** Crée la table d'événements si elle n'existe pas encore, et ajoute les colonnes
  * détaillées (durée, erreurs, appareil) si elles n'existent pas déjà — utile pour
  * les sites déjà en production avec l'ancien schéma. */
+let eventsTableReady = false
+
 export async function ensureEventsTable(sql: NonNullable<ReturnType<typeof getDb>>) {
+  if (eventsTableReady) return
   await sql`
     CREATE TABLE IF NOT EXISTS events (
       id BIGSERIAL PRIMARY KEY,
@@ -23,9 +26,18 @@ export async function ensureEventsTable(sql: NonNullable<ReturnType<typeof getDb
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `
-  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS duration_seconds INTEGER`
-  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS mistakes INTEGER`
-  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS device TEXT`
+  await sql`
+    ALTER TABLE events
+      ADD COLUMN IF NOT EXISTS duration_seconds INTEGER,
+      ADD COLUMN IF NOT EXISTS mistakes INTEGER,
+      ADD COLUMN IF NOT EXISTS device TEXT,
+      ADD COLUMN IF NOT EXISTS mode TEXT,
+      ADD COLUMN IF NOT EXISTS rating INTEGER,
+      ADD COLUMN IF NOT EXISTS source TEXT,
+      ADD COLUMN IF NOT EXISTS visitor_id TEXT
+  `
+  await sql`CREATE INDEX IF NOT EXISTS events_created_at_idx ON events (created_at)`
+  eventsTableReady = true
 }
 
 /** Table des scores du défi du jour (pseudo + drapeau choisis, pas de compte). */

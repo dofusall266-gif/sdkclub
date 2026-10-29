@@ -6,6 +6,7 @@ import { createGameFromPuzzle, reducer, type State } from "@/components/sudoku/u
 import { DAILY_DIFFICULTY, getDailyPuzzle, todayKey } from "@/lib/daily"
 import { findConflicts } from "@/lib/sudoku"
 import { readJSON, remove, writeJSON } from "@/lib/storage"
+import { track } from "@/lib/track"
 
 function storageKey(dateKey: string) {
   return `sc_daily_game_v1_${dateKey}`
@@ -39,6 +40,31 @@ export function useDailyGame() {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
   }, [])
+
+  // Statistiques du défi : « lancé » dès 2 chiffres posés, « gagné » à la victoire — chacun
+  // compté une seule fois par jour et par appareil (repère gardé dans le stockage local).
+  useEffect(() => {
+    const startedKey = `sc_daily_started_${dateKey}`
+    const wonKey = `sc_daily_won_${dateKey}`
+    try {
+      const filled = state.grid.reduce((n, v, i) => n + (state.given[i] === 0 && v !== 0 ? 1 : 0), 0)
+      if (filled >= 2 && !localStorage.getItem(startedKey)) {
+        localStorage.setItem(startedKey, "1")
+        track("game_started", DAILY_DIFFICULTY, { mode: "daily", rating: state.rating })
+      }
+      if (state.status === "won" && !localStorage.getItem(wonKey)) {
+        localStorage.setItem(wonKey, "1")
+        track("game_won", DAILY_DIFFICULTY, {
+          mode: "daily",
+          rating: state.rating,
+          duration_seconds: state.seconds,
+          mistakes: state.mistakes,
+        })
+      }
+    } catch {
+      // Stockage local indisponible : pas de statistiques pour cette partie, le jeu continue.
+    }
+  }, [state.grid, state.given, state.status, state.seconds, state.mistakes, state.rating, dateKey])
 
   useEffect(() => {
     // On sauvegarde systématiquement, y compris l'état "won" : c'est ce qui

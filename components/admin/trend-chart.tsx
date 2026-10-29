@@ -1,4 +1,4 @@
-/** Graphique en barres des 30 derniers jours (SVG pur, rendu côté serveur : aucun JavaScript envoyé au navigateur).
+/** Graphique en barres des derniers jours (7, 30 ou 90) (SVG pur, rendu côté serveur : aucun JavaScript envoyé au navigateur).
  * Pour chaque jour : parties lancées (barre claire) et parties gagnées (barre verte).
  * Les jours sans aucune partie sont affichés à zéro, pour que les creux se voient. */
 export interface TrendPoint {
@@ -20,6 +20,7 @@ export function TrendChart({ points }: { points: TrendPoint[] }) {
   const max = Math.ceil(peak / step) * step
   const ticks = Array.from({ length: max / step + 1 }, (_, i) => i * step)
 
+  const labelEvery = points.length > 45 ? 10 : points.length > 12 ? 5 : 1
   const slot = innerW / points.length
   const barW = Math.max(3, slot * 0.34)
   const y = (v: number) => pad.top + innerH - (v / max) * innerH
@@ -37,7 +38,7 @@ export function TrendChart({ points }: { points: TrendPoint[] }) {
           <span className="size-2.5 rounded-sm bg-primary" /> Gagnées ({totalWon})
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Parties lancées et gagnées par jour sur 30 jours">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Parties lancées et gagnées par jour sur ${points.length} jours`}>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={pad.left} x2={W - pad.right} y1={y(t)} y2={y(t)} className="stroke-border" strokeWidth={1} />
@@ -67,7 +68,7 @@ export function TrendChart({ points }: { points: TrendPoint[] }) {
                 rx={1.5}
                 className="fill-primary"
               />
-              {(i % 5 === 0 || i === points.length - 1) && (
+              {(i % labelEvery === 0 || i === points.length - 1) && (
                 <text x={cx} y={H - 8} textAnchor="middle" className="fill-muted-foreground" fontSize={10}>
                   {p.day}
                 </text>

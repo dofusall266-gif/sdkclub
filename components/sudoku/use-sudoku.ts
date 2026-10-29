@@ -1,5 +1,6 @@
 "use client"
 
+import { track } from "@/lib/track"
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 
 import {
@@ -252,24 +253,6 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-/** Type d'appareil, calculé une fois : sert uniquement aux statistiques admin. */
-function detectDevice(): string {
-  if (typeof navigator === "undefined") return "unknown"
-  return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "mobile" : "desktop"
-}
-
-function track(
-  type: "game_started" | "game_won",
-  difficulty: Difficulty,
-  extra?: { duration_seconds?: number; mistakes?: number },
-) {
-  fetch("/api/track", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type, difficulty, device: detectDevice(), ...extra }),
-  }).catch(() => {})
-}
-
 const STORAGE_KEY = "sc_active_game_v1"
 
 interface PersistedGame extends State {
@@ -320,7 +303,7 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
     const filled = state.grid.reduce((n, v, i) => n + (state.given[i] === 0 && v !== 0 ? 1 : 0), 0)
     if (filled >= 2) {
       startTrackedGivenRef.current = state.given
-      track("game_started", state.difficulty)
+      track("game_started", state.difficulty, { mode: "free", rating: state.rating })
     }
   }, [state.grid, state.given, state.difficulty])
 
@@ -337,7 +320,12 @@ export function useSudoku(initialDifficulty: Difficulty = "facile") {
   useEffect(() => {
     if (state.status === "won" && !wonTrackedRef.current) {
       wonTrackedRef.current = true
-      track("game_won", state.difficulty, { duration_seconds: state.seconds, mistakes: state.mistakes })
+      track("game_won", state.difficulty, {
+        mode: "free",
+        rating: state.rating,
+        duration_seconds: state.seconds,
+        mistakes: state.mistakes,
+      })
     }
     if (state.status === "playing") wonTrackedRef.current = false
   }, [state.status, state.difficulty, state.seconds, state.mistakes])
