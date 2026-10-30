@@ -1,4 +1,11 @@
+import { generateClassicPuzzle, type ClassicLevel } from "@/lib/classic-generator"
 import { PUZZLE_BANK } from "@/lib/puzzle-bank"
+
+/** Origine des grilles :
+ *  - "bank"    : grilles préparées (solution unique, aucune devinette, note sur 100) ;
+ *  - "classic" : ancienne méthode d'avant la V16 (générée à la volée, 4 niveaux, sans note).
+ * Pour revenir à l'ancien comportement, il suffit de passer cette valeur à "classic". */
+export const GRID_MODE: "bank" | "classic" = "bank"
 
 export type Grid = number[] // length 81, 0 = empty
 export type Difficulty = "facile" | "moyen" | "difficile" | "expert" | "diabolique" | "fou"
@@ -117,8 +124,8 @@ export interface Puzzle {
   puzzle: Grid // with holes
   solution: Grid // full solution
   difficulty: Difficulty
-  /** Note de difficulté de la grille, de 1 à 100 (calculée par le solveur logique). */
-  rating: number
+  /** Note de difficulté de la grille, de 1 à 100 (absente avec le générateur classique). */
+  rating?: number
 }
 
 function permutation3(random: () => number): number[] {
@@ -144,6 +151,10 @@ function lineOrder(random: () => number): number[] {
  * du jour), tout le monde obtient exactement la même grille.
  */
 export function generatePuzzle(difficulty: Difficulty, random: () => number = Math.random): Puzzle {
+  if (GRID_MODE === "classic" && difficulty !== "diabolique" && difficulty !== "fou") {
+    const { puzzle, solution } = generateClassicPuzzle(difficulty as ClassicLevel, random)
+    return { puzzle, solution, difficulty }
+  }
   const pool = PUZZLE_BANK[difficulty]
   const entry = pool[Math.floor(random() * pool.length)]
   const rating = Number(entry.slice(0, entry.indexOf(":")))

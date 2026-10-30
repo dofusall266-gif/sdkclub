@@ -105,3 +105,40 @@ export function disguise(puzzle: number[], r: () => number): number[] {
   for (let a = 0; a < 9; a++) for (let b = 0; b < 9; b++) out[transpose ? b * 9 + a : a * 9 + b] = digit[puzzle[rows[a] * 9 + cols[b]]]
   return out
 }
+
+/**
+ * Variante « naturelle » de dig : retire les cases par PAIRES symétriques (rotation de 180°, comme
+ * dans les grilles publiées), s'arrête à `targetClues` au lieu d'aller jusqu'au minimum, et garde
+ * au moins `minPerBox` indices par bloc de 3×3 (pas de bloc quasi vide, qui rend le départ pénible).
+ */
+export function digTarget(
+  solution: number[],
+  r: () => number,
+  maxTechnique: Technique,
+  targetClues: number,
+  symmetric: boolean,
+  minPerBox: number,
+): number[] {
+  const puzzle = [...solution]
+  let clues = 81
+  const perBox = new Array(9).fill(9)
+  const box = (i: number) => Math.floor(i / 27) * 3 + Math.floor((i % 9) / 3)
+  const cells = symmetric ? Array.from({ length: 41 }, (_, k) => k) : Array.from({ length: 81 }, (_, k) => k)
+  for (const i of shuffle(cells, r)) {
+    if (clues <= targetClues) break
+    const group = symmetric && i !== 40 ? [i, 80 - i] : [i]
+    if (group.some((c) => puzzle[c] === 0)) continue
+    const need = new Map<number, number>()
+    for (const c of group) need.set(box(c), (need.get(box(c)) ?? 0) + 1)
+    if ([...need].some(([b, n]) => perBox[b] - n < minPerBox)) continue
+    const saved = group.map((c) => puzzle[c])
+    for (const c of group) puzzle[c] = 0
+    if (logicSolve(puzzle, maxTechnique).solved) {
+      clues -= group.length
+      for (const c of group) perBox[box(c)]--
+    } else {
+      group.forEach((c, k) => (puzzle[c] = saved[k]))
+    }
+  }
+  return puzzle
+}

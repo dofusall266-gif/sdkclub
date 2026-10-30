@@ -8,28 +8,30 @@ import fs from "node:fs"
 import { LEVEL_RANGES, logicSolve, rawDifficulty, ratingFromRaw } from "../lib/solver"
 import { countSolutions, disguise, rng, shuffle } from "./bank-tools"
 
-const [perLevelArg, ...files] = process.argv.slice(2)
+const [perLevelArg, ...levelArgs] = process.argv.slice(2)
+// Chaque lot est donné sous la forme niveau=fichier ; ex. : moyen=/tmp/p-moyen.txt
+const levelFiles: Record<string, string> = Object.fromEntries(levelArgs.map((a) => a.split("=") as [string, string]))
 const perLevel = Number(perLevelArg)
 const r = rng(4242)
 
 interface Row { puzzle: number[]; clues: number }
-const pool: Row[] = []
-const seen = new Set<string>()
-for (const f of files) {
-  for (const line of fs.readFileSync(f, "utf8").split("\n")) {
+const poolFor = (level: string): Row[] => {
+  const rows: Row[] = []
+  const seen = new Set<string>()
+  for (const line of fs.readFileSync(levelFiles[level], "utf8").split("\n")) {
     const p = line.trim().split(" ")
     if (p.length !== 4 || seen.has(p[3])) continue
     seen.add(p[3])
-    pool.push({ puzzle: Array.from(p[3], Number), clues: Number(p[2]) })
+    rows.push({ puzzle: Array.from(p[3], Number), clues: Number(p[2]) })
   }
+  return rows
 }
-console.log(`${pool.length} grilles candidates`)
 
 const bank: Record<string, string[]> = {}
 const stats: string[] = []
 for (const [level, [lo, hi]] of Object.entries(LEVEL_RANGES)) {
   const picked: { rating: number; puzzle: number[] }[] = []
-  for (const row of shuffle(pool, r)) {
+  for (const row of shuffle(poolFor(level), r)) {
     if (picked.length >= perLevel) break
     const res = logicSolve(row.puzzle)
     if (!res.solved) continue // ne devrait jamais arriver
@@ -47,7 +49,6 @@ for (const [level, [lo, hi]] of Object.entries(LEVEL_RANGES)) {
     samples.sort((a, b) => a - b)
     const rating = samples[Math.floor(samples.length / 2)]
     if (rating < lo || rating > hi) continue
-    if (level === "facile" && row.clues < 32) continue // un niveau Facile doit rester généreux en indices (32 minimum)
     if (countSolutions(row.puzzle) !== 1) throw new Error("solution non unique")
     picked.push({ rating, puzzle: row.puzzle })
   }

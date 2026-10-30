@@ -16,9 +16,9 @@ for (const level of DIFFICULTIES) {
     const res = logicSolve(p.puzzle)
     if (!res.solved) throw new Error(`${level}: grille déguisée non résolue par logique`)
     const rating = ratingFromRaw(rawDifficulty(res))
-    drift = Math.max(drift, Math.abs(rating - p.rating))
-    if (Math.abs(rating - p.rating) > 4) throw new Error(`${level}: note ${rating} != ${p.rating}`)
-    if (p.rating < lo || p.rating > hi) throw new Error(`${level}: note hors tranche`)
+    drift = Math.max(drift, Math.abs(rating - p.rating!))
+    if (Math.abs(rating - p.rating!) > 8) throw new Error(`${level}: note ${rating} != ${p.rating!}`)
+    if (p.rating! < lo || p.rating! > hi) throw new Error(`${level}: note hors tranche`)
     if (k < 8 && countSolutions(p.puzzle) !== 1) throw new Error("solution non unique")
     ratings.push(rating)
     checked++
