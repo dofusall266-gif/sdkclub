@@ -76,6 +76,38 @@ function detectDevice(): string {
   return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "mobile" : "desktop"
 }
 
+const SESSION_COUNTED_KEY = "sc_sess_counted_v1"
+
+/** Temps réellement passé sur le site (onglet visible ET joueur actif). Envoyé par petits
+ * morceaux ; le premier morceau d'une visite est marqué `new_session`, ce qui permet de
+ * compter les visites sans aucun identifiant. */
+export function sendVisitTime(seconds: number) {
+  if (typeof window === "undefined" || seconds < 1) return
+  let newSession = false
+  try {
+    if (!sessionStorage.getItem(SESSION_COUNTED_KEY)) {
+      sessionStorage.setItem(SESSION_COUNTED_KEY, "1")
+      newSession = true
+    }
+  } catch {
+    // Stockage indisponible : on ne sait pas compter les visites, le temps reste mesuré.
+  }
+  const body = JSON.stringify({
+    type: "visit_time",
+    duration_seconds: Math.round(seconds),
+    new_session: newSession,
+    device: detectDevice(),
+    source: currentSource(),
+    visitor_id: visitorId(),
+  })
+  try {
+    if (navigator.sendBeacon?.("/api/track", new Blob([body], { type: "application/json" }))) return
+  } catch {
+    // on retombe sur fetch
+  }
+  fetch("/api/track", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {})
+}
+
 export interface TrackExtra {
   mode: "free" | "daily"
   rating?: number

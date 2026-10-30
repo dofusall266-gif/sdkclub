@@ -7,6 +7,7 @@ import { CookieConsent } from "@/components/cookie-consent"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { PwaRegister } from "@/components/pwa-register"
 import { SourceCapture } from "@/components/source-capture"
+import { VisitTimer } from "@/components/visit-timer"
 import { LanguageProvider } from "@/lib/i18n/context"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -102,6 +103,7 @@ export default function RootLayout({
             <CookieConsent />
             <PwaRegister />
             <SourceCapture />
+            <VisitTimer />
           </ThemeProvider>
         </LanguageProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}

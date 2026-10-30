@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { ensureEventsTable, getDb } from "@/lib/db"
 
-const VALID_TYPES = ["game_started", "game_won"] as const
+const VALID_TYPES = ["game_started", "game_won", "visit_time"] as const
 type EventType = (typeof VALID_TYPES)[number]
 
 export async function POST(req: Request) {
@@ -30,13 +30,15 @@ export async function POST(req: Request) {
     rating?: number
     source?: string
     visitor_id?: string
+    new_session?: boolean
   }
   const type = payload?.type
   const difficulty = payload?.difficulty ?? null
-  const durationSeconds =
+  let durationSeconds =
     typeof payload?.duration_seconds === "number" && Number.isFinite(payload.duration_seconds)
       ? Math.round(payload.duration_seconds)
       : null
+  const newSession = payload?.new_session === true
   const mistakes =
     typeof payload?.mistakes === "number" && Number.isFinite(payload.mistakes) ? Math.round(payload.mistakes) : null
   const device = typeof payload?.device === "string" ? payload.device.slice(0, 20) : null
@@ -55,11 +57,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, reason: "invalid-type" }, { status: 400 })
   }
 
+  // Un morceau de « temps passé » ne dépasse jamais une heure (onglet oublié, bug…).
+  if (type === "visit_time") {
+    if (durationSeconds === null || durationSeconds < 1) return NextResponse.json({ ok: false, reason: "invalid-duration" }, { status: 400 })
+    durationSeconds = Math.min(durationSeconds, 3600)
+  }
+
   try {
     await ensureEventsTable(sql)
     await sql`
-      INSERT INTO events (type, difficulty, duration_seconds, mistakes, device, mode, rating, source, visitor_id)
-      VALUES (${type}, ${difficulty}, ${durationSeconds}, ${mistakes}, ${device}, ${mode}, ${rating}, ${source}, ${visitorId})
+      INSERT INTO events (type, difficulty, duration_seconds, mistakes, device, mode, rating, source, visitor_id, new_session)
+      VALUES (${type}, ${difficulty}, ${durationSeconds}, ${mistakes}, ${device}, ${mode}, ${rating}, ${source}, ${visitorId}, ${newSession})
     `
     return NextResponse.json({ ok: true })
   } catch {

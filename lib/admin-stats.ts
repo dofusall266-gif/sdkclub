@@ -1,3 +1,4 @@
+import type { ChartPoint } from "@/components/admin/interactive-chart"
 import type { getDb } from "@/lib/db"
 import { DIFFICULTIES, DIFFICULTY_LABELS, type Difficulty } from "@/lib/sudoku"
 
@@ -13,12 +14,9 @@ export interface Kpi {
   avgSeconds: number | null
   avgMistakes: number | null
   flawless: number
-}
-
-export interface TrendPoint {
-  day: string
-  started: number
-  won: number
+  /** Visites (une par ouverture du site) et secondes réellement passées dessus. */
+  sessions: number
+  playSeconds: number
 }
 
 export interface LevelRow {
@@ -70,7 +68,9 @@ export interface Dashboard {
   days: number
   cur: Kpi
   prev: Kpi
-  trend: TrendPoint[]
+  chart: ChartPoint[]
+  /** Unité de l'axe du graphique : un point = un jour ou une semaine. */
+  bucket: "jour" | "semaine"
   levels: LevelRow[]
   ratingBands: Breakdown[]
   sources: Breakdown[]
@@ -91,7 +91,9 @@ async function kpi(sql: Sql, from: string, to: string): Promise<Kpi> {
         count(DISTINCT visitor_id) AS visitors,
         round(avg(duration_seconds) FILTER (WHERE type = 'game_won')) AS avg_seconds,
         round(avg(mistakes) FILTER (WHERE type = 'game_won'), 1) AS avg_mistakes,
-        count(*) FILTER (WHERE type = 'game_won' AND mistakes = 0) AS flawless
+        count(*) FILTER (WHERE type = 'game_won' AND mistakes = 0) AS flawless,
+        count(*) FILTER (WHERE type = 'visit_time' AND new_session) AS sessions,
+        coalesce(sum(duration_seconds) FILTER (WHERE type = 'visit_time'), 0) AS play_seconds
       FROM events
       WHERE created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz
     `
@@ -103,7 +105,17 @@ async function kpi(sql: Sql, from: string, to: string): Promise<Kpi> {
     avgSeconds: r.avg_seconds === null ? null : num(r.avg_seconds),
     avgMistakes: r.avg_mistakes === null ? null : num(r.avg_mistakes),
     flawless: num(r.flawless),
+    sessions: num(r.sessions),
+    playSeconds: num(r.play_seconds),
   }
+}
+
+/** « 2026-10-30 » → « vendredi 30 octobre » (ou « Semaine du 26 octobre »), sans décalage de fuseau. */
+function frenchDate(iso: string, bucket: "jour" | "semaine"): string {
+  const d = new Date(`${iso}T00:00:00Z`)
+  const long = d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" })
+  if (bucket === "jour") return long.charAt(0).toUpperCase() + long.slice(1)
+  return `Semaine du ${d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" })}`
 }
 
 export const completion = (started: number, won: number) => (started > 0 ? Math.min(100, Math.round((won / started) * 100)) : null)
@@ -117,17 +129,51 @@ export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> 
 
   const [cur, prev] = await Promise.all([kpi(sql, from, to), kpi(sql, prevFrom, from)])
 
-  const trend = ((await sql`
-    SELECT to_char(d::date, 'DD/MM') AS day, coalesce(s.started, 0) AS started, coalesce(s.won, 0) AS won
-    FROM generate_series(current_date - ${days - 1}::int, current_date, '1 day') d
-    LEFT JOIN (
-      SELECT created_at::date AS day,
-             count(*) FILTER (WHERE type = 'game_started') AS started,
-             count(*) FILTER (WHERE type = 'game_won') AS won
-      FROM events WHERE created_at >= current_date - ${days - 1}::int GROUP BY 1
-    ) s ON s.day = d::date
-    ORDER BY d
-  `) as Row[]).map((r) => ({ day: String(r.day), started: num(r.started), won: num(r.won) }))
+  // Un point par jour jusqu'à 90 jours ; au-delà (année), un point par semaine pour rester lisible.
+  const bucket: "jour" | "semaine" = days <= 90 ? "jour" : "semaine"
+  const unit = bucket === "jour" ? "day" : "week"
+  const stepInterval = bucket === "jour" ? "1 day" : "7 days"
+  const chart = ((await sql`
+    WITH b AS (
+      SELECT generate_series(
+        date_trunc(${unit}, current_date - ${days - 1}::int)::date,
+        date_trunc(${unit}, current_date)::date,
+        ${stepInterval}::interval
+      )::date AS bucket
+    ), e AS (
+      SELECT date_trunc(${unit}, created_at)::date AS bucket,
+        count(*) FILTER (WHERE type = 'game_started') AS started,
+        count(*) FILTER (WHERE type = 'game_won') AS won,
+        count(DISTINCT visitor_id) AS visitors,
+        count(*) FILTER (WHERE type = 'visit_time' AND new_session) AS sessions,
+        coalesce(sum(duration_seconds) FILTER (WHERE type = 'visit_time'), 0) AS play_seconds
+      FROM events
+      WHERE created_at >= date_trunc(${unit}, current_date - ${days - 1}::int)
+      GROUP BY 1
+    ), s AS (
+      SELECT date_trunc(${unit}, date)::date AS bucket, count(*) AS participants
+      FROM daily_scores
+      WHERE date >= date_trunc(${unit}, current_date - ${days - 1}::int)::date
+      GROUP BY 1
+    )
+    SELECT to_char(b.bucket, 'DD/MM') AS label,
+      to_char(b.bucket, 'YYYY-MM-DD') AS iso,
+      coalesce(e.started, 0) AS started, coalesce(e.won, 0) AS won,
+      coalesce(e.visitors, 0) AS visitors, coalesce(e.sessions, 0) AS sessions,
+      round(coalesce(e.play_seconds, 0) / 60.0, 1) AS minutes,
+      coalesce(s.participants, 0) AS participants
+    FROM b LEFT JOIN e ON e.bucket = b.bucket LEFT JOIN s ON s.bucket = b.bucket
+    ORDER BY b.bucket
+  `) as Row[]).map((r) => ({
+    label: String(r.label),
+    title: frenchDate(String(r.iso), bucket),
+    started: num(r.started),
+    won: num(r.won),
+    visitors: num(r.visitors),
+    sessions: num(r.sessions),
+    minutes: num(r.minutes),
+    participants: num(r.participants),
+  })) as ChartPoint[]
 
   const levelRows = (await sql`
     SELECT difficulty,
@@ -264,7 +310,7 @@ export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> 
     last7,
   }
 
-  const dash: Dashboard = { days, cur, prev, trend, levels, ratingBands, sources, devices, retention, daily, insights: [] }
+  const dash: Dashboard = { days, cur, prev, chart, bucket, levels, ratingBands, sources, devices, retention, daily, insights: [] }
   dash.insights = buildInsights(dash)
   return dash
 }
@@ -330,6 +376,15 @@ function buildInsights(d: Dashboard): string[] {
   }
   if (daily.participants >= 5 && daily.flawless === 0) {
     out.push("Personne n'a fini le défi du jour sans erreur sur la période : la grille est peut-être trop difficile pour la plupart des joueurs.")
+  }
+
+  if (cur.sessions >= 10 && cur.playSeconds > 0) {
+    const avgMin = cur.playSeconds / cur.sessions / 60
+    if (avgMin < 2) {
+      out.push(`Une visite dure en moyenne ${avgMin.toFixed(1).replace(".", ",")} min : les gens passent peu de temps. Une 2e partie proposée à la fin de la première (« Nouvelle grille ») peut l'allonger.`)
+    } else if (avgMin >= 5) {
+      out.push(`Une visite dure en moyenne ${avgMin.toFixed(1).replace(".", ",")} min : bon engagement, les joueurs restent.`)
+    }
   }
 
   if (prev.started >= 10 && cur.started > prev.started * 1.5) {

@@ -71,11 +71,16 @@ async function resetDaily() {
   revalidatePath("/admin")
 }
 
-const PERIODS = [7, 30, 90]
+const PERIODS: { days: number; label: string }[] = [
+  { days: 7, label: "7 jours" },
+  { days: 30, label: "Mois" },
+  { days: 90, label: "90 jours" },
+  { days: 365, label: "Année" },
+]
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ jours?: string }> }) {
   const { jours } = await searchParams
-  const days = PERIODS.includes(Number(jours)) ? Number(jours) : 30
+  const days = PERIODS.some((p) => p.days === Number(jours)) ? Number(jours) : 30
   const authed = await checkAuthed()
   const expected = process.env.ADMIN_PASSWORD
 
@@ -136,11 +141,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <nav className="flex gap-1 rounded-lg border border-border p-0.5 text-sm" aria-label="Période">
             {PERIODS.map((p) => (
               <a
-                key={p}
-                href={`/admin?jours=${p}`}
-                className={`rounded-md px-3 py-1 ${p === days ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                key={p.days}
+                href={`/admin?jours=${p.days}`}
+                className={`rounded-md px-3 py-1 ${p.days === days ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
-                {p} jours
+                {p.label}
               </a>
             ))}
           </nav>

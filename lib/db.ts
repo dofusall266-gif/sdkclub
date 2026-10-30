@@ -34,7 +34,8 @@ export async function ensureEventsTable(sql: NonNullable<ReturnType<typeof getDb
       ADD COLUMN IF NOT EXISTS mode TEXT,
       ADD COLUMN IF NOT EXISTS rating INTEGER,
       ADD COLUMN IF NOT EXISTS source TEXT,
-      ADD COLUMN IF NOT EXISTS visitor_id TEXT
+      ADD COLUMN IF NOT EXISTS visitor_id TEXT,
+      ADD COLUMN IF NOT EXISTS new_session BOOLEAN
   `
   await sql`CREATE INDEX IF NOT EXISTS events_created_at_idx ON events (created_at)`
   eventsTableReady = true

@@ -1,9 +1,19 @@
 import { Delta, Empty, KpiCard, RateRow, Section, formatSeconds } from "@/components/admin/dashboard-ui"
-import { TrendChart } from "@/components/admin/trend-chart"
+import { InteractiveChart } from "@/components/admin/interactive-chart"
 import { completion, type Dashboard } from "@/lib/admin-stats"
+
+const periodLabel = (days: number) =>
+  days === 7 ? "7 derniers jours" : days === 30 ? "30 derniers jours" : days === 90 ? "90 derniers jours" : "12 derniers mois"
+
+const formatHours = (seconds: number) => {
+  const h = seconds / 3600
+  return h >= 10 ? `${Math.round(h)} h` : `${h.toFixed(1).replace(".", ",")} h`
+}
 
 export function Dash({ d }: { d: Dashboard }) {
   const { cur, prev, retention, daily } = d
+  const avgVisit = cur.sessions > 0 ? cur.playSeconds / cur.sessions : null
+  const prevAvgVisit = prev.sessions > 0 ? prev.playSeconds / prev.sessions : null
   const rate = completion(cur.started, cur.won)
   const prevRate = completion(prev.started, prev.won)
   const flawlessRate = completion(cur.won, cur.flawless)
@@ -24,7 +34,7 @@ export function Dash({ d }: { d: Dashboard }) {
       )}
 
       <Section
-        title={`Vue d'ensemble — ${d.days} derniers jours`}
+        title={`Vue d'ensemble — ${periodLabel(d.days)}`}
         hint="Les flèches comparent avec la période juste avant, de même durée."
       >
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
@@ -65,8 +75,47 @@ export function Dash({ d }: { d: Dashboard }) {
           />
         </div>
         <div className="mt-6">
-          {d.trend.every((p) => p.started === 0) ? <Empty /> : <TrendChart points={d.trend} />}
+          {d.chart.every((p) => p.started + p.sessions + p.participants === 0) ? (
+            <Empty />
+          ) : (
+            <InteractiveChart points={d.chart} unitLabel={d.bucket} />
+          )}
         </div>
+      </Section>
+
+      <Section
+        title="Engagement — combien de temps restent-ils ?"
+        hint="Temps réellement passé sur le site : onglet visible et joueur actif (une minute sans clic ni touche n'est pas comptée)."
+      >
+        {cur.sessions === 0 ? (
+          <Empty>La mesure du temps passé démarre avec cette version : reviens dans quelques jours.</Empty>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <KpiCard
+              label="Temps moyen par visite"
+              value={formatSeconds(avgVisit === null ? null : Math.round(avgVisit))}
+              help="Durée moyenne d'une ouverture du site. Plus c'est long, plus les joueurs accrochent."
+              delta={<Delta cur={avgVisit} prev={prevAvgVisit} />}
+            />
+            <KpiCard
+              label="Visites"
+              value={cur.sessions}
+              help="Chaque ouverture du site compte pour une visite."
+              delta={<Delta cur={cur.sessions} prev={prev.sessions} />}
+            />
+            <KpiCard
+              label="Temps total passé"
+              value={formatHours(cur.playSeconds)}
+              help="Somme de toutes les visites."
+              delta={<Delta cur={cur.playSeconds} prev={prev.playSeconds} />}
+            />
+            <KpiCard
+              label="Parties par visite"
+              value={(cur.started / cur.sessions).toFixed(1).replace(".", ",")}
+              help="Combien de grilles lancées à chaque visite : au-dessus de 1, les gens enchaînent."
+            />
+          </div>
+        )}
       </Section>
 
       <Section
@@ -77,14 +126,18 @@ export function Dash({ d }: { d: Dashboard }) {
           <Empty>Pas encore de joueur identifié : la mesure démarre avec cette version, il faut quelques jours de données.</Empty>
         ) : (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <KpiCard label="Nouveaux joueurs" value={retention.newVisitors} help="Vus pour la première fois sur la période." />
-            <KpiCard label="Joueurs revenus" value={retention.returningVisitors} help="Déjà vus avant la période, et de retour." />
             <KpiCard
-              label="Reviennent un autre jour"
+              label="Taux de retour"
               value={retention.eligible > 0 ? `${completion(retention.eligible, retention.cameBack)} %` : "—"}
-              help={`${retention.cameBack} sur ${retention.eligible} nouveaux joueurs ont rejoué un autre jour.`}
+              help={`${retention.cameBack} nouveaux joueurs sur ${retention.eligible} sont revenus un autre jour.`}
             />
-            <KpiCard label="Joueurs réguliers" value={retention.regulars} help="Actifs sur au moins 3 jours différents." />
+            <KpiCard
+              label="Habitués"
+              value={retention.regulars}
+              help={`Actifs sur au moins 3 jours différents (${completion(retention.total, retention.regulars) ?? 0} % des joueurs identifiés).`}
+            />
+            <KpiCard label="Nouveaux joueurs" value={retention.newVisitors} help="Vus pour la première fois sur la période." />
+            <KpiCard label="Joueurs revenus" value={retention.returningVisitors} help="Déjà connus avant la période, et de retour." />
           </div>
         )}
       </Section>
