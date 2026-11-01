@@ -562,3 +562,138 @@ export const LEVEL_RANGES = {
   diabolique: [77, 90],
   fou: [91, 100],
 } as const
+
+// ---------------------------------------------------------------------------
+// Repérage des motifs (pour les exercices d'entraînement)
+// ---------------------------------------------------------------------------
+
+/** Un motif trouvé dans une grille : ce que le joueur doit repérer, et ce qu'il permet d'éliminer. */
+export interface Pattern {
+  /** Chiffre concerné (X-Wing, Swordfish) ou chiffre à éliminer (Y-Wing). */
+  digit: number
+  /** Cases qui forment le motif (4 pour un X-Wing, 3 pour un Y-Wing, 6 à 9 pour un Swordfish). */
+  cells: number[]
+  /** Cases où le candidat `digit` peut être retiré grâce au motif. */
+  elims: number[]
+  /** Y-Wing : la case pivot (les deux autres cases sont les « ailes »). */
+  pivot?: number
+  /** Poissons : lignes (ou colonnes) de base et colonnes (ou lignes) de couverture. */
+  lines?: { kind: "row" | "col"; base: number[]; cover: number[] }
+}
+
+export type TrainingTechnique = "x_wing" | "xy_wing" | "swordfish"
+
+function fishPatterns(s: Board, k: number): Pattern[] {
+  const out: Pattern[] = []
+  for (let d = 1; d <= 9; d++) {
+    for (const byRows of [true, false]) {
+      const baseOffset = byRows ? 0 : 9
+      const coverOffset = byRows ? 9 : 0
+      const lines: { idx: number; cover: number }[] = []
+      for (let l = 0; l < 9; l++) {
+        let cover = 0
+        for (const i of UNITS[baseOffset + l]) {
+          if (s.val[i] === 0 && s.cand[i] & BIT[d]) cover |= 1 << (byRows ? col(i) : row(i))
+        }
+        if (POP[cover] >= 2 && POP[cover] <= k) lines.push({ idx: l, cover })
+      }
+      if (lines.length < k) continue
+      for (const group of combos(lines, k)) {
+        let union = 0
+        for (const g of group) union |= g.cover
+        if (POP[union] !== k) continue
+        const baseSet = new Set(group.map((g) => g.idx))
+        const elims: number[] = []
+        const coverIdx: number[] = []
+        for (let c = 0; c < 9; c++) {
+          if (!(union & (1 << c))) continue
+          coverIdx.push(c)
+          for (const i of UNITS[coverOffset + c]) {
+            const l = byRows ? row(i) : col(i)
+            if (!baseSet.has(l) && s.val[i] === 0 && s.cand[i] & BIT[d]) elims.push(i)
+          }
+        }
+        if (elims.length === 0) continue
+        const cells: number[] = []
+        for (const g of group) for (const i of UNITS[baseOffset + g.idx]) if (s.val[i] === 0 && s.cand[i] & BIT[d]) cells.push(i)
+        out.push({
+          digit: d,
+          cells: cells.sort((a, b) => a - b),
+          elims,
+          lines: { kind: byRows ? "row" : "col", base: group.map((g) => g.idx), cover: coverIdx },
+        })
+      }
+    }
+  }
+  return out
+}
+
+function xyWingPatterns(s: Board): Pattern[] {
+  const out: Pattern[] = []
+  const seen = new Set<string>()
+  const bi: number[] = []
+  for (let i = 0; i < 81; i++) if (s.val[i] === 0 && POP[s.cand[i]] === 2) bi.push(i)
+  for (const p of bi) {
+    const [a, b] = digitsOf(s.cand[p])
+    for (const w1 of bi) {
+      if (!SEES[p][w1] || !(s.cand[w1] & BIT[a]) || s.cand[w1] & BIT[b]) continue
+      const c = digitsOf(s.cand[w1] & ~BIT[a])[0]
+      for (const w2 of bi) {
+        if (w2 === w1 || !SEES[p][w2] || s.cand[w2] !== (BIT[b] | BIT[c])) continue
+        const elims: number[] = []
+        for (let i = 0; i < 81; i++) {
+          if (i !== p && i !== w1 && i !== w2 && s.val[i] === 0 && s.cand[i] & BIT[c] && SEES[i][w1] && SEES[i][w2]) elims.push(i)
+        }
+        if (elims.length === 0) continue
+        const key = `${p}-${[w1, w2].sort((x, y) => x - y).join("-")}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push({ digit: c, cells: [p, w1, w2], pivot: p, elims })
+      }
+    }
+  }
+  return out
+}
+
+export function listPatterns(s: Board, tech: TrainingTechnique): Pattern[] {
+  if (tech === "x_wing") return fishPatterns(s, 2)
+  if (tech === "swordfish") return fishPatterns(s, 3)
+  return xyWingPatterns(s)
+}
+
+export interface CapturedState {
+  /** Chiffres posés (0 = case vide) à ce stade de la résolution. */
+  val: number[]
+  /** Masque des candidats restants de chaque case (bit d-1 pour le chiffre d). */
+  cand: number[]
+  patterns: Pattern[]
+}
+
+/**
+ * Résout `puzzle` avec les techniques plus simples que `target` (en ignorant celles de `skip`)
+ * jusqu'à être bloqué ; si `target` s'applique alors, retourne l'état de la grille à cet instant
+ * (c'est la situation qu'on propose au joueur). Retourne null sinon.
+ */
+export function captureState(puzzle: number[], target: TrainingTechnique, skip?: ReadonlySet<Technique>): CapturedState | null {
+  const s: Board = { val: new Array(81).fill(0), cand: new Array(81).fill(511) }
+  for (let i = 0; i < 81; i++) if (puzzle[i]) place(s, i, puzzle[i])
+  const limit = TECHNIQUES.indexOf(target)
+  for (let guard = 0; guard < 400; guard++) {
+    let progressed = false
+    for (let t = 0; t < limit; t++) {
+      const name = TECHNIQUES[t]
+      if (skip?.has(name)) continue
+      if (RUNNERS[name](s)) {
+        progressed = true
+        break
+      }
+    }
+    if (progressed) {
+      if (s.val.every((v) => v !== 0)) return null
+      continue
+    }
+    const patterns = listPatterns(s, target)
+    return patterns.length > 0 ? { val: [...s.val], cand: [...s.cand], patterns } : null
+  }
+  return null
+}

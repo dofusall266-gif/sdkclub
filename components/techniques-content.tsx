@@ -5,6 +5,7 @@ import Link from "next/link"
 import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"
 import { useLanguage } from "@/lib/i18n/context"
+import { LESSONS, TECH_SLUGS } from "@/lib/training-lessons"
 
 const LEVEL_STYLES: Record<string, string> = {
   Débutant: "bg-primary/12 text-primary",
@@ -16,7 +17,7 @@ const LEVEL_STYLES: Record<string, string> = {
 }
 
 export function TechniquesContent() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const tech = t.techniques
 
   return (
@@ -39,6 +40,27 @@ export function TechniquesContent() {
               <p className="mt-1.5 text-sm text-muted-foreground">{item.text}</p>
             </div>
           ))}
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold">{t.training.practiceHeading}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t.training.practiceIntro}</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            {TECH_SLUGS.map((slug) => (
+              <Link
+                key={slug}
+                href={`/techniques/${slug}`}
+                className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+              >
+                <span className="inline-block rounded-full bg-destructive/12 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+                  {t.training.level}
+                </span>
+                <h3 className="mt-3 text-lg font-semibold group-hover:text-primary">{LESSONS[slug][locale].name}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">{LESSONS[slug][locale].summary}</p>
+                <p className="mt-3 text-sm font-medium text-primary">{t.training.practiceCta} →</p>
+              </Link>
+            ))}
+          </div>
         </section>
 
         <section className="rounded-2xl border border-border bg-secondary/40 p-6">
