@@ -28,6 +28,17 @@ export function BlogIndexContent({ posts }: { posts: BlogPostMeta[] }) {
                 href={`/blog/${post.slug}`}
                 className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
               >
+                {post.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={post.image}
+                    alt={txt.title}
+                    width={1200}
+                    height={630}
+                    loading="lazy"
+                    className="-mx-2 -mt-2 mb-1 w-[calc(100%+1rem)] max-w-none rounded-xl border border-border"
+                  />
+                )}
                 {txt.category && (
                   <span className="w-fit rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                     {txt.category}

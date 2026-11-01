@@ -17,7 +17,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: post.title,
     description: post.excerpt,
     alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: { type: "article", title: post.title, description: post.excerpt, publishedTime: post.date },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.excerpt,
+      publishedTime: post.date,
+      ...(post.image ? { images: [{ url: post.image, width: 1200, height: 630, alt: post.title }] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      ...(post.image ? { images: [post.image] } : {}),
+    },
   }
 }
 
@@ -46,13 +58,26 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     author: { "@type": "Organization", name: "Sudoku-Club", url: SITE_URL },
     publisher: { "@type": "Organization", name: "Sudoku-Club", url: SITE_URL },
     ...(post.category ? { articleSection: post.category } : {}),
+    ...(post.image ? { image: `${SITE_URL}${post.image}` } : {}),
+  }
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Articles", item: `${SITE_URL}/blog` },
+      { "@type": "ListItem", position: 3, name: post.title, item: `${SITE_URL}/blog/${post.slug}` },
+    ],
   }
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
       <BlogPostContent
         date={post.date}
+        image={post.image}
+        technique={post.technique}
         fr={{ title: post.title, category: post.category, html }}
         en={post.en && enHtml ? { title: post.en.title, category: post.en.category, html: enHtml } : undefined}
       />

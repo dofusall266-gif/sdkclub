@@ -3,6 +3,7 @@ title: "Le sudoku dans la culture populaire : d'un jeu de journal à un rituel q
 date: "2026-02-03"
 excerpt: "Compartiment de train, pause déjeuner, salle d'attente : comment un simple jeu de logique est devenu un rituel quotidien partagé par des dizaines de millions de personnes dans le monde."
 category: "Culture"
+image: "/blog/sudoku-culture-populaire.png"
 ---
 
 **En résumé** : depuis son essor mondial en 2005, le sudoku n'a jamais quitté la culture populaire — du rituel quotidien des journaux au format défi-du-jour repris par des jeux comme Wordle, en passant par une véritable scène compétitive et des chaînes YouTube spécialisées suivies par des communautés entières de passionnés.

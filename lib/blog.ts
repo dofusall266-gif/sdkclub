@@ -48,6 +48,8 @@ export function getAllPosts(): BlogPostMeta[] {
         date: String(data.date ?? "1970-01-01"),
         excerpt: String(data.excerpt ?? ""),
         category: String(data.category ?? ""),
+        image: typeof data.image === "string" ? data.image : undefined,
+        technique: typeof data.technique === "string" ? data.technique : undefined,
         en: en ? { title: en.title, excerpt: en.excerpt, category: en.category } : undefined,
       }
     })
@@ -67,6 +69,8 @@ export function getPostBySlug(slug: string): BlogPost | null {
     date: String(data.date ?? "1970-01-01"),
     excerpt: String(data.excerpt ?? ""),
     category: String(data.category ?? ""),
+    image: typeof data.image === "string" ? data.image : undefined,
+    technique: typeof data.technique === "string" ? data.technique : undefined,
     content,
     en: en ? { title: en.title, excerpt: en.excerpt, category: en.category } : undefined,
     enContent: en?.content,

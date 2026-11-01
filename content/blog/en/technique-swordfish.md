@@ -7,6 +7,12 @@ category: "Technique"
 
 **In short**: the Swordfish extends the X-Wing principle to three rows and three columns instead of two — whenever three rows contain the same digit confined to a total of three columns, that digit can be eliminated everywhere else in those three columns.
 
+> **Want to practise right away?** [The illustrated Swordfish lesson and exercises](/techniques/swordfish) put you in real grid situations: your job is to spot the three rows and three columns.
+
+![Diagram of a Swordfish on a sudoku grid: the pattern cells are coloured, the eliminated candidate is crossed out in red](/blog/diagram-swordfish.png)
+
+*Swordfish example: pattern cells are in green, the candidate to remove is crossed out in red.*
+
 If you've already gotten into the habit of spotting [X-Wings](/blog/technique-x-wing) in your grids, the **Swordfish** shouldn't feel unfamiliar: it's exactly the same logical principle, simply extended from two to three rows (or columns). It's one of the most advanced techniques you can run into on an **Expert** grid, and it is often enough, on its own, to unlock a grid that seemed completely stuck.
 
 ## A quick reminder of the X-Wing principle
@@ -57,3 +63,7 @@ Yes, markedly — it requires a more specific configuration. But on Expert grids
 Yes, the *Jellyfish* (four rows and four columns), but it remains extremely rare in practice — the Swordfish already covers the vast majority of cases.
 
 Find all our other solving techniques, from beginner to expert level, on our [techniques page](/techniques), and practice directly on an [Expert grid](/jouer?niveau=expert).
+
+## Going further
+
+Practise with the [Swordfish lesson and exercises](/techniques/swordfish). If you have not mastered the basics yet, start with the [X-Wing](/blog/technique-x-wing) and the [Y-Wing](/blog/technique-y-wing). Every technique is gathered in our [sudoku techniques guide](/blog/guide-techniques-sudoku).

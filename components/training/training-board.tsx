@@ -17,10 +17,12 @@ interface Props {
   tint?: Set<number>
   /** Pavé « lecture seule » : pas de boutons. */
   readOnly?: boolean
+  /** Vignette : n'affiche que le chiffre du motif ("digit") ou que les cases du motif ("cells"). */
+  thumbnail?: "digit" | "cells"
 }
 
 /** Grille avec toutes les notes (candidats) à leur place habituelle : 1 en haut à gauche, 9 en bas à droite. */
-export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal, shade = [], tint, readOnly }: Props) {
+export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal, shade = [], tint, readOnly, thumbnail }: Props) {
   const revealCells = new Set(reveal?.c ?? [])
   const revealElims = new Set(reveal?.e ?? [])
   const baseLines = new Set<string>()
@@ -50,6 +52,8 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
               {Array.from({ length: 9 }, (_, k) => {
                 const d = k + 1
                 if (!dc.candidates[i].includes(d)) return <span key={d} />
+                if (thumbnail === "digit" && d !== reveal?.d) return <span key={d} />
+                if (thumbnail === "cells" && !(isPattern || revealElims.has(i))) return <span key={d} />
                 const eliminated = revealElims.has(i) && reveal?.d === d
                 const focus = focusDigits.includes(d) || (isPattern && reveal?.d === d)
                 return (

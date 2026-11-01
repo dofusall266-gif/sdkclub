@@ -12,6 +12,10 @@ export interface BlogTexts {
 export interface BlogPostMeta extends BlogTexts {
   slug: string
   date: string // YYYY-MM-DD
+  /** Image de couverture (public/blog/…), utilisée en tête d'article, dans la liste et pour le partage. */
+  image?: string
+  /** Leçon d'entraînement liée (ex. « swordfish » → /techniques/swordfish). */
+  technique?: string
   /** Traduction anglaise (content/blog/en/<slug>.md), si elle existe. */
   en?: BlogTexts
 }

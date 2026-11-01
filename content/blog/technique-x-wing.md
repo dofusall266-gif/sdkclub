@@ -3,9 +3,17 @@ title: "La technique du X-Wing en sudoku : comment l'utiliser (avec exemple)"
 date: "2026-03-10"
 excerpt: "Bloqué sur une grille difficile alors que toutes les techniques de base sont épuisées ? Le X-Wing est souvent la clé. Explication pas à pas, avec un exemple concret."
 category: "Technique"
+image: "/blog/technique-x-wing.png"
+technique: "x-wing"
 ---
 
 **En résumé** : le X-Wing permet d'éliminer un candidat quand un même chiffre n'a que deux emplacements possibles dans deux lignes, situés exactement dans les deux mêmes colonnes (ou inversement, par colonnes). Ce verrouillage force à retirer ce candidat de tout le reste de ces deux colonnes.
+
+> **Envie de pratiquer tout de suite ?** [La leçon illustrée et les exercices sur le X-Wing](/techniques/x-wing) vous placent dans de vraies situations de grille, avec toutes les notes affichées.
+
+![Schéma d'un X-Wing sur une grille de sudoku : les quatre cases du rectangle sont colorées, les candidats éliminés sont barrés en rouge](/blog/diagram-x-wing.png)
+
+*Exemple de X-Wing : les cases du motif sont en vert, les candidats à retirer sont barrés en rouge.*
 
 Si vous jouez régulièrement en difficulté **Difficile** ou **Expert**, vous avez probablement déjà vécu ce moment frustrant : la grille semble bloquée, aucune case n'a une seule possibilité évidente, et pourtant elle n'est pas terminée. C'est très souvent le signe qu'il faut sortir des techniques de base et passer à une technique dite « d'élimination », comme le **X-Wing**.
 
@@ -63,3 +71,7 @@ Pas forcément. Il élimine des candidats, ce qui débloque souvent — mais pas
 Le [Swordfish](/blog/technique-swordfish), qui applique exactement le même raisonnement à trois lignes et trois colonnes.
 
 Retrouvez d'autres techniques de résolution, du niveau débutant au niveau expert, sur notre [page dédiée aux techniques](/techniques), et mettez-les en pratique sur une [grille Expert](/jouer?niveau=expert).
+
+## Pour aller plus loin
+
+Entraînez-vous avec la [leçon et les exercices X-Wing](/techniques/x-wing), puis découvrez le [Y-Wing](/blog/technique-y-wing) et le [Swordfish](/blog/technique-swordfish). Toutes les techniques sont réunies dans notre [guide des techniques de sudoku](/blog/guide-techniques-sudoku).

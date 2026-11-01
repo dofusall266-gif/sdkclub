@@ -3,9 +3,17 @@ title: "La technique du Swordfish en sudoku : le grand frère du X-Wing"
 date: "2026-03-24"
 excerpt: "Sur les grilles les plus difficiles, même le X-Wing ne suffit plus. Le Swordfish applique le même principe à trois lignes et trois colonnes à la fois. Explication et exemple."
 category: "Technique"
+image: "/blog/technique-swordfish.png"
+technique: "swordfish"
 ---
 
 **En résumé** : le Swordfish étend le principe du X-Wing à trois lignes et trois colonnes au lieu de deux — dès que trois lignes contiennent un même chiffre limité à un total de trois colonnes, ce chiffre peut être éliminé partout ailleurs dans ces trois colonnes.
+
+> **Envie de pratiquer tout de suite ?** [La leçon illustrée et les exercices sur le Swordfish](/techniques/swordfish) vous placent dans de vraies situations de grille : à vous de repérer les trois lignes et les trois colonnes.
+
+![Schéma d'un Swordfish sur une grille de sudoku : les cases du motif sont colorées, le candidat éliminé est barré en rouge](/blog/diagram-swordfish.png)
+
+*Exemple de Swordfish : les cases du motif sont en vert, le candidat à retirer est barré en rouge.*
 
 Si vous avez déjà pris l'habitude de repérer des [X-Wing](/blog/technique-x-wing) dans vos grilles, le **Swordfish** ne devrait pas vous dépayser : c'est exactement le même principe logique, simplement étendu de deux à trois lignes (ou colonnes). C'est une des techniques les plus avancées qu'on puisse rencontrer sur une grille **Expert**, et elle suffit souvent, à elle seule, à débloquer une grille qui semblait complètement figée.
 
@@ -57,3 +65,7 @@ Oui, nettement — il demande une configuration plus spécifique. Mais sur des g
 Oui, le *Jellyfish* (quatre lignes et quatre colonnes), mais il reste extrêmement rare en pratique — le Swordfish couvre déjà la grande majorité des cas.
 
 Retrouvez toutes nos autres techniques de résolution, du niveau débutant au niveau expert, sur notre [page dédiée aux techniques](/techniques), et entraînez-vous directement sur une [grille Expert](/jouer?niveau=expert).
+
+## Pour aller plus loin
+
+Entraînez-vous avec la [leçon et les exercices Swordfish](/techniques/swordfish). Si vous ne maîtrisez pas encore les bases, commencez par le [X-Wing](/blog/technique-x-wing) et le [Y-Wing](/blog/technique-y-wing). Toutes les techniques sont réunies dans notre [guide des techniques de sudoku](/blog/guide-techniques-sudoku).

@@ -22,5 +22,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function TechniqueRoute({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   if (!(slug in LESSONS)) notFound()
-  return <TechniquePage slug={slug as TechSlug} />
+  const lesson = LESSONS[slug as TechSlug]
+  const base = "https://sudoku-club.com"
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: base },
+      { "@type": "ListItem", position: 2, name: "Techniques", item: `${base}/techniques` },
+      { "@type": "ListItem", position: 3, name: lesson.fr.name, item: `${base}/techniques/${slug}` },
+    ],
+  }
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+      <TechniquePage slug={slug as TechSlug} />
+    </>
+  )
 }

@@ -3,6 +3,7 @@ title: "Sudoku et cerveau : ce que dit vraiment la science (et ce qu'elle ne dit
 date: "2026-04-14"
 excerpt: "Le sudoku muscle-t-il vraiment le cerveau ? On fait le tri entre les effets réels, bien documentés, et les promesses trop belles pour être vraies qu'on lit souvent ailleurs."
 category: "Santé"
+image: "/blog/bienfaits-sudoku-cerveau-sante.png"
 ---
 
 **En résumé** : le sudoku sollicite réellement la mémoire de travail, l'attention et le raisonnement logique *pendant* que vous jouez — c'est bien établi scientifiquement. En revanche, la preuve qu'il muscle durablement l'intelligence générale ou prévient l'Alzheimer est faible et non démontrée ; ce sont surtout les habitudes de vie globales (sommeil, activité physique, vie sociale) qui protègent la santé cognitive à long terme.

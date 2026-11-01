@@ -5,6 +5,9 @@ import Link from "next/link"
 import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"
 import { useLanguage } from "@/lib/i18n/context"
+import { TrainingBoard } from "@/components/training/training-board"
+import { decodeCase } from "@/lib/training"
+import { TRAINING_CASES } from "@/lib/training-cases"
 import { LESSONS, TECH_SLUGS } from "@/lib/training-lessons"
 
 const LEVEL_STYLES: Record<string, string> = {
@@ -28,6 +31,44 @@ export function TechniquesContent() {
           <p className="mt-3 text-lg text-muted-foreground">{tech.intro}</p>
         </header>
 
+        <section aria-labelledby="practice-title" className="rounded-3xl border border-primary/30 bg-primary/5 p-5 sm:p-7">
+          <h2 id="practice-title" className="text-2xl font-bold tracking-tight">
+            {t.training.practiceHeading}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t.training.practiceIntro}</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            {TECH_SLUGS.map((slug) => {
+              const lesson = LESSONS[slug]
+              const dc = decodeCase(TRAINING_CASES[lesson.tech][0])
+              return (
+                <Link
+                  key={slug}
+                  href={`/techniques/${slug}`}
+                  className="group flex flex-col rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/50"
+                >
+                  <div className="mx-auto w-full max-w-[13rem]">
+                    <TrainingBoard
+                      dc={dc}
+                      reveal={dc.patterns[0]}
+                      readOnly
+                      thumbnail={slug === "y-wing" ? "cells" : "digit"}
+                    />
+                  </div>
+                  <span className="mt-4 w-fit rounded-full bg-destructive/12 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+                    {t.training.level}
+                  </span>
+                  <h3 className="mt-2 text-xl font-bold group-hover:text-primary">{lesson[locale].name}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{lesson[locale].summary}</p>
+                  <span className="mt-4 inline-flex w-fit items-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">
+                    {t.training.practiceCta} →
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+
+        <h2 className="-mb-4 text-xl font-bold">{t.training.basicsHeading}</h2>
         <section className="grid gap-4 sm:grid-cols-2">
           {tech.items.map((item) => (
             <div key={item.title} className="rounded-2xl border border-border bg-card p-6">
@@ -40,27 +81,6 @@ export function TechniquesContent() {
               <p className="mt-1.5 text-sm text-muted-foreground">{item.text}</p>
             </div>
           ))}
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold">{t.training.practiceHeading}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t.training.practiceIntro}</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {TECH_SLUGS.map((slug) => (
-              <Link
-                key={slug}
-                href={`/techniques/${slug}`}
-                className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
-              >
-                <span className="inline-block rounded-full bg-destructive/12 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-                  {t.training.level}
-                </span>
-                <h3 className="mt-3 text-lg font-semibold group-hover:text-primary">{LESSONS[slug][locale].name}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{LESSONS[slug][locale].summary}</p>
-                <p className="mt-3 text-sm font-medium text-primary">{t.training.practiceCta} →</p>
-              </Link>
-            ))}
-          </div>
         </section>
 
         <section className="rounded-2xl border border-border bg-secondary/40 p-6">

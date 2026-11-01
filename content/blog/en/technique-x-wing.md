@@ -7,6 +7,12 @@ category: "Technique"
 
 **In short**: the X-Wing lets you eliminate a candidate when a given digit has only two possible positions in each of two rows, located in exactly the same two columns (or vice versa, by columns). This lock forces you to remove that candidate from the rest of those two columns.
 
+> **Want to practise right away?** [The illustrated X-Wing lesson and exercises](/techniques/x-wing) put you in real grid situations with all notes shown.
+
+![Diagram of an X-Wing on a sudoku grid: the four rectangle cells are coloured, the eliminated candidates are crossed out in red](/blog/diagram-x-wing.png)
+
+*X-Wing example: pattern cells are in green, candidates to remove are crossed out in red.*
+
 If you regularly play at the **Hard** or **Expert** difficulty, you've probably already had that frustrating moment: the grid seems stuck, no cell has a single obvious possibility, and yet it isn't finished. This is very often a sign that it's time to move beyond the basic techniques and on to a so-called "elimination" technique, like the **X-Wing**.
 
 ## A prerequisite: play with notes
@@ -63,3 +69,7 @@ Not necessarily. It eliminates candidates, which often — but not always instan
 The [Swordfish](/blog/technique-swordfish), which applies exactly the same reasoning to three rows and three columns.
 
 Find other solving techniques, from beginner to expert level, on our [techniques page](/techniques), and put them into practice on an [Expert grid](/jouer?niveau=expert).
+
+## Going further
+
+Practise with the [X-Wing lesson and exercises](/techniques/x-wing), then discover the [Y-Wing](/blog/technique-y-wing) and the [Swordfish](/blog/technique-swordfish). Every technique is gathered in our [sudoku techniques guide](/blog/guide-techniques-sudoku).
