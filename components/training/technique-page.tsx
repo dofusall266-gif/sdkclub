@@ -33,6 +33,15 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{text.name}</h1>
           <p className="mt-3 text-lg text-muted-foreground">{text.tagline}</p>
           <p className="mt-4 max-w-3xl leading-relaxed">{text.intro}</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lesson.art}
+            alt={lesson.artAlt[locale]}
+            width={1200}
+            height={630}
+            fetchPriority="high"
+            className="mt-6 w-full max-w-3xl rounded-2xl border border-border"
+          />
         </header>
 
         <section>

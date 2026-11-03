@@ -19,6 +19,9 @@ export interface LessonText {
 
 export interface Lesson {
   slug: TechSlug
+  /** Illustration (public/blog/…), remplaçable par une image à vous : mêmes nom et dimensions (1200×630). */
+  art: string
+  artAlt: { fr: string; en: string }
   tech: TrainingTech
   /** Article de blog associé, s'il existe. */
   article?: string
@@ -33,6 +36,8 @@ export const LESSONS: Record<TechSlug, Lesson> = {
   "x-wing": {
     slug: "x-wing",
     tech: "x_wing",
+    art: "/blog/technique-x-wing.png",
+    artAlt: { fr: "Illustration du X-Wing : quatre cases reliées en X", en: "X-Wing illustration: four cells linked in an X" },
     article: "technique-x-wing",
     metaTitle: "La technique X-Wing au sudoku : explication visuelle et exercices",
     metaDescription:
@@ -90,6 +95,8 @@ export const LESSONS: Record<TechSlug, Lesson> = {
   "y-wing": {
     slug: "y-wing",
     tech: "xy_wing",
+    art: "/blog/technique-y-wing.png",
+    artAlt: { fr: "Illustration du Y-Wing : un pivot et deux ailes en forme de Y", en: "Y-Wing illustration: a pivot and two wings forming a Y" },
     metaTitle: "La technique Y-Wing (XY-Wing) au sudoku : explication visuelle et exercices",
     metaDescription:
       "Apprenez le Y-Wing (XY-Wing) au sudoku : un pivot et deux ailes à deux candidats. Exemple illustré et exercices sur de vraies grilles.",
@@ -146,6 +153,8 @@ export const LESSONS: Record<TechSlug, Lesson> = {
   swordfish: {
     slug: "swordfish",
     tech: "swordfish",
+    art: "/blog/technique-swordfish.png",
+    artAlt: { fr: "Illustration d'un espadon, le swordfish", en: "Illustration of a swordfish" },
     article: "technique-swordfish",
     metaTitle: "La technique Swordfish au sudoku : explication visuelle et exercices",
     metaDescription:

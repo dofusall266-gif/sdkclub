@@ -9,6 +9,9 @@ export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }))
 }
 
+/** Visuel de partage : « /blog/xxx.png » (illustration) -> « /blog/og-xxx.png » (illustration + titre). */
+const shareImage = (image: string) => image.replace("/blog/", "/blog/og-")
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const post = getPostBySlug(slug)
@@ -22,13 +25,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: post.title,
       description: post.excerpt,
       publishedTime: post.date,
-      ...(post.image ? { images: [{ url: post.image, width: 1200, height: 630, alt: post.title }] } : {}),
+      ...(post.image ? { images: [{ url: shareImage(post.image), width: 1200, height: 630, alt: post.title }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      ...(post.image ? { images: [post.image] } : {}),
+      ...(post.image ? { images: [shareImage(post.image)] } : {}),
     },
   }
 }
@@ -58,7 +61,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     author: { "@type": "Organization", name: "Sudoku-Club", url: SITE_URL },
     publisher: { "@type": "Organization", name: "Sudoku-Club", url: SITE_URL },
     ...(post.category ? { articleSection: post.category } : {}),
-    ...(post.image ? { image: `${SITE_URL}${post.image}` } : {}),
+    ...(post.image ? { image: `${SITE_URL}${shareImage(post.image)}` } : {}),
   }
   const breadcrumb = {
     "@context": "https://schema.org",
