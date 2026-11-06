@@ -107,7 +107,7 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,34rem)_1fr]">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,36rem)_1fr]">
       <div className="min-w-0">
         {/* Bouton visible uniquement sur mobile : agrandit la grille (défilement horizontal) pour viser plus facilement. */}
         <Button type="button" variant="outline" className="mb-3 lg:hidden" onClick={() => setZoom((z) => !z)} aria-pressed={zoom}>
@@ -122,7 +122,7 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
             reveal={shown}
             shade={shade}
             tint={tint}
-            className={zoom ? "min-w-[40rem] max-w-none lg:min-w-0 lg:max-w-[34rem]" : undefined}
+            className={zoom ? "min-w-[42rem] max-w-none lg:min-w-0 lg:max-w-[36rem]" : undefined}
           />
         </div>
       </div>

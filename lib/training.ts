@@ -88,8 +88,8 @@ export function explainPattern(tech: TrainingTech, pattern: TrainingPattern, dc:
     const pivotDigits = dc.candidates[pattern.pv]
     const [a, b] = pivotDigits
     return fr
-      ? `Le pivot ${rc(pattern.pv, locale)} ne peut contenir que ${a} ou ${b}. Ses deux ailes ${rc(wings[0], locale)} (${digits(wings[0])}) et ${rc(wings[1], locale)} (${digits(wings[1])}) voient le pivot. Si le pivot vaut ${a}, l'aile qui contient ${a} ne peut pas le prendre et vaut donc ${pattern.d} ; s'il vaut ${b}, c'est l'autre aile qui vaut ${pattern.d}. Dans les deux cas, une des ailes vaut ${pattern.d} : toute case qui voit les deux ailes ne peut donc pas contenir ${pattern.d}. On le retire de ${elim}.`
-      : `The pivot ${rc(pattern.pv, locale)} can only be ${a} or ${b}. Its two wings ${rc(wings[0], locale)} (${digits(wings[0])}) and ${rc(wings[1], locale)} (${digits(wings[1])}) both see the pivot. If the pivot is ${a}, the wing holding ${a} cannot be ${a}, so it is ${pattern.d}; if the pivot is ${b}, the other wing is ${pattern.d}. Either way one of the wings is ${pattern.d}, so any cell that sees both wings cannot be ${pattern.d}. Remove it from ${elim}.`
+      ? `Ici on se focalise sur le pivot ${rc(pattern.pv, locale)} : il ne peut contenir que ${a} ou ${b}. Ses deux ailes ${rc(wings[0], locale)} (${digits(wings[0])}) et ${rc(wings[1], locale)} (${digits(wings[1])}) voient le pivot. Si le pivot vaut ${a}, l'aile qui contient ${a} ne peut pas le prendre et vaut donc ${pattern.d} ; s'il vaut ${b}, c'est l'autre aile qui vaut ${pattern.d}. Dans les deux cas, une des ailes vaut ${pattern.d} : toute case qui voit les deux ailes ne peut donc pas contenir ${pattern.d}. On peut donc retirer le ${pattern.d} de ${elim} afin de faciliter la suite de la partie.`
+      : `Here we focus on the pivot ${rc(pattern.pv, locale)}: it can only be ${a} or ${b}. Its two wings ${rc(wings[0], locale)} (${digits(wings[0])}) and ${rc(wings[1], locale)} (${digits(wings[1])}) both see the pivot. If the pivot is ${a}, the wing holding ${a} cannot be ${a}, so it is ${pattern.d}; if the pivot is ${b}, the other wing is ${pattern.d}. Either way one of the wings is ${pattern.d}, so any cell that sees both wings cannot be ${pattern.d}. We can therefore remove ${pattern.d} from ${elim} to make the rest of the game easier.`
   }
   const lines = pattern.l!
   const isRows = lines.k === "r"
@@ -97,12 +97,17 @@ export function explainPattern(tech: TrainingTech, pattern: TrainingPattern, dc:
   const cover = nums(lines.v, locale)
   const n = lines.b.length
   const name = tech === "x_wing" ? "X-Wing" : "Swordfish"
+  const d = pattern.d
   if (fr) {
-    const baseWord = isRows ? (n === 2 ? "lignes" : "lignes") : "colonnes"
+    const baseWord = isRows ? "lignes" : "colonnes"
     const coverWord = isRows ? "colonnes" : "lignes"
-    return `Le chiffre ${pattern.d} n'a que quelques places possibles dans les ${baseWord} ${base}, et toutes se trouvent dans les mêmes ${n} ${coverWord} (${cover}). Les ${n} ${pattern.d} de ces ${baseWord} se répartiront donc forcément un par ${coverWord === "colonnes" ? "colonne" : "ligne"} : c'est un ${name}. Les ${coverWord} ${cover} ont ainsi déjà leur ${pattern.d} dans le motif, et on peut le retirer de ${elim}.`
+    const coverOne = isRows ? "colonne" : "ligne"
+    const shape = n === 2 ? "un rectangle" : `un motif de ${n} ${baseWord} et ${n} ${coverWord}`
+    return `Ici on se focalise sur le chiffre ${d} : dans les ${baseWord} ${base}, le ${d} n'a que quelques places possibles, et toutes se trouvent dans les mêmes ${n} ${coverWord} (${cover}) → ce qui forme ${shape}. Les ${n} chiffres ${d} de ces ${baseWord} se répartiront donc forcément un par ${coverOne} : c'est un ${name}. On peut donc éliminer les autres ${d} de ces ${coverWord} (${elim}) afin de faciliter la suite de la partie.`
   }
   const baseWord = isRows ? "rows" : "columns"
   const coverWord = isRows ? "columns" : "rows"
-  return `The digit ${pattern.d} has only a few possible spots in ${baseWord} ${base}, and all of them sit in the same ${n} ${coverWord} (${cover}). The ${n} copies of ${pattern.d} in those ${baseWord} must therefore land one per ${coverWord === "columns" ? "column" : "row"}: this is a ${name}. ${coverWord[0].toUpperCase()}${coverWord.slice(1)} ${cover} already get their ${pattern.d} from the pattern, so ${pattern.d} can be removed from ${elim}.`
+  const coverOne = isRows ? "column" : "row"
+  const shape = n === 2 ? "a rectangle" : `a pattern of ${n} ${baseWord} and ${n} ${coverWord}`
+  return `Here we focus on the digit ${d}: in ${baseWord} ${base}, the ${d} has only a few possible spots, and all of them sit in the same ${n} ${coverWord} (${cover}) → which forms ${shape}. The ${n} digits ${d} in those ${baseWord} must therefore land one per ${coverOne}: this is a ${name}. We can therefore eliminate the other ${d}s in those ${coverWord} (${elim}) to make the rest of the game easier.`
 }

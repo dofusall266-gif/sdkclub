@@ -19,11 +19,16 @@ interface Props {
   readOnly?: boolean
   /** Vignette : n'affiche que le chiffre du motif ("digit") ou que les cases du motif ("cells"). */
   thumbnail?: "digit" | "cells"
-  /** Classes supplémentaires pour la grille (ex. largeur minimale en mode zoom). */
+  /** Classes supplémentaires pour le conteneur (ex. largeur minimale en mode zoom). */
   className?: string
 }
 
-/** Grille avec toutes les notes (candidats) à leur place habituelle : 1 en haut à gauche, 9 en bas à droite. */
+const NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+/**
+ * Grille avec toutes les notes (candidats) à leur place habituelle : 1 en haut à gauche, 9 en bas à droite.
+ * Les colonnes et les lignes sont numérotées de 1 à 9 (comme dans les explications : L3C5 = ligne 3, colonne 5).
+ */
 export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal, shade = [], tint, readOnly, thumbnail, className }: Props) {
   const revealCells = new Set(reveal?.c ?? [])
   const revealElims = new Set(reveal?.e ?? [])
@@ -34,9 +39,10 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
     for (const b of l.b) baseLines.add(`${l.k}${b}`)
     for (const v of l.v) coverLines.add(`${l.k === "r" ? "c" : "r"}${v}`)
   }
+  const showLabels = !thumbnail
 
-  return (
-    <div className={cn("grid aspect-square w-full max-w-[34rem] grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm", className)}>
+  const grid = (
+    <div className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm">
       {dc.values.map((value, i) => {
         const r = Math.floor(i / 9)
         const c = i % 9
@@ -57,7 +63,12 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                 if (thumbnail === "digit" && d !== reveal?.d) return <span key={d} />
                 if (thumbnail === "cells" && !(isPattern || revealElims.has(i))) return <span key={d} />
                 const eliminated = revealElims.has(i) && reveal?.d === d
-                const focus = focusDigits.includes(d) || (isPattern && reveal?.d === d)
+                const sameDigit = focusDigits.includes(d)
+                const inPattern = isPattern && reveal?.d === d
+                // Quand le motif est montré, seuls les chiffres du motif sont en vert :
+                // les autres exemplaires du même chiffre restent neutres (ils ne sont pas concernés).
+                const focus = reveal ? inPattern : sameDigit
+                const sameButOutside = !!reveal && sameDigit && !inPattern && !eliminated
                 return (
                   <span
                     key={d}
@@ -67,7 +78,9 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                         ? "rounded-full bg-destructive/20 font-bold text-destructive line-through"
                         : focus
                           ? "font-bold text-primary"
-                          : "text-muted-foreground/70",
+                          : sameButOutside
+                            ? "font-semibold text-foreground/80"
+                            : "text-muted-foreground/70",
                     )}
                   >
                     {d}
@@ -106,12 +119,45 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
             className={cls}
             onClick={() => onToggle!(i)}
             aria-pressed={isSelected}
-            aria-label={`${r + 1}-${c + 1} : ${dc.candidates[i].join(" ")}`}
+            aria-label={`L${r + 1}C${c + 1} : ${dc.candidates[i].join(" ")}`}
           >
             {content}
           </button>
         )
       })}
+    </div>
+  )
+
+  if (!showLabels) return <div className={cn("w-full max-w-[34rem]", className)}>{grid}</div>
+
+  /** Style d'un repère de ligne / colonne : mis en valeur s'il fait partie du motif. */
+  const labelCls = (key: string) =>
+    cn(
+      "grid place-items-center rounded text-[0.7rem] font-semibold text-muted-foreground sm:text-xs",
+      baseLines.has(key) && "bg-primary/15 font-bold text-primary",
+      coverLines.has(key) && !baseLines.has(key) && "bg-secondary font-bold text-foreground",
+    )
+
+  return (
+    <div className={cn("w-full max-w-[36rem]", className)}>
+      <div className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-1 gap-y-1 sm:grid-cols-[1.5rem_minmax(0,1fr)]">
+        <span aria-hidden />
+        <div className="grid grid-cols-9 px-0.5" aria-hidden>
+          {NUMBERS.map((n, c) => (
+            <span key={n} className={labelCls(`c${c}`)}>
+              {n}
+            </span>
+          ))}
+        </div>
+        <div className="grid grid-rows-9 py-0.5" aria-hidden>
+          {NUMBERS.map((n, r) => (
+            <span key={n} className={labelCls(`r${r}`)}>
+              {n}
+            </span>
+          ))}
+        </div>
+        {grid}
+      </div>
     </div>
   )
 }

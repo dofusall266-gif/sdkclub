@@ -47,7 +47,7 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
         <section>
           <h2 className="text-xl font-bold">{tr.exampleHeading}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{tr.exampleIntro}</p>
-          <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,34rem)_1fr]">
+          <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,36rem)_1fr]">
             <TrainingBoard dc={example} reveal={pattern} focusDigits={slug === "y-wing" ? [] : [pattern.d]} readOnly />
             <div className="space-y-4">
               <ul className="space-y-2 text-sm">
@@ -60,6 +60,11 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
                 {slug !== "y-wing" && (
                   <li className="flex items-center gap-2">
                     <span className="size-4 rounded bg-primary/10 ring-1 ring-border" /> {tr.legendLines}
+                  </li>
+                )}
+                {slug !== "y-wing" && (
+                  <li className="flex items-center gap-2">
+                    <span className="grid size-4 place-items-center text-[0.7rem] font-semibold text-foreground/80">{pattern.d}</span> {tr.legendOther(pattern.d)}
                   </li>
                 )}
               </ul>

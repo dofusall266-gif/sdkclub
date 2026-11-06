@@ -44,23 +44,23 @@ export const LESSONS: Record<TechSlug, Lesson> = {
       "Comprenez le X-Wing au sudoku avec un exemple illustré, puis entraînez-vous sur de vraies grilles : repérez le rectangle et éliminez les candidats.",
     fr: {
       name: "X-Wing",
-      tagline: "Un rectangle de quatre cases qui permet d'éliminer des candidats ailleurs dans la grille.",
+      tagline: "Méthode d'élimination de 1 candidat : focus sur un seul chiffre.",
       summary: "Quatre cases en rectangle sur un même chiffre : une élimination qui débloque les grilles difficiles.",
       intro:
-        "Le X-Wing s'applique à un seul chiffre à la fois. Dans deux lignes, ce chiffre n'a chacun que deux places possibles, et ces places sont dans les mêmes deux colonnes. Elles dessinent un rectangle : les deux chiffres iront forcément sur deux coins opposés.",
+        "Le X-Wing s'applique à un seul chiffre à la fois. Dans deux colonnes, ce chiffre n'a chacune que deux places possibles, et ces places sont dans les mêmes deux lignes. Elles dessinent un rectangle : les deux chiffres iront forcément sur deux coins opposés.",
       steps: [
         { title: "Choisis un chiffre et affiche les notes", text: "Le X-Wing se cherche sur un chiffre à la fois, sur une grille où les notes (candidats) sont remplies." },
-        { title: "Cherche deux lignes à deux places", text: "Repère deux lignes où ce chiffre n'a que deux emplacements possibles — et où ces emplacements sont dans les mêmes colonnes." },
-        { title: "Le rectangle est formé", text: "Les quatre cases forment un rectangle. Que le chiffre aille sur une diagonale ou l'autre, chacune des deux colonnes aura son chiffre dans une de ces deux lignes." },
-        { title: "Élimine ailleurs", text: "Dans ces deux colonnes, le chiffre ne peut plus être dans les autres lignes : tu peux le retirer des autres cases de ces colonnes." },
+        { title: "Cherche deux colonnes à deux places", text: "Repère deux colonnes où ce chiffre n'a que deux emplacements possibles — et où ces emplacements sont dans les mêmes lignes." },
+        { title: "Le rectangle est formé", text: "Les quatre cases forment un rectangle. Que le chiffre aille sur une diagonale ou l'autre, chacune des deux lignes aura son chiffre dans une de ces deux colonnes." },
+        { title: "Élimine ailleurs", text: "Dans ces deux lignes, le chiffre ne peut plus être dans les autres colonnes : tu peux le retirer des autres cases de ces lignes." },
       ],
       mistakes: [
-        "Prendre deux lignes dont les emplacements ne tombent pas exactement dans les mêmes colonnes : ce n'est pas un X-Wing.",
-        "Oublier qu'il faut des lignes avec exactement deux places pour le chiffre (pas trois).",
+        "Prendre deux colonnes dont les emplacements ne tombent pas exactement dans les mêmes lignes : ce n'est pas un X-Wing.",
+        "Oublier qu'il faut des colonnes avec exactement deux places pour le chiffre (pas trois).",
         "Chercher sans les notes : le motif ne se voit que sur les candidats.",
       ],
       faq: [
-        { q: "Le X-Wing peut-il se faire avec des colonnes ?", a: "Oui : c'est le même raisonnement tourné de 90°. Deux colonnes où le chiffre a deux places, dans les mêmes lignes, permettent d'éliminer le chiffre ailleurs dans ces lignes." },
+        { q: "Le X-Wing peut-il se faire avec des lignes ?", a: "Oui : c'est le même raisonnement tourné de 90°. Deux lignes où le chiffre a deux places, dans les mêmes colonnes, permettent d'éliminer le chiffre ailleurs dans ces colonnes." },
         { q: "À quel niveau le rencontre-t-on ?", a: "Surtout à partir du niveau Expert. Une grille Facile ou Moyenne n'en demande presque jamais." },
         { q: "Et si je ne vois pas de X-Wing ?", a: "Passe à un autre chiffre, ou essaie le Y-Wing. Beaucoup de grilles n'en contiennent pas." },
       ],
@@ -68,23 +68,23 @@ export const LESSONS: Record<TechSlug, Lesson> = {
     },
     en: {
       name: "X-Wing",
-      tagline: "A four-cell rectangle that lets you eliminate candidates elsewhere in the grid.",
+      tagline: "Single-candidate elimination method: focus on one digit.",
       summary: "Four cells in a rectangle on one digit: an elimination that unlocks hard puzzles.",
       intro:
-        "The X-Wing works on one digit at a time. In two rows, that digit has only two possible spots each, and those spots sit in the same two columns. They form a rectangle: the two digits must land on opposite corners.",
+        "The X-Wing works on one digit at a time. In two columns, that digit has only two possible spots each, and those spots sit in the same two rows. They form a rectangle: the two digits must land on opposite corners.",
       steps: [
         { title: "Pick a digit and show your notes", text: "You look for an X-Wing on one digit at a time, on a grid where the notes (candidates) are filled in." },
-        { title: "Find two rows with two spots", text: "Spot two rows where this digit has only two possible places — and those places are in the same columns." },
-        { title: "The rectangle is formed", text: "The four cells make a rectangle. Whichever diagonal the digit takes, each of the two columns gets its digit from one of those two rows." },
-        { title: "Eliminate elsewhere", text: "In those two columns the digit can no longer be in the other rows, so you can remove it from the other cells of those columns." },
+        { title: "Find two columns with two spots", text: "Spot two columns where this digit has only two possible places — and those places are in the same rows." },
+        { title: "The rectangle is formed", text: "The four cells make a rectangle. Whichever diagonal the digit takes, each of the two rows gets its digit from one of those two columns." },
+        { title: "Eliminate elsewhere", text: "In those two rows the digit can no longer be in the other columns, so you can remove it from the other cells of those rows." },
       ],
       mistakes: [
-        "Using two rows whose spots do not fall in exactly the same columns: that is not an X-Wing.",
-        "Forgetting the rows need exactly two spots for the digit (not three).",
+        "Using two columns whose spots do not fall in exactly the same rows: that is not an X-Wing.",
+        "Forgetting the columns need exactly two spots for the digit (not three).",
         "Searching without notes: the pattern is only visible on candidates.",
       ],
       faq: [
-        { q: "Can the X-Wing be done with columns?", a: "Yes: it is the same reasoning turned by 90°. Two columns where the digit has two spots, in the same rows, let you remove it elsewhere in those rows." },
+        { q: "Can the X-Wing be done with rows?", a: "Yes: it is the same reasoning turned by 90°. Two rows where the digit has two spots, in the same columns, let you remove it elsewhere in those columns." },
         { q: "At which level do you meet it?", a: "Mostly from Expert level up. Easy and Medium grids almost never need it." },
         { q: "What if I cannot see an X-Wing?", a: "Move on to another digit, or try the Y-Wing. Many grids do not contain one." },
       ],
@@ -102,7 +102,7 @@ export const LESSONS: Record<TechSlug, Lesson> = {
       "Apprenez le Y-Wing (XY-Wing) au sudoku : un pivot et deux ailes à deux candidats. Exemple illustré et exercices sur de vraies grilles.",
     fr: {
       name: "Y-Wing",
-      tagline: "Un pivot et deux ailes, trois cases à deux candidats qui s'enchaînent.",
+      tagline: "Méthode d'élimination de 1 candidat : focus sur trois cases à deux candidats.",
       summary: "Trois cases à deux candidats forment un pivot et deux ailes : un chiffre peut être éliminé des cases qui voient les deux ailes.",
       intro:
         "Le Y-Wing (aussi appelé XY-Wing) utilise trois cases qui n'ont chacune que deux candidats. Le pivot porte A et B ; une aile porte A et C, l'autre B et C. Les deux ailes voient le pivot.",
@@ -126,7 +126,7 @@ export const LESSONS: Record<TechSlug, Lesson> = {
     },
     en: {
       name: "Y-Wing",
-      tagline: "A pivot and two wings: three two-candidate cells that chain together.",
+      tagline: "Single-candidate elimination method: focus on three two-candidate cells.",
       summary: "Three two-candidate cells form a pivot and two wings: a digit can be removed from cells that see both wings.",
       intro:
         "The Y-Wing (also called XY-Wing) uses three cells that each hold only two candidates. The pivot holds A and B; one wing holds A and C, the other B and C. Both wings see the pivot.",
@@ -161,7 +161,7 @@ export const LESSONS: Record<TechSlug, Lesson> = {
       "Comprenez le Swordfish (espadon) au sudoku, grand frère du X-Wing : exemple illustré, étapes claires et exercices sur de vraies grilles.",
     fr: {
       name: "Swordfish",
-      tagline: "Le grand frère du X-Wing : trois lignes, trois colonnes, un seul chiffre.",
+      tagline: "Méthode d'élimination de 1 candidat : focus sur un seul chiffre, avec trois lignes et trois colonnes.",
       summary: "Trois lignes, trois colonnes, un même chiffre : le Swordfish étend le X-Wing et permet des éliminations plus rares.",
       intro:
         "Le Swordfish (« espadon ») applique le raisonnement du X-Wing à trois lignes. Un chiffre n'a que deux ou trois places dans chacune de trois lignes, et toutes ces places se trouvent dans trois colonnes seulement.",
@@ -185,7 +185,7 @@ export const LESSONS: Record<TechSlug, Lesson> = {
     },
     en: {
       name: "Swordfish",
-      tagline: "The X-Wing's big brother: three rows, three columns, one digit.",
+      tagline: "Single-candidate elimination method: focus on one digit, with three rows and three columns.",
       summary: "Three rows, three columns, one digit: the Swordfish extends the X-Wing and allows rarer eliminations.",
       intro:
         "The Swordfish applies the X-Wing reasoning to three rows. A digit has only two or three spots in each of three rows, and all those spots lie in just three columns.",
