@@ -12,6 +12,10 @@ export interface BlogTexts {
 export interface BlogPostMeta extends BlogTexts {
   slug: string
   date: string // YYYY-MM-DD
+  /** Titre court pour Google et les onglets (≈ 50 caractères max, sans la marque). Facultatif : `seoTitle:` dans l'en-tête de l'article. */
+  seoTitle?: string
+  /** Date de dernière mise à jour (YYYY-MM-DD), si l'article a été révisé. Facultatif : `updated:`. */
+  updated?: string
   /** Image de couverture (public/blog/…), utilisée en tête d'article, dans la liste et pour le partage. */
   image?: string
   /** Leçon d'entraînement liée (ex. « swordfish » → /techniques/swordfish). */

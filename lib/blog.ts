@@ -50,6 +50,8 @@ export function getAllPosts(): BlogPostMeta[] {
         category: String(data.category ?? ""),
         image: typeof data.image === "string" ? data.image : undefined,
         technique: typeof data.technique === "string" ? data.technique : undefined,
+        seoTitle: typeof data.seoTitle === "string" ? data.seoTitle : undefined,
+        updated: typeof data.updated === "string" ? data.updated : undefined,
         en: en ? { title: en.title, excerpt: en.excerpt, category: en.category } : undefined,
       }
     })
@@ -71,6 +73,8 @@ export function getPostBySlug(slug: string): BlogPost | null {
     category: String(data.category ?? ""),
     image: typeof data.image === "string" ? data.image : undefined,
     technique: typeof data.technique === "string" ? data.technique : undefined,
+    seoTitle: typeof data.seoTitle === "string" ? data.seoTitle : undefined,
+    updated: typeof data.updated === "string" ? data.updated : undefined,
     content,
     en: en ? { title: en.title, excerpt: en.excerpt, category: en.category } : undefined,
     enContent: en?.content,

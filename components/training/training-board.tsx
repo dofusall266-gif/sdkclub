@@ -63,6 +63,8 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                 if (thumbnail === "digit" && d !== reveal?.d) return <span key={d} />
                 if (thumbnail === "cells" && !(isPattern || revealElims.has(i))) return <span key={d} />
                 const eliminated = revealElims.has(i) && reveal?.d === d
+                // Candidat éliminé par la technique : il est retiré de la grille (l'explication indique lesquels).
+                if (eliminated && !thumbnail) return <span key={d} />
                 const sameDigit = focusDigits.includes(d)
                 const inPattern = isPattern && reveal?.d === d
                 // Quand le motif est montré, seuls les chiffres du motif sont en vert :

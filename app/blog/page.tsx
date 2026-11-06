@@ -4,7 +4,7 @@ import { BlogIndexContent } from "@/components/blog-index-content"
 import { getAllPosts } from "@/lib/blog"
 
 export const metadata: Metadata = {
-  title: "Articles — Histoire, techniques et bienfaits du sudoku",
+  title: "Articles sur le sudoku : histoire et techniques",
   description:
     "Articles sur l'histoire du sudoku, ses techniques de résolution avancées (X-Wing, Swordfish...) et ses bienfaits pour le cerveau.",
   alternates: { canonical: "/blog" },

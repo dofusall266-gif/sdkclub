@@ -9,7 +9,7 @@ category: "Technique"
 
 > **Want to practise right away?** [The illustrated Swordfish lesson and exercises](/techniques/swordfish) put you in real grid situations: your job is to spot the three rows and three columns.
 
-![Diagram of a Swordfish on a sudoku grid: the pattern cells are coloured, the eliminated candidate is crossed out in red](/blog/diagram-swordfish.png)
+![Diagram of a Swordfish on a sudoku grid: the pattern cells are coloured, the eliminated candidate is crossed out in red](/blog/diagram-swordfish.webp)
 
 *Swordfish example: pattern cells are in green, the candidate to remove is crossed out in red.*
 

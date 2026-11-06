@@ -33,7 +33,7 @@ This is the level of Expert grids. Each technique now has its own **illustrated 
 - **[Y-Wing](/techniques/y-wing)**: a pivot and two two-candidate wings (also read [the Y-Wing article](/blog/technique-y-wing)).
 - **[Swordfish](/techniques/swordfish)**: the X-Wing's big brother, on three rows and three columns (also read [the Swordfish article](/blog/technique-swordfish)).
 
-![The advanced techniques in diagrams: X-Wing, Y-Wing and Swordfish](/blog/diagram-x-wing.png)
+![The advanced techniques in diagrams: X-Wing, Y-Wing and Swordfish](/blog/diagram-x-wing.webp)
 
 *X-Wing example: pattern cells are in green, eliminated candidates in red.*
 

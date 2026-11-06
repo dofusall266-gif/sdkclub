@@ -20,7 +20,7 @@ A Y-Wing is made of:
 
 Each wing must **see the pivot**: be in its row, column or box. The wings do not have to see each other.
 
-![Diagram of a Y-Wing on a sudoku grid: the pivot and its two wings are coloured, the eliminated candidate is crossed out in red](/blog/diagram-y-wing.png)
+![Diagram of a Y-Wing on a sudoku grid: the pivot and its two wings are coloured, the eliminated candidate is crossed out in red](/blog/diagram-y-wing.webp)
 
 *Y-Wing example: the three pattern cells are in green, the candidate to remove is crossed out in red.*
 

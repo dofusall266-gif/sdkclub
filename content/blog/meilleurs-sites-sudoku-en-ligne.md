@@ -1,9 +1,10 @@
 ---
 title: "Les 7 meilleurs sites de sudoku en ligne gratuits (comparatif 2026)"
+seoTitle: "Les 7 meilleurs sites de sudoku gratuits (2026)"
 date: "2026-09-27"
 excerpt: "Sudoku.com, Web Sudoku, LiveSudoku, franceinfo, le-sudoku.fr, NYT Games... On compare les grands sites de sudoku en ligne selon des critères clairs et vérifiables, pour vous aider à choisir le vôtre."
 category: "Comparatif"
-image: "/blog/meilleurs-sites-sudoku-en-ligne.png"
+image: "/blog/meilleurs-sites-sudoku-en-ligne.webp"
 ---
 
 **En résumé** : si vous cherchez un site de sudoku gratuit, sans compte obligatoire et sans paywall, avec un vrai défi quotidien classé et des grilles vérifiées, [Sudoku Club](/) coche toutes ces cases — c'est notre site, et la suite de cet article explique pourquoi, ainsi que les autres bonnes options selon ce que vous cherchez.

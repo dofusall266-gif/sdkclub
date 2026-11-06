@@ -33,9 +33,19 @@ export default async function TechniqueRoute({ params }: { params: Promise<{ slu
       { "@type": "ListItem", position: 3, name: lesson.fr.name, item: `${base}/techniques/${slug}` },
     ],
   }
+  const faq = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: lesson.fr.faq.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  }
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }} />
       <TechniquePage slug={slug as TechSlug} />
     </>
   )

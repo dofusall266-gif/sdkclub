@@ -1,9 +1,10 @@
 ---
 title: "L'histoire du sudoku : des carrés latins d'Euler au phénomène mondial"
+seoTitle: "L'histoire du sudoku : origines et évolution"
 date: "2026-01-12"
 excerpt: "Le sudoku n'est ni japonais à l'origine, ni très ancien. Retour sur l'histoire méconnue d'un puzzle né aux États-Unis, popularisé au Japon, et devenu mondial en quelques années à peine."
 category: "Histoire"
-image: "/blog/histoire-du-sudoku.png"
+image: "/blog/histoire-du-sudoku.webp"
 ---
 
 **En résumé** : le sudoku n'est pas une tradition japonaise ancienne. Il est publié pour la première fois en 1979 aux États-Unis sous le nom de « Number Place », repris et renommé « Sudoku » par l'éditeur japonais Nikoli en 1984, puis mondialisé à partir de 2004-2005 grâce au juge néo-zélandais Wayne Gould et au quotidien britannique *The Times*.

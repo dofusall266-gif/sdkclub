@@ -10,27 +10,36 @@ export function generateStaticParams() {
 }
 
 /** Visuel de partage : « /blog/xxx.png » (illustration) -> « /blog/og-xxx.png » (illustration + titre). */
-const shareImage = (image: string) => image.replace("/blog/", "/blog/og-")
+const shareImage = (image: string) => image.replace("/blog/", "/blog/og-").replace(/\.(png|webp)$/, ".jpg")
+
+/** Description de ~155 caractères max (au-delà, Google coupe l'extrait), coupée proprement à la fin d'une phrase ou d'un mot. */
+function shortDescription(text: string, max = 155): string {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  const sentence = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("? "), cut.lastIndexOf("! "))
+  if (sentence > 80) return cut.slice(0, sentence + 1)
+  return cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:\s]+$/, "") + "…"
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) return {}
   return {
-    title: post.title,
-    description: post.excerpt,
+    title: post.seoTitle ?? post.title,
+    description: shortDescription(post.excerpt),
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       type: "article",
-      title: post.title,
-      description: post.excerpt,
+      title: post.seoTitle ?? post.title,
+      description: shortDescription(post.excerpt),
       publishedTime: post.date,
       ...(post.image ? { images: [{ url: shareImage(post.image), width: 1200, height: 630, alt: post.title }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
+      title: post.seoTitle ?? post.title,
+      description: shortDescription(post.excerpt),
       ...(post.image ? { images: [shareImage(post.image)] } : {}),
     },
   }
@@ -55,7 +64,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     headline: post.title,
     description: post.excerpt,
     datePublished: post.date,
-    dateModified: post.date,
+    dateModified: post.updated ?? post.date,
     inLanguage: "fr-FR",
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${post.slug}` },
     author: { "@type": "Organization", name: "Sudoku-Club", url: SITE_URL },

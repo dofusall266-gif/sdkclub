@@ -9,7 +9,7 @@ category: "Technique"
 
 > **Want to practise right away?** [The illustrated X-Wing lesson and exercises](/techniques/x-wing) put you in real grid situations with all notes shown.
 
-![Diagram of an X-Wing on a sudoku grid: the four rectangle cells are coloured, the eliminated candidates are crossed out in red](/blog/diagram-x-wing.png)
+![Diagram of an X-Wing on a sudoku grid: the four rectangle cells are coloured, the eliminated candidates are crossed out in red](/blog/diagram-x-wing.webp)
 
 *X-Wing example: pattern cells are in green, candidates to remove are crossed out in red.*
 

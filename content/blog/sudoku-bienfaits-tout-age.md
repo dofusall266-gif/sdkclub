@@ -1,9 +1,10 @@
 ---
 title: "Le sudoku à tout âge : pourquoi ce n'est pas (que) un jeu pour occuper les seniors"
+seoTitle: "Sudoku : un jeu pour tous les âges, pas que les seniors"
 date: "2026-05-02"
 excerpt: "Le sudoku traîne une réputation de passe-temps pour retraités. C'est à la fois vrai et très réducteur. Pourquoi ce jeu a sa place à n'importe quel âge, et comment bien commencer."
 category: "Santé"
-image: "/blog/sudoku-bienfaits-tout-age.png"
+image: "/blog/sudoku-bienfaits-tout-age.webp"
 ---
 
 **En résumé** : le sudoku n'est pas réservé aux retraités — ses vrais atouts (structure, objectif clair, déconnexion des écrans passifs) profitent à n'importe quel âge, et aucune expérience préalable n'est nécessaire pour commencer.

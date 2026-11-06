@@ -1,9 +1,10 @@
 ---
 title: "La technique du Y-Wing (XY-Wing) en sudoku : repérer le pivot et ses deux ailes"
+seoTitle: "Technique Y-Wing au sudoku : le guide"
 date: "2026-11-01"
 excerpt: "Trois cases à deux candidats suffisent pour débloquer une grille. Le Y-Wing, ou XY-Wing, se repère en quelques secondes une fois qu'on connaît le principe. Explication et exemple illustré."
 category: "Technique"
-image: "/blog/technique-y-wing.png"
+image: "/blog/technique-y-wing.webp"
 technique: "y-wing"
 ---
 
@@ -22,7 +23,7 @@ Un Y-Wing se compose de :
 
 Les deux ailes doivent chacune **voir le pivot** : être dans sa ligne, sa colonne ou son bloc. Elles n'ont pas besoin de se voir entre elles.
 
-![Schéma d'un Y-Wing sur une grille de sudoku : le pivot et ses deux ailes sont colorés, le candidat éliminé est barré en rouge](/blog/diagram-y-wing.png)
+![Schéma d'un Y-Wing sur une grille de sudoku : le pivot et ses deux ailes sont colorés, le candidat éliminé est barré en rouge](/blog/diagram-y-wing.webp)
 
 *Exemple de Y-Wing : les trois cases du motif sont en vert, le candidat à retirer est barré en rouge.*
 

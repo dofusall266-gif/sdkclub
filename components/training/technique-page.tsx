@@ -54,9 +54,6 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
                 <li className="flex items-center gap-2">
                   <span className="size-4 rounded bg-primary/30 ring-1 ring-primary" /> {tr.legendPattern}
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="grid size-4 place-items-center rounded-full bg-destructive/20 text-[0.6rem] font-bold text-destructive line-through">{pattern.d}</span> {tr.legendElim}
-                </li>
                 {slug !== "y-wing" && (
                   <li className="flex items-center gap-2">
                     <span className="size-4 rounded bg-primary/10 ring-1 ring-border" /> {tr.legendLines}

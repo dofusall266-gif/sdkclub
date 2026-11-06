@@ -36,10 +36,10 @@ export const LESSONS: Record<TechSlug, Lesson> = {
   "x-wing": {
     slug: "x-wing",
     tech: "x_wing",
-    art: "/blog/technique-x-wing.png",
+    art: "/blog/technique-x-wing.webp",
     artAlt: { fr: "Illustration du X-Wing : quatre cases reliées en X", en: "X-Wing illustration: four cells linked in an X" },
     article: "technique-x-wing",
-    metaTitle: "La technique X-Wing au sudoku : explication visuelle et exercices",
+    metaTitle: "X-Wing au sudoku : explication et exercices",
     metaDescription:
       "Comprenez le X-Wing au sudoku avec un exemple illustré, puis entraînez-vous sur de vraies grilles : repérez le rectangle et éliminez les candidats.",
     fr: {
@@ -95,9 +95,9 @@ export const LESSONS: Record<TechSlug, Lesson> = {
   "y-wing": {
     slug: "y-wing",
     tech: "xy_wing",
-    art: "/blog/technique-y-wing.png",
+    art: "/blog/technique-y-wing.webp",
     artAlt: { fr: "Illustration du Y-Wing : un pivot et deux ailes en forme de Y", en: "Y-Wing illustration: a pivot and two wings forming a Y" },
-    metaTitle: "La technique Y-Wing (XY-Wing) au sudoku : explication visuelle et exercices",
+    metaTitle: "Y-Wing au sudoku : explication et exercices",
     metaDescription:
       "Apprenez le Y-Wing (XY-Wing) au sudoku : un pivot et deux ailes à deux candidats. Exemple illustré et exercices sur de vraies grilles.",
     fr: {
@@ -153,10 +153,10 @@ export const LESSONS: Record<TechSlug, Lesson> = {
   swordfish: {
     slug: "swordfish",
     tech: "swordfish",
-    art: "/blog/technique-swordfish.png",
+    art: "/blog/technique-swordfish.webp",
     artAlt: { fr: "Illustration d'un espadon, le swordfish", en: "Illustration of a swordfish" },
     article: "technique-swordfish",
-    metaTitle: "La technique Swordfish au sudoku : explication visuelle et exercices",
+    metaTitle: "Swordfish au sudoku : explication et exercices",
     metaDescription:
       "Comprenez le Swordfish (espadon) au sudoku, grand frère du X-Wing : exemple illustré, étapes claires et exercices sur de vraies grilles.",
     fr: {

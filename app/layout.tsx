@@ -22,8 +22,6 @@ export const metadata: Metadata = {
   },
   description:
     "Jouez au sudoku gratuit en ligne, sans inscription : 6 niveaux du Facile au Fou, un défi du jour classé et des grilles à imprimer en PDF.",
-  keywords: ["sudoku", "sudoku en ligne", "sudoku gratuit", "jeu de sudoku", "grille de sudoku", "sudoku à imprimer"],
-  generator: "v0.app",
   // Aperçu de lien (X, WhatsApp, Discord…) : les robots ne lisent pas le
   // sélecteur de langue, donc titre/description bilingues ici. L'image est
   // générée par app/opengraph-image.tsx et app/twitter-image.tsx.

@@ -1,9 +1,10 @@
 ---
 title: "La technique du Swordfish en sudoku : le grand frère du X-Wing"
+seoTitle: "Technique Swordfish au sudoku : le guide"
 date: "2026-03-24"
 excerpt: "Sur les grilles les plus difficiles, même le X-Wing ne suffit plus. Le Swordfish applique le même principe à trois lignes et trois colonnes à la fois. Explication et exemple."
 category: "Technique"
-image: "/blog/technique-swordfish.png"
+image: "/blog/technique-swordfish.webp"
 technique: "swordfish"
 ---
 
@@ -11,7 +12,7 @@ technique: "swordfish"
 
 > **Envie de pratiquer tout de suite ?** [La leçon illustrée et les exercices sur le Swordfish](/techniques/swordfish) vous placent dans de vraies situations de grille : à vous de repérer les trois lignes et les trois colonnes.
 
-![Schéma d'un Swordfish sur une grille de sudoku : les cases du motif sont colorées, le candidat éliminé est barré en rouge](/blog/diagram-swordfish.png)
+![Schéma d'un Swordfish sur une grille de sudoku : les cases du motif sont colorées, le candidat éliminé est barré en rouge](/blog/diagram-swordfish.webp)
 
 *Exemple de Swordfish : les cases du motif sont en vert, le candidat à retirer est barré en rouge.*
 

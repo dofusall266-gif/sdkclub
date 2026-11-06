@@ -1,9 +1,10 @@
 ---
 title: "Les techniques de sudoku : le guide complet, du débutant à l'expert"
+seoTitle: "Techniques de sudoku : le guide complet"
 date: "2026-11-01"
 excerpt: "Chiffres uniques, alignements, paires, X-Wing, Y-Wing, Swordfish : toutes les techniques de résolution classées par difficulté, avec des liens vers des leçons illustrées et des exercices."
 category: "Technique"
-image: "/blog/guide-techniques-sudoku.png"
+image: "/blog/guide-techniques-sudoku.webp"
 ---
 
 **En résumé** : une grille de sudoku se résout par déduction, jamais en devinant. Les techniques vont des plus simples (les chiffres uniques) aux plus avancées (X-Wing, Y-Wing, Swordfish). Maîtriser les premières suffit pour les niveaux Facile et Moyen ; les suivantes deviennent utiles à partir de Difficile et indispensables en Expert.
@@ -34,7 +35,7 @@ C'est le niveau des grilles Expert. Chaque technique a désormais sa **leçon il
 - **[Y-Wing](/techniques/y-wing)** : un pivot et deux ailes à deux candidats (lisez aussi [l'article sur le Y-Wing](/blog/technique-y-wing)).
 - **[Swordfish](/techniques/swordfish)** : le grand frère du X-Wing, sur trois lignes et trois colonnes (lisez aussi [l'article sur le Swordfish](/blog/technique-swordfish)).
 
-![Les trois techniques avancées en schémas : X-Wing, Y-Wing et Swordfish](/blog/diagram-x-wing.png)
+![Les trois techniques avancées en schémas : X-Wing, Y-Wing et Swordfish](/blog/diagram-x-wing.webp)
 
 *Exemple de X-Wing : les cases du motif sont en vert, les candidats éliminés en rouge.*
 

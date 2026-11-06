@@ -1,9 +1,10 @@
 ---
 title: "La technique du X-Wing en sudoku : comment l'utiliser (avec exemple)"
+seoTitle: "Technique X-Wing au sudoku : guide et exemple"
 date: "2026-03-10"
 excerpt: "Bloqué sur une grille difficile alors que toutes les techniques de base sont épuisées ? Le X-Wing est souvent la clé. Explication pas à pas, avec un exemple concret."
 category: "Technique"
-image: "/blog/technique-x-wing.png"
+image: "/blog/technique-x-wing.webp"
 technique: "x-wing"
 ---
 
@@ -11,7 +12,7 @@ technique: "x-wing"
 
 > **Envie de pratiquer tout de suite ?** [La leçon illustrée et les exercices sur le X-Wing](/techniques/x-wing) vous placent dans de vraies situations de grille, avec toutes les notes affichées.
 
-![Schéma d'un X-Wing sur une grille de sudoku : les quatre cases du rectangle sont colorées, les candidats éliminés sont barrés en rouge](/blog/diagram-x-wing.png)
+![Schéma d'un X-Wing sur une grille de sudoku : les quatre cases du rectangle sont colorées, les candidats éliminés sont barrés en rouge](/blog/diagram-x-wing.webp)
 
 *Exemple de X-Wing : les cases du motif sont en vert, les candidats à retirer sont barrés en rouge.*
 

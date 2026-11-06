@@ -7,15 +7,14 @@ const SITE_URL = "https://sudoku-club.com"
 // Plan du site pour Google : généré automatiquement, les nouveaux articles de
 // content/blog/ y sont ajoutés sans rien toucher. Disponible sur /sitemap.xml.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages: Array<{ path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly" }> = [
-    { path: "/", priority: 1, changeFrequency: "weekly" },
-    { path: "/jouer", priority: 0.9, changeFrequency: "monthly" },
+  const pages: Array<{ path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly"; lastModified?: string }> = [
+    { path: "/", priority: 1, changeFrequency: "weekly", lastModified: "2026-11-06" },
     { path: "/defi", priority: 0.9, changeFrequency: "daily" },
     { path: "/regles", priority: 0.8, changeFrequency: "monthly" },
     { path: "/techniques", priority: 0.8, changeFrequency: "monthly" },
-    { path: "/techniques/x-wing", priority: 0.7, changeFrequency: "monthly" },
-    { path: "/techniques/y-wing", priority: 0.7, changeFrequency: "monthly" },
-    { path: "/techniques/swordfish", priority: 0.7, changeFrequency: "monthly" },
+    { path: "/techniques/x-wing", priority: 0.7, changeFrequency: "monthly", lastModified: "2026-11-06" },
+    { path: "/techniques/y-wing", priority: 0.7, changeFrequency: "monthly", lastModified: "2026-11-06" },
+    { path: "/techniques/swordfish", priority: 0.7, changeFrequency: "monthly", lastModified: "2026-11-06" },
     { path: "/blog", priority: 0.8, changeFrequency: "weekly" },
     { path: "/qui-sommes-nous", priority: 0.5, changeFrequency: "yearly" },
     { path: "/contact", priority: 0.4, changeFrequency: "yearly" },
@@ -25,13 +24,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticEntries = pages.map((p) => ({
     url: `${SITE_URL}${p.path}`,
+    ...(p.lastModified ? { lastModified: new Date(`${p.lastModified}T00:00:00Z`) } : {}),
     changeFrequency: p.changeFrequency,
     priority: p.priority,
   }))
 
   const postEntries = getAllPosts().map((post) => ({
     url: `${SITE_URL}/blog/${post.slug}`,
-    lastModified: new Date(`${post.date}T00:00:00Z`),
+    lastModified: new Date(`${post.updated ?? post.date}T00:00:00Z`),
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }))
