@@ -19,10 +19,12 @@ interface Props {
   readOnly?: boolean
   /** Vignette : n'affiche que le chiffre du motif ("digit") ou que les cases du motif ("cells"). */
   thumbnail?: "digit" | "cells"
+  /** Classes supplémentaires pour la grille (ex. largeur minimale en mode zoom). */
+  className?: string
 }
 
 /** Grille avec toutes les notes (candidats) à leur place habituelle : 1 en haut à gauche, 9 en bas à droite. */
-export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal, shade = [], tint, readOnly, thumbnail }: Props) {
+export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal, shade = [], tint, readOnly, thumbnail, className }: Props) {
   const revealCells = new Set(reveal?.c ?? [])
   const revealElims = new Set(reveal?.e ?? [])
   const baseLines = new Set<string>()
@@ -34,7 +36,7 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
   }
 
   return (
-    <div className="grid aspect-square w-full max-w-[34rem] grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm">
+    <div className={cn("grid aspect-square w-full max-w-[34rem] grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm", className)}>
       {dc.values.map((value, i) => {
         const r = Math.floor(i / 9)
         const c = i % 9
@@ -46,7 +48,7 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
 
         const content =
           value !== 0 ? (
-            <span className="text-lg font-semibold text-foreground/80 sm:text-2xl">{value}</span>
+            <span className="text-xl font-semibold text-foreground/80 sm:text-2xl">{value}</span>
           ) : (
             <span className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-px sm:p-0.5">
               {Array.from({ length: 9 }, (_, k) => {
@@ -60,7 +62,7 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                   <span
                     key={d}
                     className={cn(
-                      "flex items-center justify-center text-[0.5rem] leading-none sm:text-[0.7rem]",
+                      "flex items-center justify-center text-[0.62rem] font-medium leading-none sm:text-[0.7rem]",
                       eliminated
                         ? "rounded-full bg-destructive/20 font-bold text-destructive line-through"
                         : focus
@@ -87,7 +89,7 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
           tint?.has(i) && "bg-chart-4/25",
           isPattern && "bg-primary/30 ring-1 ring-inset ring-primary",
           isSelected && "bg-primary/25 ring-2 ring-inset ring-primary",
-          canClick && "cursor-pointer hover:bg-primary/15",
+          canClick && "cursor-pointer touch-manipulation hover:bg-primary/15 active:bg-primary/25",
         )
 
         if (!canClick) {
