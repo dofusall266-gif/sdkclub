@@ -82,9 +82,9 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
           </ol>
         </section>
 
-        <section className="rounded-2xl border border-border bg-secondary/30 p-5 sm:p-6">
-          <h2 className="text-xl font-bold">{tr.trainerHeading}</h2>
-          <p className="mt-1 mb-5 text-sm text-muted-foreground">{tr.trainerIntro}</p>
+        <section className="-mx-4 border-y border-border bg-secondary/30 px-2 py-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-6">
+          <h2 className="px-2 text-xl font-bold sm:px-0">{tr.trainerHeading}</h2>
+          <p className="mt-1 mb-5 px-2 text-sm text-muted-foreground sm:px-0">{tr.trainerIntro}</p>
           <Trainer tech={lesson.tech} task={text.task} />
         </section>
 

@@ -34,6 +34,7 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
   const [hintLevel, setHintLevel] = useState(0)
   const [shown, setShown] = useState<TrainingPattern | null>(null)
   const [stats, setStats] = useState({ tried: 0, ok: 0 })
+  const [zoom, setZoom] = useState(false)
 
   const dc = useMemo(() => decodeCase(cases[order[pos % order.length]]), [cases, order, pos])
   const finished = status === "correct" || status === "revealed"
@@ -107,15 +108,24 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,34rem)_1fr]">
-      <TrainingBoard
-        dc={dc}
-        selected={selected}
-        onToggle={toggle}
-        focusDigits={focusDigits}
-        reveal={shown}
-        shade={shade}
-        tint={tint}
-      />
+      <div className="min-w-0">
+        {/* Bouton visible uniquement sur mobile : agrandit la grille (défilement horizontal) pour viser plus facilement. */}
+        <Button type="button" variant="outline" className="mb-3 lg:hidden" onClick={() => setZoom((z) => !z)} aria-pressed={zoom}>
+          {zoom ? t.training.zoomOut : t.training.zoomIn}
+        </Button>
+        <div className={zoom ? "-mx-2 overflow-x-auto px-2 pb-2 lg:mx-0 lg:overflow-visible lg:px-0" : ""}>
+          <TrainingBoard
+            dc={dc}
+            selected={selected}
+            onToggle={toggle}
+            focusDigits={focusDigits}
+            reveal={shown}
+            shade={shade}
+            tint={tint}
+            className={zoom ? "min-w-[40rem] max-w-none lg:min-w-0 lg:max-w-[34rem]" : undefined}
+          />
+        </div>
+      </div>
 
       <div className="space-y-4">
         <p className="text-sm font-medium">{task}</p>
