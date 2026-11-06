@@ -103,11 +103,11 @@ export function explainPattern(tech: TrainingTech, pattern: TrainingPattern, dc:
     const coverWord = isRows ? "colonnes" : "lignes"
     const coverOne = isRows ? "colonne" : "ligne"
     const shape = n === 2 ? "un rectangle" : `un motif de ${n} ${baseWord} et ${n} ${coverWord}`
-    return `Ici on se focalise sur le chiffre ${d} : dans les ${baseWord} ${base}, le ${d} n'a que quelques places possibles, et toutes se trouvent dans les mêmes ${n} ${coverWord} (${cover}) → ce qui forme ${shape}. Les ${n} chiffres ${d} de ces ${baseWord} se répartiront donc forcément un par ${coverOne} : c'est un ${name}. On peut donc éliminer les autres ${d} de ces ${coverWord} (${elim}) afin de faciliter la suite de la partie.`
+    return `Ici on se focalise sur le chiffre ${d} : dans les ${baseWord} ${base}, le ${d} n'a que quelques places possibles, et toutes se trouvent dans les mêmes ${n} ${coverWord} (${cover}) → ce qui forme ${shape}. Les ${n} chiffres ${d} de ces ${baseWord} se répartiront donc forcément un par ${coverOne} : c'est un ${name}. On peut donc éliminer les autres ${d} de ces ${coverWord} (${elim}) afin de faciliter la suite de la partie. Les ${d} situés dans les autres ${coverWord} ne sont pas touchés : ils restent possibles.`
   }
   const baseWord = isRows ? "rows" : "columns"
   const coverWord = isRows ? "columns" : "rows"
   const coverOne = isRows ? "column" : "row"
   const shape = n === 2 ? "a rectangle" : `a pattern of ${n} ${baseWord} and ${n} ${coverWord}`
-  return `Here we focus on the digit ${d}: in ${baseWord} ${base}, the ${d} has only a few possible spots, and all of them sit in the same ${n} ${coverWord} (${cover}) → which forms ${shape}. The ${n} digits ${d} in those ${baseWord} must therefore land one per ${coverOne}: this is a ${name}. We can therefore eliminate the other ${d}s in those ${coverWord} (${elim}) to make the rest of the game easier.`
+  return `Here we focus on the digit ${d}: in ${baseWord} ${base}, the ${d} has only a few possible spots, and all of them sit in the same ${n} ${coverWord} (${cover}) → which forms ${shape}. The ${n} digits ${d} in those ${baseWord} must therefore land one per ${coverOne}: this is a ${name}. We can therefore eliminate the other ${d}s in those ${coverWord} (${elim}) to make the rest of the game easier. The ${d}s in the other ${coverWord} are not affected: they remain possible.`
 }

@@ -66,9 +66,8 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                 const sameDigit = focusDigits.includes(d)
                 const inPattern = isPattern && reveal?.d === d
                 // Quand le motif est montré, seuls les chiffres du motif sont en vert :
-                // les autres exemplaires du même chiffre restent neutres (ils ne sont pas concernés).
+                // les autres exemplaires du même chiffre restent des notes ordinaires.
                 const focus = reveal ? inPattern : sameDigit
-                const sameButOutside = !!reveal && sameDigit && !inPattern && !eliminated
                 return (
                   <span
                     key={d}
@@ -78,9 +77,7 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                         ? "rounded-full bg-destructive/20 font-bold text-destructive line-through"
                         : focus
                           ? "font-bold text-primary"
-                          : sameButOutside
-                            ? "font-semibold text-foreground/80"
-                            : "text-muted-foreground/70",
+                          : "text-muted-foreground/70",
                     )}
                   >
                     {d}

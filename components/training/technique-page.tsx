@@ -62,11 +62,6 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
                     <span className="size-4 rounded bg-primary/10 ring-1 ring-border" /> {tr.legendLines}
                   </li>
                 )}
-                {slug !== "y-wing" && (
-                  <li className="flex items-center gap-2">
-                    <span className="grid size-4 place-items-center text-[0.7rem] font-semibold text-foreground/80">{pattern.d}</span> {tr.legendOther(pattern.d)}
-                  </li>
-                )}
               </ul>
               <p className="text-sm leading-relaxed">{explainPattern(lesson.tech, pattern, example, locale)}</p>
               <p className="text-xs text-muted-foreground">{tr.notation}</p>
