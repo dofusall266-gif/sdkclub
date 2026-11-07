@@ -52,4 +52,7 @@ Ce n'est pas démontré. Des études d'observation associent activités stimulan
 Pas de façon générale, non. La recherche montre surtout qu'on s'améliore **au sudoku lui-même** ; la preuve d'un transfert vers d'autres capacités cognitives est faible.
 
 **Quel est le vrai bénéfice, alors ?**
-Une vraie pause mentale structurée (état de « flow ») et un travail réel de mémoire de travail, d'attention et de logique pendant que vous jouez — déjà une bonne raison d'y consacrer quelques minutes. [Testez par vous-même](/jouer).
+Une vraie pause mentale structurée (état de « flow ») et un travail réel de mémoire de travail, d'attention et de logique pendant que vous jouez — déjà une bonne raison d'y consacrer quelques minutes. [Testez par vous-même](/).
+
+
+**À lire aussi** : [Sudoku : un jeu pour tous les âges](/blog/sudoku-bienfaits-tout-age) — à quel âge commencer, et pourquoi ce n'est pas un jeu réservé aux seniors.

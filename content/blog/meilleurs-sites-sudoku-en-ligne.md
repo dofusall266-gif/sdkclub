@@ -34,7 +34,7 @@ Pour comparer des sites aussi différents entre eux, on s'est concentrés sur de
 - Disponible en français et en anglais.
 - Une [chaîne YouTube dédiée](https://www.youtube.com/@StudyMd667) pour ceux qui préfèrent apprendre les techniques de résolution en vidéo plutôt qu'en lisant.
 
-En clair : on a construit Sudoku Club pour éliminer les frictions qu'on trouve ailleurs — comptes obligatoires pour certaines fonctionnalités, publicité envahissante ou grilles de qualité inégale. [Essayez une grille maintenant](/jouer) ou [tentez le défi du jour](/defi) pour vous faire votre propre avis.
+En clair : on a construit Sudoku Club pour éliminer les frictions qu'on trouve ailleurs — comptes obligatoires pour certaines fonctionnalités, publicité envahissante ou grilles de qualité inégale. [Essayez une grille maintenant](/) ou [tentez le défi du jour](/defi) pour vous faire votre propre avis.
 
 ## Les autres bons sites de sudoku (sans ordre de préférence particulier)
 

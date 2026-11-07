@@ -200,7 +200,7 @@ const fr = {
       daily: (date: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
         `Défi du jour Sudoku-Club (${date})\n⏱ ${time} · ${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulté ${rating}/100` : ""}\nTu fais mieux ? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
       free: (level: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
-        `J'ai terminé une grille de sudoku ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} en ${time} (${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}) sur Sudoku-Club\nÀ ton tour 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
+        `J'ai terminé une grille de sudoku ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} en ${time} (${mistakes === 0 ? "sans faute ✨" : `${mistakes} ${mistakeWord}`}) sur Sudoku-Club\nÀ ton tour 👇\nhttps://sudoku-club.com/?utm_source=share`,
     },
 
     training: {
@@ -266,6 +266,10 @@ const fr = {
         {
           title: "Ce qu'on vous propose",
           text: "Un jeu 100 % gratuit, jouable immédiatement, avec 6 niveaux de difficulté, des grilles vérifiées à solution unique, un défi quotidien classé, l'impression PDF et un suivi de vos statistiques qui reste sur votre appareil. Le site est disponible en français et en anglais.",
+        },
+        {
+          title: "Comment sont conçues nos grilles",
+          text: "Les grilles viennent d'une banque préparée à l'avance : chacune a une solution unique et se résout par la logique seule, sans jamais avoir à deviner. Un solveur logique l'analyse technique par technique (du candidat unique aux chaînes XY) et lui attribue une note de 1 à 100 ; c'est cette note qui détermine son niveau, de Facile à Fou. Les nombres de chiffres de départ et les techniques requises que vous voyez sur les pages de niveau sont mesurés sur ces grilles.",
         },
         {
           title: "Nous écrire",
@@ -528,9 +532,9 @@ const en: Dictionary = {
       copied: "Copied!",
       onX: "Post on X",
       daily: (date: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
-        `Sudoku-Club daily challenge (${date})\n⏱ ${time} · ${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulty ${rating}/100` : ""}\nThink you can beat it? 👇\nhttps://sudoku-club.com/defi?utm_source=share`,
+        `Sudoku-Club daily challenge (${date})\n⏱ ${time} · ${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}${rating !== undefined ? ` · difficulty ${rating}/100` : ""}\nThink you can beat it? 👇\nhttps://sudoku-club.com/en/daily-challenge?utm_source=share`,
       free: (level: string, time: string, mistakes: number, mistakeWord: string, rating?: number): string =>
-        `I just solved a ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} sudoku in ${time} (${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}) on Sudoku-Club\nYour turn 👇\nhttps://sudoku-club.com/jouer?utm_source=share`,
+        `I just solved a ${level.toLowerCase()}${rating !== undefined ? ` (${rating}/100)` : ""} sudoku in ${time} (${mistakes === 0 ? "flawless ✨" : `${mistakes} ${mistakeWord}`}) on Sudoku-Club\nYour turn 👇\nhttps://sudoku-club.com/en?utm_source=share`,
     },
 
     training: {
@@ -596,6 +600,10 @@ const en: Dictionary = {
         {
           title: "What we offer",
           text: "A 100% free game you can play right away, with 6 difficulty levels, verified single-solution grids, a ranked daily challenge, PDF printing, and stats tracking that stays on your device. The site is available in French and English.",
+        },
+        {
+          title: "How our puzzles are made",
+          text: "Puzzles come from a bank prepared in advance: each has a unique solution and can be solved by logic alone, with no guessing. A logic solver analyses it technique by technique (from the naked single to XY-chains) and gives it a rating from 1 to 100; that rating sets its level, from Easy to Crazy. The starting-digit counts and required techniques shown on the level pages are measured on these puzzles.",
         },
         {
           title: "Get in touch",

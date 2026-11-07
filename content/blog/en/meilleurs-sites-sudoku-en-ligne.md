@@ -32,7 +32,7 @@ To compare sites that differ so much from one another, we focused on concrete cr
 - Available in French and English.
 - A [dedicated YouTube channel](https://www.youtube.com/@StudyMd667) for those who prefer to learn solving techniques by video rather than by reading.
 
-Put simply: we built Sudoku Club to remove the friction you find elsewhere — mandatory accounts for some features, intrusive advertising, or grids of uneven quality. [Try a grid now](/jouer) or [take on the daily challenge](/defi) to form your own opinion.
+Put simply: we built Sudoku Club to remove the friction you find elsewhere — mandatory accounts for some features, intrusive advertising, or grids of uneven quality. [Try a grid now](/) or [take on the daily challenge](/defi) to form your own opinion.
 
 ## The other good sudoku sites (in no particular order of preference)
 

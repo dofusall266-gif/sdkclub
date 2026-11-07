@@ -1,16 +1,17 @@
 "use client"
 
 import { Mail, Users } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/localized-link"
 
 import { InstallApp } from "@/components/install-app"
 import { SudokuLogo } from "@/components/sudoku-logo"
 import { SudokuWordmark } from "@/components/sudoku-wordmark"
 import { useLanguage } from "@/lib/i18n/context"
+import { DIFFICULTIES } from "@/lib/sudoku"
 import { CONTACT_EMAIL } from "@/lib/site-config"
 
 export function SiteFooter() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
   const legalLinks = [
     { href: "/politique-de-confidentialite", label: t.footer.privacy },
@@ -27,7 +28,7 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-border bg-secondary/40 print:hidden">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-2">
             <SudokuLogo className="size-8" />
@@ -58,6 +59,19 @@ export function SiteFooter() {
               <li key={link.href}>
                 <Link href={link.href} className="text-muted-foreground transition-colors hover:text-foreground">
                   {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <nav aria-label={locale === "fr" ? "Niveaux" : "Levels"}>
+          <h2 className="text-sm font-semibold">{locale === "fr" ? "Niveaux" : "Levels"}</h2>
+          <ul className="mt-3 space-y-2 text-sm">
+            {DIFFICULTIES.map((d) => (
+              <li key={d}>
+                <Link href={`/sudoku-${d}`} className="text-muted-foreground transition-colors hover:text-foreground">
+                  {locale === "fr" ? `Sudoku ${t.game.difficulties[d].toLowerCase()}` : `${t.game.difficulties[d]} sudoku`}
                 </Link>
               </li>
             ))}

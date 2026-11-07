@@ -28,6 +28,8 @@ export interface Lesson {
   /** Titre et description de la page (français, pour Google). */
   metaTitle: string
   metaDescription: string
+  /** Titre et description de la page anglaise (/en/techniques/…). */
+  metaEn: { title: string; description: string }
   fr: LessonText
   en: LessonText
 }
@@ -39,9 +41,14 @@ export const LESSONS: Record<TechSlug, Lesson> = {
     art: "/blog/technique-x-wing.webp",
     artAlt: { fr: "Illustration du X-Wing : quatre cases reliées en X", en: "X-Wing illustration: four cells linked in an X" },
     article: "technique-x-wing",
-    metaTitle: "X-Wing au sudoku : explication et exercices",
+    metaTitle: "Exercices X-Wing au sudoku : s'entraîner en ligne",
     metaDescription:
-      "Comprenez le X-Wing au sudoku avec un exemple illustré, puis entraînez-vous sur de vraies grilles : repérez le rectangle et éliminez les candidats.",
+      "Entraînez-vous au X-Wing sur de vraies grilles de sudoku : repérez le rectangle, éliminez les candidats et vérifiez votre réponse. Exemple illustré inclus.",
+    metaEn: {
+      title: "X-Wing Sudoku exercises: practice online",
+      description:
+        "Practise the X-Wing on real Sudoku grids: spot the rectangle, eliminate candidates and check your answer. Illustrated example included.",
+    },
     fr: {
       name: "X-Wing",
       tagline: "Méthode d'élimination de 1 candidat : focus sur un seul chiffre.",
@@ -97,9 +104,14 @@ export const LESSONS: Record<TechSlug, Lesson> = {
     tech: "xy_wing",
     art: "/blog/technique-y-wing.webp",
     artAlt: { fr: "Illustration du Y-Wing : un pivot et deux ailes en forme de Y", en: "Y-Wing illustration: a pivot and two wings forming a Y" },
-    metaTitle: "Y-Wing au sudoku : explication et exercices",
+    metaTitle: "Exercices Y-Wing au sudoku : s'entraîner en ligne",
     metaDescription:
-      "Apprenez le Y-Wing (XY-Wing) au sudoku : un pivot et deux ailes à deux candidats. Exemple illustré et exercices sur de vraies grilles.",
+      "Entraînez-vous au Y-Wing (XY-Wing) sur de vraies grilles : repérez le pivot et les deux ailes, puis éliminez le candidat. Exemple illustré inclus.",
+    metaEn: {
+      title: "Y-Wing Sudoku exercises: practice online",
+      description:
+        "Practise the Y-Wing (XY-Wing) on real grids: spot the pivot and the two wings, then eliminate the candidate. Illustrated example included.",
+    },
     fr: {
       name: "Y-Wing",
       tagline: "Méthode d'élimination de 1 candidat : focus sur trois cases à deux candidats.",
@@ -156,9 +168,14 @@ export const LESSONS: Record<TechSlug, Lesson> = {
     art: "/blog/technique-swordfish.webp",
     artAlt: { fr: "Illustration d'un espadon, le swordfish", en: "Illustration of a swordfish" },
     article: "technique-swordfish",
-    metaTitle: "Swordfish au sudoku : explication et exercices",
+    metaTitle: "Exercices Swordfish au sudoku : s'entraîner en ligne",
     metaDescription:
-      "Comprenez le Swordfish (espadon) au sudoku, grand frère du X-Wing : exemple illustré, étapes claires et exercices sur de vraies grilles.",
+      "Entraînez-vous au Swordfish (espadon) sur de vraies grilles de sudoku : repérez les trois lignes et colonnes, puis éliminez. Exemple illustré inclus.",
+    metaEn: {
+      title: "Swordfish Sudoku exercises: practice online",
+      description:
+        "Practise the Swordfish on real Sudoku grids: spot the three rows and columns, then eliminate. Illustrated example included.",
+    },
     fr: {
       name: "Swordfish",
       tagline: "Méthode d'élimination de 1 candidat : focus sur un seul chiffre, avec trois lignes et trois colonnes.",

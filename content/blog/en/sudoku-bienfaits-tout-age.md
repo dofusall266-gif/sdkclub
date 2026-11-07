@@ -40,4 +40,7 @@ No — children as soon as they know their numbers, like adults of any age, can 
 No, that's a misconception. International competitions are in fact largely dominated by young solvers — solving speed requires a mental agility that is nothing like a "late-career" exercise.
 
 **Which level should I start with?**
-An **Easy** grid, with no timer and no performance goal. [Try one for free](/jouer) to see where you stand.
+An **Easy** grid, with no timer and no performance goal. [Try one for free](/) to see where you stand.
+
+
+**Read also**: [Sudoku and the brain: what science says](/blog/bienfaits-sudoku-cerveau-sante) — what studies really show, and what they do not.

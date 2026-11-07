@@ -1,7 +1,7 @@
 "use client"
 
 import { Menu, X } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/localized-link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -13,10 +13,13 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { hasCompletedDailyToday } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
+import { localizePath } from "@/lib/i18n/paths"
 import { cn } from "@/lib/utils"
 
 export function SiteHeader() {
-  const pathname = usePathname()
+  const rawPathname = usePathname() || "/"
+  // En anglais (/en/rules), on retrouve la page française équivalente (/regles) pour savoir quel menu est actif.
+  const pathname = localizePath(rawPathname, "fr")
   const [open, setOpen] = useState(false)
   const [dailyDone, setDailyDone] = useState(true) // true par défaut : pas de pastille tant qu'on n'a pas vérifié (évite un flash au chargement)
   const { t } = useLanguage()

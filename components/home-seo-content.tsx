@@ -1,8 +1,9 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/localized-link"
 
 import { useLanguage } from "@/lib/i18n/context"
+import { DIFFICULTIES } from "@/lib/sudoku"
 
 /**
  * Texte de la page d'accueil (sous le jeu) : c'est ce que Google lit pour comprendre la page,
@@ -63,7 +64,7 @@ const CONTENT = {
 } as const
 
 export function HomeSeoContent() {
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
   const c = CONTENT[locale]
   return (
     <section className="mt-12 space-y-8 border-t border-border pt-8" aria-labelledby="home-h1">
@@ -77,6 +78,18 @@ export function HomeSeoContent() {
       <div>
         <h2 className="text-xl font-bold">{c.levelsTitle}</h2>
         <p className="mt-2 max-w-3xl leading-relaxed text-muted-foreground">{c.levels}</p>
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {DIFFICULTIES.map((d) => (
+            <li key={d}>
+              <Link
+                href={`/sudoku-${d}`}
+                className="inline-block rounded-full border border-border px-3 py-1 text-sm font-medium transition-colors hover:border-primary/50 hover:text-primary"
+              >
+                {locale === "fr" ? `Sudoku ${t.game.difficulties[d].toLowerCase()}` : `${t.game.difficulties[d]} sudoku`}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div>

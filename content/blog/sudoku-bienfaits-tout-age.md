@@ -42,4 +42,7 @@ Non — les enfants dès qu'ils maîtrisent les chiffres, comme les adultes de t
 Non, c'est une idée reçue. Les compétitions internationales sont d'ailleurs largement dominées par de jeunes solveurs — la vitesse de résolution demande une agilité mentale qui n'a rien d'un exercice « de fin de carrière ».
 
 **Par quel niveau commencer ?**
-Une grille **Facile**, sans chronomètre ni objectif de performance. [Essayez-en une gratuitement](/jouer) pour voir où vous en êtes.
+Une grille **Facile**, sans chronomètre ni objectif de performance. [Essayez-en une gratuitement](/) pour voir où vous en êtes.
+
+
+**À lire aussi** : [Sudoku et cerveau : ce que dit la science](/blog/bienfaits-sudoku-cerveau-sante) — ce que les études montrent vraiment, et ce qu'elles ne montrent pas.

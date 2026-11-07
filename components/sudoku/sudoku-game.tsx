@@ -1,7 +1,7 @@
 "use client"
 
 import { Flame, Pause, Play, Sparkles, Trophy } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/localized-link"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Confetti } from "@/components/sudoku/confetti"
@@ -26,7 +26,14 @@ function formatTime(total: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
 }
 
-export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty?: Difficulty }) {
+export function SudokuGame({
+  initialDifficulty = "facile",
+  forceDifficulty,
+}: {
+  initialDifficulty?: Difficulty
+  /** Pages par niveau (/sudoku-expert…) : si la partie en cours est d'un autre niveau, on en lance une au niveau de la page. */
+  forceDifficulty?: Difficulty
+}) {
   const { state, conflicts, remaining, actions } = useSudoku(initialDifficulty)
   const { t } = useLanguage()
   const [notesMode, setNotesMode] = useState(false)
@@ -93,6 +100,8 @@ export function SudokuGame({ initialDifficulty = "facile" }: { initialDifficulty
     const requested = new URLSearchParams(window.location.search).get("niveau") as Difficulty | null
     if (requested && DIFFICULTIES.includes(requested)) {
       actions.newGame(requested)
+    } else if (forceDifficulty && state.difficulty !== forceDifficulty) {
+      actions.newGame(forceDifficulty)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

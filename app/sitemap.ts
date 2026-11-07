@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next"
 
 import { getAllPosts } from "@/lib/blog"
-
-const SITE_URL = "https://sudoku-club.com"
+import { SITE_URL, localizePath } from "@/lib/i18n/paths"
 
 // Plan du site pour Google : généré automatiquement, les nouveaux articles de
 // content/blog/ y sont ajoutés sans rien toucher. Disponible sur /sitemap.xml.
@@ -22,19 +21,46 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/mentions-legales", priority: 0.2, changeFrequency: "yearly" },
   ]
 
-  const staticEntries = pages.map((p) => ({
-    url: `${SITE_URL}${p.path}`,
-    ...(p.lastModified ? { lastModified: new Date(`${p.lastModified}T00:00:00Z`) } : {}),
-    changeFrequency: p.changeFrequency,
-    priority: p.priority,
+  // Chaque page existe en français et en anglais : les deux entrées se référencent (hreflang),
+  // pour que Google affiche la bonne langue à la bonne personne.
+  const both = (frPath: string, rest: { lastModified?: Date; changeFrequency: "daily" | "weekly" | "monthly" | "yearly"; priority: number }) => {
+    const languages = { fr: `${SITE_URL}${frPath}`, en: `${SITE_URL}${localizePath(frPath, "en")}` }
+    return [
+      { url: languages.fr, ...rest, alternates: { languages } },
+      { url: languages.en, ...rest, alternates: { languages } },
+    ]
+  }
+
+  const levelPages = ["facile", "moyen", "difficile", "expert", "diabolique", "fou"].map((l) => ({
+    path: `/sudoku-${l}`,
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+    lastModified: "2026-11-07",
+  }))
+  const guidePages = ["candidat-unique", "paires-nues", "pointage", "paires-cachees"].map((g) => ({
+    path: `/techniques/${g}`,
+    priority: 0.7,
+    changeFrequency: "monthly" as const,
+    lastModified: "2026-11-07",
   }))
 
-  const postEntries = getAllPosts().map((post) => ({
-    url: `${SITE_URL}/blog/${post.slug}`,
-    lastModified: new Date(`${post.updated ?? post.date}T00:00:00Z`),
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }))
+  const staticEntries = [...pages, ...levelPages, ...guidePages].flatMap((p) =>
+    both(p.path, {
+      ...(p.lastModified ? { lastModified: new Date(`${p.lastModified}T00:00:00Z`) } : {}),
+      changeFrequency: p.changeFrequency,
+      priority: p.priority,
+    }),
+  )
+
+  const postEntries = getAllPosts().flatMap((post) => {
+    const rest = {
+      lastModified: new Date(`${post.updated ?? post.date}T00:00:00Z`),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }
+    if (!post.en) return [{ url: `${SITE_URL}/blog/${post.slug}`, ...rest }]
+    return both(`/blog/${post.slug}`, rest)
+  })
 
   return [...staticEntries, ...postEntries]
 }

@@ -52,4 +52,4 @@ Le format 9×9 moderne est généralement attribué à Howard Garns, un architec
 **Depuis quand le sudoku est-il mondialement populaire ?**
 Depuis 2004-2005, quand Wayne Gould a convaincu le quotidien britannique *The Times* de publier une grille quotidienne — le déclencheur de sa diffusion mondiale.
 
-Envie de vous y mettre, quarante ans après sa première publication ? [Jouez à une grille gratuitement](/jouer), à votre niveau.
+Envie de vous y mettre, quarante ans après sa première publication ? [Jouez à une grille gratuitement](/), à votre niveau.

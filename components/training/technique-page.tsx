@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/localized-link"
 
 import { PageLayout } from "@/components/page-layout"
 import { Trainer } from "@/components/training/trainer"

@@ -50,4 +50,7 @@ It hasn't been shown to. Observational studies associate stimulating activities 
 Not in general, no. Research mostly shows that you get better **at sudoku itself**; the evidence for transfer to other cognitive abilities is weak.
 
 **So what is the real benefit?**
-A real, structured mental break ("flow" state) and genuine working on working memory, attention and logic while you play — already a good reason to spend a few minutes on it. [Try it for yourself](/jouer).
+A real, structured mental break ("flow" state) and genuine working on working memory, attention and logic while you play — already a good reason to spend a few minutes on it. [Try it for yourself](/).
+
+
+**Read also**: [Sudoku: a game for all ages](/blog/sudoku-bienfaits-tout-age) — when to start, and why it is not a game reserved for seniors.

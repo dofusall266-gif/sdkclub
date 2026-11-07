@@ -1,7 +1,7 @@
 "use client"
 
 import { Flame, X } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/localized-link"
 import { useEffect, useState } from "react"
 
 import { hasCompletedDailyToday, todayKey } from "@/lib/daily"

@@ -1,7 +1,7 @@
 "use client"
 
 import { Check, Grid3x3, Rows3, Square } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/localized-link"
 
 import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"

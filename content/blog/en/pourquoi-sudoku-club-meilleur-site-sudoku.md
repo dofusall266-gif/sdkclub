@@ -51,4 +51,4 @@ Sudoku Club works in any browser, on a computer, tablet or mobile, with nothing 
 **Can I print a grid to play on paper?**
 Yes, the print feature is free and generates a clean PDF of the chosen grid, with or without the solution.
 
-[Start a grid right now](/jouer), or [take on the daily challenge](/defi) to see where you stand in the ranking.
+[Start a grid right now](/), or [take on the daily challenge](/defi) to see where you stand in the ranking.

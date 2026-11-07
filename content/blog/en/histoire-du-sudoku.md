@@ -50,4 +50,4 @@ The modern 9×9 format is generally attributed to Howard Garns, a retired archit
 **Since when has sudoku been popular worldwide?**
 Since 2004-2005, when Wayne Gould convinced the British daily *The Times* to publish a daily grid — the trigger for its worldwide spread.
 
-Want to give it a go, forty years after its first publication? [Play a free grid](/jouer), at your own level.
+Want to give it a go, forty years after its first publication? [Play a free grid](/), at your own level.

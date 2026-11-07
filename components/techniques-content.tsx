@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/localized-link"
 
 import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"
@@ -15,6 +15,9 @@ const LEVEL_STYLES: Record<string, string> = {
   Avancé: "bg-destructive/12 text-destructive",
   Advanced: "bg-destructive/12 text-destructive",
 }
+
+/** Guide détaillé de chaque technique de base (même ordre que `t.techniques.items`) ; undefined = pas de guide. */
+const GUIDE_HREFS = ["/techniques/candidat-unique", undefined, "/techniques/paires-nues", "/techniques/pointage", "/techniques/paires-cachees", undefined]
 
 export function TechniquesContent() {
   const { t, locale } = useLanguage()
@@ -67,7 +70,7 @@ export function TechniquesContent() {
 
         <h2 className="pt-4 text-xl font-bold">{t.training.basicsHeading}</h2>
         <section className="grid gap-4 sm:grid-cols-2">
-          {tech.items.map((item) => (
+          {tech.items.map((item, index) => (
             <div key={item.title} className="rounded-2xl border border-border bg-card p-6">
               <span
                 className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${LEVEL_STYLES[item.level] ?? ""}`}
@@ -76,6 +79,11 @@ export function TechniquesContent() {
               </span>
               <h2 className="mt-3 text-lg font-semibold">{item.title}</h2>
               <p className="mt-1.5 text-sm text-muted-foreground">{item.text}</p>
+              {GUIDE_HREFS[index] && (
+                <Link href={GUIDE_HREFS[index]!} className="mt-3 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline">
+                  {locale === "fr" ? "Lire le guide →" : "Read the guide →"}
+                </Link>
+              )}
             </div>
           ))}
         </section>

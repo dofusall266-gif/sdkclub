@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/localized-link"
 
 import { PageLayout } from "@/components/page-layout"
 import { useLanguage } from "@/lib/i18n/context"
@@ -26,7 +26,7 @@ export function AboutContent() {
 
         <div className="flex flex-wrap gap-3">
           <Link
-            href="/jouer"
+            href="/"
             className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
             {a.playCta}

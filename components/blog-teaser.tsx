@@ -1,7 +1,7 @@
 "use client"
 
 import { ArrowRight } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/localized-link"
 
 import type { BlogPostMeta } from "@/lib/blog-types"
 import { formatBlogDate, localizedTexts } from "@/lib/blog-types"

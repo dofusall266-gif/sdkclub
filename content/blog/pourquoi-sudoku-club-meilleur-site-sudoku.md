@@ -53,4 +53,4 @@ Sudoku Club fonctionne dans n'importe quel navigateur, sur ordinateur, tablette 
 **Puis-je imprimer une grille pour jouer sur papier ?**
 Oui, la fonction d'impression est gratuite et génère un PDF propre de la grille choisie, avec ou sans la solution.
 
-[Commencez une grille dès maintenant](/jouer), ou [tentez le défi du jour](/defi) pour voir où vous vous situez dans le classement.
+[Commencez une grille dès maintenant](/), ou [tentez le défi du jour](/defi) pour voir où vous vous situez dans le classement.

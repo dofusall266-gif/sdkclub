@@ -1,20 +1,30 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { useLanguage } from "@/lib/i18n/context"
+import { usePathname } from "next/navigation"
 
+import { buttonVariants } from "@/components/ui/button"
+import { useLanguage } from "@/lib/i18n/context"
+import { localizePath } from "@/lib/i18n/paths"
+import { cn } from "@/lib/utils"
+
+/**
+ * Lien vers la même page dans l'autre langue (FR ⇄ EN). C'est un vrai lien <a> (avec hreflang) :
+ * Google le suit, et l'adresse change vraiment (/regles ⇄ /en/rules).
+ */
 export function LanguageToggle() {
-  const { locale, setLocale, t } = useLanguage()
+  const { locale, t } = useLanguage()
+  const pathname = usePathname() || "/"
+  const other = locale === "fr" ? "en" : "fr"
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
+    <a
+      href={localizePath(pathname, other)}
+      hrefLang={other}
+      lang={other}
       aria-label={t.languageToggle.label}
-      onClick={() => setLocale(locale === "fr" ? "en" : "fr")}
-      className="px-2.5 text-xs font-semibold uppercase tracking-wide"
+      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-2.5 text-xs font-semibold uppercase tracking-wide")}
     >
-      {locale === "fr" ? "EN" : "FR"}
-    </Button>
+      {other.toUpperCase()}
+    </a>
   )
 }
