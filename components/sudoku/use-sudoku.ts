@@ -12,6 +12,7 @@ import {
   isComplete,
 } from "@/lib/sudoku"
 import { readJSON, remove, writeJSON } from "@/lib/storage"
+import { LEVEL_POINTS, comboMultiplier, rollMultipliers } from "@/lib/scoring"
 
 export interface Snapshot {
   grid: Grid
@@ -34,6 +35,25 @@ export interface State {
   status: "playing" | "won"
   seconds: number
   running: boolean
+  // --- Points (absents sur les anciennes sauvegardes : traités comme 0 / valeurs par défaut) ---
+  /** Points gagnés (cases justes × combo). */
+  points?: number
+  /** Points « de base » (sans combo), pour séparer « bonne résolution » et « combo » en fin de partie. */
+  basePoints?: number
+  /** Bonnes réponses d'affilée (une erreur remet à 0). */
+  comboStreak?: number
+  bestCombo?: number
+  /** Multiplicateurs tirés au hasard pour cette partie (paliers 3 / 7 / 10 / 20). */
+  multipliers?: number[]
+  /** Cases déjà récompensées (une case ne rapporte qu'une fois : effacer puis retaper ne rapporte rien). */
+  scored?: number[]
+  /** Identifiant unique de la partie (évite de compter deux fois un même score au classement). */
+  gameId?: string
+}
+
+function newGameId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID()
+  return `g_${Date.now()}_${Math.random().toString(36).slice(2)}`
 }
 
 export type Action =
@@ -73,6 +93,13 @@ export function createGameFromPuzzle(puzzle: Grid, solution: Grid, difficulty: D
     status: "playing",
     seconds: 0,
     running: true,
+    points: 0,
+    basePoints: 0,
+    comboStreak: 0,
+    bestCombo: 0,
+    multipliers: rollMultipliers(),
+    scored: [],
+    gameId: newGameId(),
   }
 }
 
@@ -188,12 +215,35 @@ export function reducer(state: State, action: Action): State {
       const mistakes = wrong ? state.mistakes + 1 : state.mistakes
       const won = !wrong && isComplete(grid) && grid.every((v, k) => v === state.solution[k])
 
+      // Points : une erreur remet le combo à 0 (sans retirer de points) ; une case juste
+      // rapporte les points du niveau × le multiplicateur du combo, une seule fois par case.
+      let comboStreak = state.comboStreak ?? 0
+      let bestCombo = state.bestCombo ?? 0
+      let points = state.points ?? 0
+      let basePoints = state.basePoints ?? 0
+      let scored = state.scored ?? []
+      if (wrong) {
+        comboStreak = 0
+      } else if (!scored.includes(i)) {
+        comboStreak += 1
+        bestCombo = Math.max(bestCombo, comboStreak)
+        const base = LEVEL_POINTS[state.difficulty]
+        points += Math.round(base * comboMultiplier(comboStreak, state.multipliers))
+        basePoints += base
+        scored = [...scored, i]
+      }
+
       return {
         ...state,
         grid,
         notes,
         history,
         mistakes,
+        comboStreak,
+        bestCombo,
+        points,
+        basePoints,
+        scored,
         status: won ? "won" : "playing",
         running: won ? false : state.running,
       }
@@ -238,7 +288,9 @@ export function reducer(state: State, action: Action): State {
       notes[i] = []
       clearNotesInScope(notes, i, state.solution[i])
       const won = isComplete(grid) && grid.every((v, k) => v === state.solution[k])
-      return { ...state, grid, notes, history, status: won ? "won" : "playing", running: won ? false : state.running }
+      // Un indice ne rapporte aucun point (et ne casse pas le combo) ; la case est marquée pour ne pas être « farmée ».
+      const scored = (state.scored ?? []).includes(i) ? state.scored : [...(state.scored ?? []), i]
+      return { ...state, grid, notes, history, scored, status: won ? "won" : "playing", running: won ? false : state.running }
     }
 
     case "undo": {

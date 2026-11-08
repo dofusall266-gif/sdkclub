@@ -57,3 +57,23 @@ export async function ensureDailyScoresTable(sql: NonNullable<ReturnType<typeof 
     )
   `
 }
+
+/** Table des points des parties libres (classement général : pseudo + drapeau choisis, pas de compte). */
+export async function ensurePointsTable(sql: NonNullable<ReturnType<typeof getDb>>) {
+  await sql`
+    CREATE TABLE IF NOT EXISTS points_scores (
+      id BIGSERIAL PRIMARY KEY,
+      game_id TEXT NOT NULL,
+      player_id TEXT NOT NULL,
+      pseudo TEXT NOT NULL,
+      country_code TEXT,
+      level TEXT NOT NULL,
+      points INTEGER NOT NULL,
+      seconds INTEGER NOT NULL,
+      mistakes INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (player_id, game_id)
+    )
+  `
+  await sql`CREATE INDEX IF NOT EXISTS points_scores_created_at_idx ON points_scores (created_at)`
+}

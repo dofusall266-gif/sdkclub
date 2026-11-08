@@ -21,7 +21,9 @@ export function SiteFooter() {
 
   const gameLinks = [
     { href: "/", label: t.footer.play },
+    { href: "/classement", label: t.nav.leaderboard },
     { href: "/regles", label: t.footer.rules },
+    { href: "/regles-des-points", label: locale === "fr" ? "Règles des points" : "Points rules" },
     { href: "/techniques", label: t.footer.techniques },
     { href: "/blog", label: t.nav.blog },
   ]

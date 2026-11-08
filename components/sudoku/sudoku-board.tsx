@@ -20,6 +20,14 @@ interface SudokuBoardProps {
   multi?: number[]
   /** Cases à mettre brièvement en surbrillance (ligne/colonne/bloc qui vient d'être complété). */
   flashIndices?: Set<number>
+  /** Vague de victoire / zone complétée : délai (ms) de l'animation de chaque case. */
+  waveDelays?: Map<number, number>
+  /** Case qui vient de recevoir un bon chiffre (animation « pop »). `id` relance l'animation. */
+  popCell?: { index: number; id: number } | null
+  /** Case qui vient de recevoir un mauvais chiffre (animation « secousse »). */
+  shakeCell?: { index: number; id: number } | null
+  /** Points gagnés, affichés brièvement dans la case. */
+  gainFloat?: { index: number; text: string; id: number } | null
 }
 
 export function SudokuBoard({
@@ -34,6 +42,10 @@ export function SudokuBoard({
   onExtend,
   multi,
   flashIndices,
+  waveDelays,
+  popCell,
+  shakeCell,
+  gainFloat,
 }: SudokuBoardProps) {
   const multiSet = new Set(multi ?? [])
   // Glisser avec Maj enfoncé : chaque case survolée est ajoutée à la sélection.
@@ -77,6 +89,9 @@ export function SudokuBoard({
         const isConflict = conflicts.has(index)
         const isWrong = !isGiven && value !== 0 && value !== solution[index]
         const isFlashing = flashIndices?.has(index) ?? false
+        const waveDelay = waveDelays?.get(index)
+        const popId = popCell?.index === index ? popCell.id : null
+        const shakeId = shakeCell?.index === index ? shakeCell.id : null
 
         return (
           <button
@@ -102,6 +117,7 @@ export function SudokuBoard({
               if (e.shiftKey && onExtend) return // déjà géré au mousedown
               onSelect(index)
             }}
+            style={waveDelay !== undefined ? { animationDelay: `${waveDelay}ms` } : undefined}
             className={cn(
               "relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden text-xl font-semibold transition-colors select-none sm:text-2xl",
               "border-r border-b border-border/70",
@@ -122,12 +138,18 @@ export function SudokuBoard({
               isWrong && "text-destructive",
               isConflict && "text-destructive",
               isFlashing && "animate-cell-flash",
+              waveDelay !== undefined && "animate-cell-wave",
               !disabled && "cursor-pointer",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
             )}
           >
             {value !== 0 ? (
-              value
+              <span
+                key={popId !== null ? `pop-${popId}` : shakeId !== null ? `shake-${shakeId}` : "v"}
+                className={cn(popId !== null && "animate-cell-pop", shakeId !== null && "animate-cell-shake")}
+              >
+                {value}
+              </span>
             ) : notes[index].length > 0 ? (
               <span className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-0.5 text-[0.5rem] leading-none text-muted-foreground sm:text-[0.6rem]">
                 {Array.from({ length: 9 }, (_, n) => (
@@ -137,6 +159,15 @@ export function SudokuBoard({
                 ))}
               </span>
             ) : null}
+            {gainFloat?.index === index && (
+              <span
+                key={gainFloat.id}
+                aria-hidden="true"
+                className="animate-gain-float pointer-events-none absolute top-0.5 left-1/2 -translate-x-1/2 text-[0.6rem] font-bold text-flash sm:text-xs"
+              >
+                {gainFloat.text}
+              </span>
+            )}
           </button>
         )
       })}

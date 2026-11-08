@@ -17,6 +17,8 @@ const STATIC_ROUTES: { fr: string; en: string }[] = [
   { fr: "/contact", en: "/en/contact" },
   { fr: "/mentions-legales", en: "/en/legal-notice" },
   { fr: "/politique-de-confidentialite", en: "/en/privacy-policy" },
+  { fr: "/classement", en: "/en/leaderboard" },
+  { fr: "/regles-des-points", en: "/en/points-rules" },
   // Pages par niveau de difficulté
   { fr: "/sudoku-facile", en: "/en/easy-sudoku" },
   { fr: "/sudoku-moyen", en: "/en/medium-sudoku" },

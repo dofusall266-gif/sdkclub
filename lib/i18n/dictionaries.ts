@@ -2,7 +2,7 @@ export type Locale = "fr" | "en"
 export type Dictionary = typeof fr
 
 const fr = {
-    nav: { play: "Jouer", daily: "Défi du jour", rules: "Règles", techniques: "Techniques", blog: "Articles" },
+    nav: { play: "Jouer", daily: "Défi du jour", leaderboard: "Classement", rules: "Règles", techniques: "Techniques", blog: "Articles" },
     home: {
       articlesHeading: "À lire aussi",
       articlesSeeAll: "Tous les articles",
@@ -336,7 +336,7 @@ const fr = {
 }
 
 const en: Dictionary = {
-    nav: { play: "Play", daily: "Daily challenge", rules: "Rules", techniques: "Techniques", blog: "Articles" },
+    nav: { play: "Play", daily: "Daily challenge", leaderboard: "Leaderboard", rules: "Rules", techniques: "Techniques", blog: "Articles" },
     home: {
       articlesHeading: "You might also like",
       articlesSeeAll: "All articles",

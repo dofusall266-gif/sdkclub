@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Chaque page existe en français et en anglais : les deux entrées se référencent (hreflang),
   // pour que Google affiche la bonne langue à la bonne personne.
-  const both = (frPath: string, rest: { lastModified?: Date; changeFrequency: "daily" | "weekly" | "monthly" | "yearly"; priority: number }) => {
+  const both = (frPath: string, rest: { lastModified?: Date; changeFrequency: "daily" | "weekly" | "monthly" | "yearly"; priority: number }): MetadataRoute.Sitemap => {
     const languages = { fr: `${SITE_URL}${frPath}`, en: `${SITE_URL}${localizePath(frPath, "en")}` }
     return [
       { url: languages.fr, ...rest, alternates: { languages } },
@@ -44,7 +44,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: "2026-11-07",
   }))
 
-  const staticEntries = [...pages, ...levelPages, ...guidePages].flatMap((p) =>
+  const pointsPages = [
+    { path: "/classement", priority: 0.6, changeFrequency: "daily" as const },
+    { path: "/regles-des-points", priority: 0.5, changeFrequency: "monthly" as const, lastModified: "2026-11-08" },
+  ]
+
+  const staticEntries = [...pages, ...levelPages, ...guidePages, ...pointsPages].flatMap((p) =>
     both(p.path, {
       ...(p.lastModified ? { lastModified: new Date(`${p.lastModified}T00:00:00Z`) } : {}),
       changeFrequency: p.changeFrequency,
@@ -52,7 +57,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }),
   )
 
-  const postEntries = getAllPosts().flatMap((post) => {
+  const postEntries: MetadataRoute.Sitemap = getAllPosts().flatMap((post) => {
     const rest = {
       lastModified: new Date(`${post.updated ?? post.date}T00:00:00Z`),
       changeFrequency: "monthly" as const,

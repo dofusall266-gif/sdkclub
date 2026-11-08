@@ -1,21 +1,25 @@
 "use client"
 
-import { Flame, Pause, Play, Sparkles, Trophy } from "lucide-react"
-import Link from "@/components/localized-link"
+import { Pause, Play, Sparkles } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { Confetti } from "@/components/sudoku/confetti"
+import { ComboToast } from "@/components/sudoku/combo-toast"
+import { ConfettiBurst } from "@/components/sudoku/confetti-burst"
 import { GameToolbar } from "@/components/sudoku/game-toolbar"
 import { NumberPad } from "@/components/sudoku/number-pad"
+import { HalfwayAnimation } from "@/components/sudoku/halfway-animation"
 import { PrintableGrid } from "@/components/sudoku/printable-grid"
 import { PrintDialog } from "@/components/sudoku/print-dialog"
 import { digitFromKeyEvent } from "@/components/sudoku/keyboard"
-import { ShareResult } from "@/components/share-result"
 import { SudokuBoard } from "@/components/sudoku/sudoku-board"
 import { useSudoku } from "@/components/sudoku/use-sudoku"
+import { WinCard } from "@/components/sudoku/win-card"
 import { Button } from "@/components/ui/button"
 import { hasCompletedDailyToday } from "@/lib/daily"
+import { pickComboMessage } from "@/lib/combo-messages"
 import { useLanguage } from "@/lib/i18n/context"
+import { getLocalTotals, recordPoints } from "@/lib/points-store"
+import { type Period, type ScoreBreakdown, comboMultiplier, finalScore, tierReachedAt } from "@/lib/scoring"
 import { DIFFICULTIES, type Difficulty, colOf, groupIndices, rowOf } from "@/lib/sudoku"
 import { getBestTime, maybeRecordBest, recordWinForStreak } from "@/lib/streak"
 import { cn } from "@/lib/utils"
@@ -35,63 +39,179 @@ export function SudokuGame({
   forceDifficulty?: Difficulty
 }) {
   const { state, conflicts, remaining, actions } = useSudoku(initialDifficulty)
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [notesMode, setNotesMode] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [printIncludeSolution, setPrintIncludeSolution] = useState<boolean | null>(null)
   const [flashIndices, setFlashIndices] = useState<Set<number>>(new Set())
-  const [winResult, setWinResult] = useState<{ isRecord: boolean; streak: number } | null>(null)
+  const [winResult, setWinResult] = useState<{
+    isRecord: boolean
+    streak: number
+    breakdown: ScoreBreakdown
+    gameId: string
+    totals: Record<Period, number>
+    seconds: number
+    mistakes: number
+    difficulty: Difficulty
+  } | null>(null)
+  const [winPhase, setWinPhase] = useState<"wave" | "card" | null>(null)
+  const [bursts, setBursts] = useState(0)
+  const [popCell, setPopCell] = useState<{ index: number; id: number } | null>(null)
+  const [shakeCell, setShakeCell] = useState<{ index: number; id: number } | null>(null)
+  const [gainFloat, setGainFloat] = useState<{ index: number; text: string; id: number } | null>(null)
+  const [waveDelays, setWaveDelays] = useState<Map<number, number>>(new Map())
+  const [toast, setToast] = useState<{ id: number; text: string; sub: string } | null>(null)
+  const [halfwayId, setHalfwayId] = useState<number | null>(null)
+  const effectId = useRef(0)
   const isOver = state.status === "won"
   const difficultyLabel = t.game.difficulties[state.difficulty]
 
   useEffect(() => setMounted(true), [])
 
-  // Effet "récompense" : quand une ligne/colonne/bloc vient d'être complété
-  // correctement, on met brièvement ces cases en surbrillance.
+  // Effets « récompense » à chaque chiffre posé : « pop » + points flottants si c'est juste,
+  // secousse si c'est faux, vague sur la ligne / colonne / bloc qui vient d'être complété.
   const prevGridRef = useRef(state.grid)
+  const prevGivenRef = useRef(state.given)
+  const prevPointsRef = useRef(state.points ?? 0)
+  const prevHistoryRef = useRef(state.history.length)
   useEffect(() => {
     const prev = prevGridRef.current
     const grid = state.grid
+    const gained = (state.points ?? 0) - prevPointsRef.current
+    const newGrid = prevGivenRef.current !== state.given
+    const undone = state.history.length < prevHistoryRef.current
     prevGridRef.current = grid
-    if (prev === grid) return
+    prevGivenRef.current = state.given
+    prevPointsRef.current = state.points ?? 0
+    prevHistoryRef.current = state.history.length
+    if (prev === grid || newGrid || undone) return
 
-    let changed = -1
-    for (let i = 0; i < 81; i++) {
-      if (prev[i] !== grid[i] && grid[i] !== 0) {
-        changed = i
-        break
-      }
+    // Une seule case a changé et elle contient maintenant un chiffre : c'est une saisie.
+    const changedCells: number[] = []
+    for (let i = 0; i < 81; i++) if (prev[i] !== grid[i]) changedCells.push(i)
+    if (changedCells.length !== 1) return
+    const changed = changedCells[0]
+    if (grid[changed] === 0 || state.given[changed] !== 0) return
+
+    const id = ++effectId.current
+    if (grid[changed] !== state.solution[changed]) {
+      setShakeCell({ index: changed, id })
+      return
     }
-    if (changed === -1 || grid[changed] !== state.solution[changed]) return
+    setPopCell({ index: changed, id })
+    if (gained > 0) setGainFloat({ index: changed, text: `+${gained}`, id })
 
     const { row, col, box } = groupIndices(changed)
     const complete = (indices: number[]) => indices.every((i) => grid[i] === state.solution[i])
-    const newlyDone = new Set<number>()
-    if (complete(row)) row.forEach((i) => newlyDone.add(i))
-    if (complete(col)) col.forEach((i) => newlyDone.add(i))
-    if (complete(box)) box.forEach((i) => newlyDone.add(i))
-    if (newlyDone.size === 0) return
+    const delays = new Map<number, number>()
+    const add = (cells: number[]) =>
+      cells.forEach((i, k) => {
+        const d = k * 70
+        const old = delays.get(i)
+        if (old === undefined || old > d) delays.set(i, d)
+      })
+    if (complete(row)) add(row)
+    if (complete(col)) add(col)
+    if (complete(box)) add(box)
+    if (delays.size === 0) return
+    setWaveDelays(delays)
+    const timer = setTimeout(() => setWaveDelays(new Map()), 70 * 9 + 1000)
+    return () => clearTimeout(timer)
+  }, [state.grid, state.given, state.solution, state.points, state.history.length])
 
-    setFlashIndices(newlyDone)
-    const t = setTimeout(() => setFlashIndices(new Set()), 900)
-    return () => clearTimeout(t)
-  }, [state.grid, state.solution])
+  // Messages de combo (3, 7, 10, 20 bonnes réponses d'affilée), tirés au hasard dans une liste.
+  const prevStreakRef = useRef(state.comboStreak ?? 0)
+  useEffect(() => {
+    const streak = state.comboStreak ?? 0
+    const before = prevStreakRef.current
+    prevStreakRef.current = streak
+    if (streak <= before || tierReachedAt(streak) < 0) return
+    const mult = comboMultiplier(streak, state.multipliers).toLocaleString(locale === "fr" ? "fr-FR" : "en-US", {
+      maximumFractionDigits: 2,
+    })
+    setToast({ id: ++effectId.current, text: pickComboMessage(streak, locale), sub: `Combo ×${mult}` })
+    const timer = setTimeout(() => setToast(null), 2100)
+    return () => clearTimeout(timer)
+  }, [state.comboStreak, state.multipliers, locale])
 
-  // À la victoire : record personnel + progression de la série (streak), une seule fois.
+  // Mi-parcours : une fois par grille, quand la moitié des cases à trouver sont justes
+  // (jamais rejoué à la reprise d'une partie déjà avancée).
+  const halfRef = useRef<{ given: typeof state.given; shown: boolean } | null>(null)
+  useEffect(() => {
+    const empties = state.given.reduce((n, v) => n + (v === 0 ? 1 : 0), 0)
+    if (empties === 0) return
+    let correct = 0
+    for (let i = 0; i < 81; i++) if (state.given[i] === 0 && state.grid[i] === state.solution[i]) correct++
+    const reached = correct / empties >= 0.5
+    if (!halfRef.current || halfRef.current.given !== state.given) {
+      halfRef.current = { given: state.given, shown: reached }
+      return
+    }
+    if (reached && !halfRef.current.shown && state.status === "playing") {
+      halfRef.current.shown = true
+      setHalfwayId(++effectId.current)
+      const timer = setTimeout(() => setHalfwayId(null), 2300)
+      return () => clearTimeout(timer)
+    }
+  }, [state.grid, state.given, state.solution, state.status])
+
+  // À la victoire (une seule fois) : record personnel, série de jours, points, puis séquence de fin :
+  // vague sur toute la grille + confettis (~2,3 s), puis le tableau récapitulatif.
   const winHandledRef = useRef(false)
+  const winTimers = useRef<ReturnType<typeof setTimeout>[]>([])
   useEffect(() => {
     if (state.status === "won" && !winHandledRef.current) {
       winHandledRef.current = true
       const isRecord = maybeRecordBest(state.difficulty, state.seconds, state.mistakes)
       const { count } = recordWinForStreak()
       window.dispatchEvent(new Event("sc:streak-updated"))
-      setWinResult({ isRecord, streak: count })    }
-    if (state.status === "playing") {
-      winHandledRef.current = false
-      setWinResult(null)
+
+      const breakdown = finalScore({
+        difficulty: state.difficulty,
+        basePoints: state.basePoints ?? 0,
+        points: state.points ?? 0,
+        seconds: state.seconds,
+        mistakes: state.mistakes,
+        emptyCells: state.given.reduce((n, v) => n + (v === 0 ? 1 : 0), 0),
+      })
+      const gameId = state.gameId ?? `legacy-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      recordPoints(gameId, breakdown.total)
+      setWinResult({
+        isRecord,
+        streak: count,
+        breakdown,
+        gameId,
+        totals: getLocalTotals(),
+        seconds: state.seconds,
+        mistakes: state.mistakes,
+        difficulty: state.difficulty,
+      })
+
+      const delays = new Map<number, number>()
+      for (let i = 0; i < 81; i++) delays.set(i, (rowOf(i) + colOf(i)) * 60)
+      setWaveDelays(delays)
+      setWinPhase("wave")
+      winTimers.current = [0, 700, 1400].map((d) => setTimeout(() => setBursts((n) => n + 1), d))
+      winTimers.current.push(
+        setTimeout(() => {
+          setWaveDelays(new Map())
+          setWinPhase("card")
+        }, 2300),
+      )
     }
-  }, [state.status, state.difficulty, state.seconds, state.mistakes])
+    if (state.status === "playing" && winHandledRef.current) {
+      winHandledRef.current = false
+      winTimers.current.forEach(clearTimeout)
+      winTimers.current = []
+      setWinResult(null)
+      setWinPhase(null)
+      setBursts(0)
+      setWaveDelays(new Map())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status])
+  useEffect(() => () => winTimers.current.forEach(clearTimeout), [])
 
   // Si l'URL contient ?niveau=..., on lance directement cette difficulté.
   // Fait côté client (pas côté serveur) pour que la page d'accueil reste
@@ -209,7 +329,25 @@ export function SudokuGame({
   // dans le panneau de droite sur ordinateur (comme sudoku.com).
   const stats = (
     <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-8 lg:gap-10">
+      <div className="flex items-center gap-5 sm:gap-8 lg:gap-10">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground lg:text-sm">Points</p>
+          <p className="text-xl font-semibold tabular-nums lg:text-2xl">
+            {(state.points ?? 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US")}
+          </p>
+          {/* Le combo apparaît sous les points quand il est actif (3 bonnes réponses d'affilée), puis disparaît. */}
+          <p
+            className={cn(
+              "h-4 text-xs font-bold whitespace-nowrap text-flash transition-all duration-300",
+              (state.comboStreak ?? 0) >= 3 ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
+            )}
+          >
+            🔥 Combo ×
+            {comboMultiplier(state.comboStreak ?? 0, state.multipliers).toLocaleString(locale === "fr" ? "fr-FR" : "en-US", {
+              maximumFractionDigits: 2,
+            })}
+          </p>
+        </div>
         <div>
           <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.errors}</p>
           <p className="text-xl font-semibold tabular-nums lg:text-2xl">{state.mistakes}</p>
@@ -290,7 +428,13 @@ export function SudokuGame({
           onExtend={actions.extend}
           multi={state.multi}
           flashIndices={flashIndices}
+          waveDelays={waveDelays}
+          popCell={popCell}
+          shakeCell={shakeCell}
+          gainFloat={gainFloat}
         />
+
+        <HalfwayAnimation id={halfwayId} label={locale === "fr" ? "À mi-parcours" : "Halfway there"} />
 
         {paused && (
           <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/85 backdrop-blur-sm">
@@ -304,55 +448,6 @@ export function SudokuGame({
           </div>
         )}
 
-        {isOver && (
-          <div className="absolute inset-0 grid place-items-center overflow-hidden rounded-xl bg-background/90 backdrop-blur-sm">
-            <Confetti />
-            <div className="relative text-center">
-              <div className="mx-auto grid size-14 place-items-center rounded-full bg-primary/15">
-                <Trophy className="size-7 text-primary" />
-              </div>
-              <p className="mt-3 text-lg font-bold">{t.game.wonTitle}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {difficultyLabel} · {formatTime(state.seconds)} · {state.mistakes} {t.game.mistakeWord(state.mistakes)}
-              </p>
-
-              {winResult?.isRecord && (
-                <p className="animate-toast-in mt-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  <Sparkles className="size-3.5" /> {t.game.newRecord}
-                </p>
-              )}
-              {winResult && winResult.streak > 1 && (
-                <p className="animate-toast-in mt-2 flex items-center justify-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400">
-                  <Flame className="size-3.5" /> {t.game.streakLine(winResult.streak)}
-                </p>
-              )}
-
-              <Button className="mt-4" onClick={() => handleNewGame(state.difficulty)}>
-                <Sparkles className="size-4" /> {t.game.newGame}
-              </Button>
-
-              <ShareResult
-                className="mt-3"
-                text={t.share.free(
-                  difficultyLabel,
-                  formatTime(state.seconds),
-                  state.mistakes,
-                  t.game.mistakeWord(state.mistakes),
-                  state.rating,
-                )}
-              />
-
-              {!hasCompletedDailyToday() && (
-                <Link
-                  href="/defi"
-                  className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-orange-600 hover:underline dark:text-orange-400"
-                >
-                  <Flame className="size-3.5" /> {t.game.dailyCta}
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Panneau de droite : stats (desktop), outils, pavé 3×3, nouvelle partie */}
@@ -384,6 +479,33 @@ export function SudokuGame({
         <PrintableGrid grid={state.given} title={`Sudoku — ${difficultyLabel}`} />
         {printIncludeSolution && <PrintableGrid grid={state.solution} title={t.game.solutionLabel} />}
       </div>
+
+      <ComboToast toast={toast} />
+      {Array.from({ length: bursts }, (_, i) => (
+        <ConfettiBurst key={i} count={i === 0 ? 40 : 30} />
+      ))}
+      {winPhase === "card" && winResult && (
+        <WinCard
+          difficultyLabel={t.game.difficulties[winResult.difficulty]}
+          difficulty={winResult.difficulty}
+          gameId={winResult.gameId}
+          seconds={winResult.seconds}
+          mistakes={winResult.mistakes}
+          breakdown={winResult.breakdown}
+          localTotals={winResult.totals}
+          isRecord={winResult.isRecord}
+          streak={winResult.streak}
+          shareText={t.share.free(
+            t.game.difficulties[winResult.difficulty],
+            formatTime(winResult.seconds),
+            winResult.mistakes,
+            t.game.mistakeWord(winResult.mistakes),
+            state.rating,
+          )}
+          showDailyCta={!hasCompletedDailyToday()}
+          onNewGame={() => handleNewGame(state.difficulty)}
+        />
+      )}
 
       <PrintDialog
         open={printDialogOpen}

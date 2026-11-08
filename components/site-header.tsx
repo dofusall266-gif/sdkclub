@@ -34,6 +34,7 @@ export function SiteHeader() {
   const navLinks: { href: string; label: string; dot?: boolean }[] = [
     { href: "/", label: t.nav.play },
     { href: "/defi", label: t.nav.daily, dot: !dailyDone },
+    { href: "/classement", label: t.nav.leaderboard },
     { href: "/regles", label: t.nav.rules },
     { href: "/techniques", label: t.nav.techniques },
     { href: "/blog", label: t.nav.blog },
@@ -49,7 +50,7 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Navigation principale">
           {navLinks.map((link) => {
-            const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
+            const active = link.href === "/" ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`)
             return (
               <Link
                 key={link.href}
@@ -93,7 +94,7 @@ export function SiteHeader() {
         <nav className="border-t border-border bg-background md:hidden" aria-label="Navigation mobile">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-3">
             {navLinks.map((link) => {
-              const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
+              const active = link.href === "/" ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`)
               return (
                 <Link
                   key={link.href}
