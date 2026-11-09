@@ -16,7 +16,7 @@ const CONTENT = {
     lead: "Jouez au sudoku gratuitement, sans inscription et sans téléchargement : des grilles illimitées, vérifiées à solution unique, sur ordinateur, tablette et téléphone.",
     levelsTitle: "Six niveaux, du Facile au Fou",
     levels:
-      "Choisissez votre niveau : Facile pour découvrir, Moyen et Difficile pour progresser, Expert, Diabolique et Fou pour les grilles qui demandent des techniques avancées comme le X-Wing ou le Swordfish. Chaque grille est notée sur 100 pour que vous sachiez à quoi vous attendre.",
+      "Choisissez votre niveau : Facile pour découvrir, Moyen et Difficile pour progresser, Expert, Diabolique et Fou pour les grilles qui demandent des techniques avancées comme le X-Wing ou le Swordfish.",
     featuresTitle: "Ce que vous trouverez sur Sudoku-Club",
     features: [
       { name: "Le défi du jour", text: "une grille par jour, la même pour tout le monde, avec un classement.", href: "/defi" },
@@ -41,7 +41,7 @@ const CONTENT = {
     lead: "Play Sudoku for free, with no sign-up and no download: unlimited puzzles, each checked for a unique solution, on desktop, tablet and phone.",
     levelsTitle: "Six levels, from Easy to Crazy",
     levels:
-      "Pick your level: Easy to get started, Medium and Hard to improve, Expert, Diabolical and Crazy for puzzles that need advanced techniques such as the X-Wing or the Swordfish. Every puzzle is rated out of 100 so you know what to expect.",
+      "Pick your level: Easy to get started, Medium and Hard to improve, Expert, Diabolical and Crazy for puzzles that need advanced techniques such as the X-Wing or the Swordfish.",
     featuresTitle: "What you will find on Sudoku-Club",
     features: [
       { name: "The daily challenge", text: "one puzzle a day, the same for everyone, with a leaderboard.", href: "/defi" },

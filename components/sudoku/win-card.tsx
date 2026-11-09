@@ -1,8 +1,8 @@
 "use client"
 
-import { Flame, Sparkles } from "lucide-react"
+import { Flame, Sparkles, Trophy } from "lucide-react"
 import Link from "@/components/localized-link"
-import { useEffect, useState } from "react"
+import { type ReactNode, useEffect, useState } from "react"
 
 import { ShareResult } from "@/components/share-result"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -22,6 +22,9 @@ const TEXT = {
     combo: "Combo",
     timeBonus: "Bonus de temps",
     flawless: "Partie sans faute",
+    daily: "Bonus défi du jour",
+    scoreRecord: "Meilleur score battu !",
+    playFree: "Jouer une grille libre",
     periods: { day: "Aujourd’hui", week: "Cette semaine", month: "Ce mois", all: "Total" } as Record<Period, string>,
     rank: "Classement général",
     rankSending: "Calcul de ta place…",
@@ -46,6 +49,9 @@ const TEXT = {
     combo: "Combo",
     timeBonus: "Time bonus",
     flawless: "Flawless game",
+    daily: "Daily challenge bonus",
+    scoreRecord: "New best score!",
+    playFree: "Play a free puzzle",
     periods: { day: "Today", week: "This week", month: "This month", all: "Total" } as Record<Period, string>,
     rank: "Overall ranking",
     rankSending: "Finding your place…",
@@ -74,6 +80,14 @@ interface Props {
   /** Totaux locaux (déjà incluant cette partie). */
   localTotals: Record<Period, number>
   isRecord: boolean
+  /** Meilleur score (une seule partie) battu. */
+  isScoreRecord?: boolean
+  /** Défi du jour : pas de « grille suivante », le pseudo est demandé par le formulaire du défi (`extra`). */
+  mode?: "free" | "daily"
+  /** Contenu supplémentaire sous le récapitulatif (défi du jour : classement du temps). */
+  extra?: ReactNode
+  /** Change quand un pseudo vient d'être enregistré ailleurs (formulaire du défi du jour) : déclenche l'envoi des points. */
+  profileKey?: number
   streak: number
   shareText: string
   showDailyCta: boolean
@@ -119,6 +133,7 @@ export function WinCard(props: Props) {
       points: breakdown.total,
       seconds: props.seconds,
       mistakes: props.mistakes,
+      daily: props.mode === "daily",
     })
     if (res.ok && res.rank && res.totals) {
       const previous = getLastRank()
@@ -139,9 +154,20 @@ export function WinCard(props: Props) {
   useEffect(() => {
     const existing = getPlayerProfile()
     setProfile(existing)
-    if (existing) void send(existing)
+    if (existing && breakdown.total >= 1) void send(existing)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Défi du jour : le pseudo vient d'être enregistré par le formulaire du défi -> on envoie aussi les points.
+  useEffect(() => {
+    if (!props.profileKey) return
+    const existing = getPlayerProfile()
+    if (existing && state === "idle" && breakdown.total >= 1) {
+      setProfile(existing)
+      void send(existing)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.profileKey])
 
   const reveal = (n: number) => ({ animationDelay: `${500 + n * 170}ms` })
 
@@ -168,6 +194,11 @@ export function WinCard(props: Props) {
                 <Sparkles className="size-3.5" /> {t.game.newRecord}
               </span>
             )}
+            {props.isScoreRecord && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-flash/15 px-3 py-1 text-xs font-semibold text-flash">
+                <Trophy className="size-3.5" /> {x.scoreRecord}
+              </span>
+            )}
             {props.streak > 1 && (
               <span className="inline-flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400">
                 <Flame className="size-3.5" /> {t.game.streakLine(props.streak)}
@@ -182,6 +213,7 @@ export function WinCard(props: Props) {
             [x.combo, breakdown.combo],
             [x.timeBonus, breakdown.time],
             [x.flawless, breakdown.flawless],
+            ...(breakdown.daily > 0 ? [[x.daily, breakdown.daily]] : []),
           ].map(([label, value]) => (
             <div key={label as string} className="flex justify-between border-b border-border py-1.5">
               <span>{label}</span>
@@ -219,7 +251,7 @@ export function WinCard(props: Props) {
           </div>
         </div>
 
-        {!profile && state === "idle" && (
+        {props.mode !== "daily" && !profile && state === "idle" && (
           <div className="animate-row-reveal" style={reveal(4)}>
             <JoinForm
               initialError={badPseudo}
@@ -231,10 +263,22 @@ export function WinCard(props: Props) {
           </div>
         )}
 
+        {props.extra && (
+          <div className="animate-row-reveal mt-4" style={reveal(4)}>
+            {props.extra}
+          </div>
+        )}
+
         <div className="animate-row-reveal mt-4 flex gap-2" style={reveal(5)}>
-          <Button className="flex-1" size="lg" onClick={props.onNewGame}>
-            <Sparkles className="size-4" /> {x.next}
-          </Button>
+          {props.mode === "daily" ? (
+            <Link href="/" className={buttonVariants({ size: "lg" }) + " flex-1"}>
+              <Sparkles className="size-4" /> {x.playFree}
+            </Link>
+          ) : (
+            <Button className="flex-1" size="lg" onClick={props.onNewGame}>
+              <Sparkles className="size-4" /> {x.next}
+            </Button>
+          )}
           <Link href="/classement" className={buttonVariants({ variant: "outline", size: "lg" })}>
             {x.board}
           </Link>

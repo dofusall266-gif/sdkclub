@@ -67,6 +67,9 @@ export function tierReachedAt(streak: number): number {
   return COMBO_TIERS.findIndex((t) => t.at === streak)
 }
 
+/** Bonus du défi du jour : +20 % sur le total (la grille du jour est la même pour tout le monde). */
+export const DAILY_BONUS = 0.2
+
 export interface ScoreBreakdown {
   /** Points de base des cases justes (sans combo). */
   resolution: number
@@ -74,6 +77,8 @@ export interface ScoreBreakdown {
   combo: number
   time: number
   flawless: number
+  /** Bonus du défi du jour (0 pour une partie libre). */
+  daily: number
   total: number
 }
 
@@ -84,13 +89,15 @@ export function finalScore(args: {
   seconds: number
   mistakes: number
   emptyCells: number
+  daily?: boolean
 }): ScoreBreakdown {
   const base = LEVEL_POINTS[args.difficulty]
   const ref = REFERENCE_SECONDS[args.difficulty]
   const time = Math.round(args.emptyCells * base * 0.5 * Math.max(0, 1 - args.seconds / ref))
   const sub = args.points + time
   const flawless = args.mistakes === 0 ? Math.round(sub * 0.25) : 0
-  return { resolution: args.basePoints, combo: args.points - args.basePoints, time, flawless, total: sub + flawless }
+  const daily = args.daily ? Math.round((sub + flawless) * DAILY_BONUS) : 0
+  return { resolution: args.basePoints, combo: args.points - args.basePoints, time, flawless, daily, total: sub + flawless + daily }
 }
 
 /** Score maximal théorique d'une partie (borne large, pour rejeter les valeurs absurdes côté serveur). */

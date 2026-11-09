@@ -1,12 +1,16 @@
 "use client"
 
-import { Flame, Pause, Play, Trophy } from "lucide-react"
+import { Pause, Play } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { Confetti } from "@/components/sudoku/confetti"
+import { ComboToast } from "@/components/sudoku/combo-toast"
+import { ConfettiBurst } from "@/components/sudoku/confetti-burst"
+import { HalfwayAnimation } from "@/components/sudoku/halfway-animation"
+import { ScoreStat, StreakStat } from "@/components/sudoku/score-stat"
+import { useGameEffects } from "@/components/sudoku/use-game-effects"
+import { WinCard } from "@/components/sudoku/win-card"
 import { GameToolbar } from "@/components/sudoku/game-toolbar"
 import { NumberPad } from "@/components/sudoku/number-pad"
-import { ShareResult } from "@/components/share-result"
 import { PrintableGrid } from "@/components/sudoku/printable-grid"
 import { PrintDialog } from "@/components/sudoku/print-dialog"
 import { digitFromKeyEvent } from "@/components/sudoku/keyboard"
@@ -17,7 +21,9 @@ import { DailySubmitForm } from "@/components/daily/daily-submit-form"
 import { hasSubmittedDaily, markDailySubmitted } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
 import { getPlayerProfile } from "@/lib/player"
-import { colOf, groupIndices, rowOf } from "@/lib/sudoku"
+import { getLocalTotals, maybeRecordBestScore, recordPoints } from "@/lib/points-store"
+import { type Period, type ScoreBreakdown, finalScore } from "@/lib/scoring"
+import { colOf, rowOf } from "@/lib/sudoku"
 import { maybeRecordBest, recordWinForStreak } from "@/lib/streak"
 import { cn } from "@/lib/utils"
 
@@ -38,7 +44,13 @@ export function DailyGame() {
   const { t, locale } = useLanguage()
   const [mounted, setMounted] = useState(false)
   const [notesMode, setNotesMode] = useState(false)
-  const [flashIndices, setFlashIndices] = useState<Set<number>>(new Set())
+  const fx = useGameEffects(state, locale)
+  const [winResult, setWinResult] = useState<{
+    breakdown: ScoreBreakdown
+    gameId: string
+    totals: Record<Period, number>
+    isScoreRecord: boolean
+  } | null>(null)
   const [submitted, setSubmitted] = useState<string | null>(null)
   const [alreadySubmitted, setAlreadySubmitted] = useState(false)
   const [leaderboardKey, setLeaderboardKey] = useState(0)
@@ -53,41 +65,34 @@ export function DailyGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const prevGridRef = useRef(state.grid)
-  useEffect(() => {
-    const prev = prevGridRef.current
-    const grid = state.grid
-    prevGridRef.current = grid
-    if (prev === grid) return
-    let changed = -1
-    for (let i = 0; i < 81; i++) {
-      if (prev[i] !== grid[i] && grid[i] !== 0) {
-        changed = i
-        break
-      }
-    }
-    if (changed === -1 || grid[changed] !== state.solution[changed]) return
-    const { row, col, box } = groupIndices(changed)
-    const complete = (indices: number[]) => indices.every((i) => grid[i] === state.solution[i])
-    const newlyDone = new Set<number>()
-    if (complete(row)) row.forEach((i) => newlyDone.add(i))
-    if (complete(col)) col.forEach((i) => newlyDone.add(i))
-    if (complete(box)) box.forEach((i) => newlyDone.add(i))
-    if (newlyDone.size === 0) return
-    setFlashIndices(newlyDone)
-    const timeout = setTimeout(() => setFlashIndices(new Set()), 900)
-    return () => clearTimeout(timeout)
-  }, [state.grid, state.solution])
-
+  // À la victoire (une seule fois) : record, série de jours, points (+20 % défi du jour), puis séquence de fin.
+  // Si la page est rechargée après la victoire, on affiche directement le récapitulatif.
   const winHandledRef = useRef(false)
+  const wonAtMount = useRef(state.status === "won")
   useEffect(() => {
     if (state.status === "won" && !winHandledRef.current) {
       winHandledRef.current = true
       maybeRecordBest("difficile", state.seconds, state.mistakes)
       recordWinForStreak()
       window.dispatchEvent(new Event("sc:streak-updated"))
+
+      const breakdown = finalScore({
+        difficulty: state.difficulty,
+        basePoints: state.basePoints ?? 0,
+        points: state.points ?? 0,
+        seconds: state.seconds,
+        mistakes: state.mistakes,
+        emptyCells: state.given.reduce((n, v) => n + (v === 0 ? 1 : 0), 0),
+        daily: true,
+      })
+      const gameId = `daily-${dateKey}`
+      const isScoreRecord = maybeRecordBestScore(breakdown.total)
+      recordPoints(gameId, breakdown.total)
+      setWinResult({ breakdown, gameId, totals: getLocalTotals(), isScoreRecord })
+      fx.beginWin(wonAtMount.current)
     }
-  }, [state.status, state.seconds, state.mistakes])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -154,7 +159,8 @@ export function DailyGame() {
     <div className="mx-auto grid max-w-[36rem] gap-8 lg:max-w-none lg:grid-cols-[min(36rem,calc(100dvh-11rem))_18rem] lg:justify-center lg:gap-x-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-5 sm:gap-8">
+            <ScoreStat points={state.points ?? 0} comboStreak={state.comboStreak ?? 0} multipliers={state.multipliers} locale={locale} />
             <div>
               <p className="text-xs font-medium text-muted-foreground">{t.game.errors}</p>
               <p className="text-xl font-semibold tabular-nums">{state.mistakes}</p>
@@ -163,6 +169,7 @@ export function DailyGame() {
               <p className="text-xs font-medium text-muted-foreground">{t.game.time}</p>
               <p className="text-xl font-semibold tabular-nums">{formatTime(state.seconds)}</p>
             </div>
+            <StreakStat locale={locale} />
           </div>
           <button
             type="button"
@@ -187,8 +194,13 @@ export function DailyGame() {
             onSelect={actions.select}
           onExtend={actions.extend}
           multi={state.multi}
-            flashIndices={flashIndices}
+            waveDelays={fx.waveDelays}
+            popCell={fx.popCell}
+            shakeCell={fx.shakeCell}
+            gainFloat={fx.gainFloat}
           />
+
+          <HalfwayAnimation id={fx.halfwayId} label={locale === "fr" ? "À mi-parcours" : "Halfway there"} />
 
           {paused && (
             <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/85 backdrop-blur-sm">
@@ -206,65 +218,6 @@ export function DailyGame() {
             </div>
           )}
 
-          {isOver && (
-            <div className="absolute inset-0 overflow-y-auto rounded-xl bg-background/95 backdrop-blur-sm">
-              <div className="relative min-h-full">
-                <Confetti />
-                <div className="flex flex-col items-center gap-3 px-4 py-6 text-center">
-                  <div className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/15">
-                    <Trophy className="size-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold">{t.game.wonTitle}</p>
-                    <p className="mt-1 flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                      <Flame className="size-4 text-orange-500" /> {formatTime(state.seconds)} · {state.mistakes}{" "}
-                      {t.game.mistakeWord(state.mistakes)}
-                    </p>
-                  </div>
-
-                  {!submitted && !alreadySubmitted ? (
-                    <div className="w-full max-w-xs text-left">
-                      <DailySubmitForm
-                        variant="inline"
-                        seconds={state.seconds}
-                        mistakes={state.mistakes}
-                        dateKey={dateKey}
-                        onSubmitted={(pseudo) => {
-                          setSubmitted(pseudo)
-                          markDailySubmitted(dateKey)
-                          setLeaderboardKey((k) => k + 1)
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <p className="rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary">
-                      {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
-                    </p>
-                  )}
-
-                  <ShareResult
-                    text={t.share.daily(
-                      formatDateKey(dateKey, locale),
-                      formatTime(state.seconds),
-                      state.mistakes,
-                      t.game.mistakeWord(state.mistakes),
-                    )}
-                  />
-
-                  {/* Classement directement dans l'écran de victoire : on vient de
-                      terminer, c'est le moment où on veut le voir, pas après avoir
-                      dû défiler en dehors de cette carte. */}
-                  <div className="mt-2 w-full max-w-xs text-left">
-                    <DailyLeaderboard
-                      playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
-                      playerId={getPlayerProfile()?.id ?? null}
-                      refreshKey={leaderboardKey}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -299,6 +252,61 @@ export function DailyGame() {
         {/* Volontairement pas de solution imprimable ici : ce serait un moyen
             trivial de tricher sur un classement partagé entre tous les joueurs. */}
       </div>
+
+      <ComboToast toast={fx.toast} />
+      {Array.from({ length: fx.bursts }, (_, i) => (
+        <ConfettiBurst key={i} count={i === 0 ? 40 : 30} />
+      ))}
+      {fx.winPhase === "card" && winResult && (
+        <WinCard
+          mode="daily"
+          difficultyLabel={t.daily.title}
+          difficulty={state.difficulty}
+          gameId={winResult.gameId}
+          seconds={state.seconds}
+          mistakes={state.mistakes}
+          breakdown={winResult.breakdown}
+          localTotals={winResult.totals}
+          isRecord={false}
+          isScoreRecord={winResult.isScoreRecord}
+          streak={0}
+          profileKey={leaderboardKey}
+          shareText={t.share.daily(
+            formatDateKey(dateKey, locale),
+            formatTime(state.seconds),
+            state.mistakes,
+            t.game.mistakeWord(state.mistakes),
+          )}
+          showDailyCta={false}
+          onNewGame={() => {}}
+          extra={
+            <div className="space-y-4">
+              {!submitted && !alreadySubmitted ? (
+                <DailySubmitForm
+                  variant="inline"
+                  seconds={state.seconds}
+                  mistakes={state.mistakes}
+                  dateKey={dateKey}
+                  onSubmitted={(pseudo) => {
+                    setSubmitted(pseudo)
+                    markDailySubmitted(dateKey)
+                    setLeaderboardKey((k) => k + 1)
+                  }}
+                />
+              ) : (
+                <p className="rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary">
+                  {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
+                </p>
+              )}
+              <DailyLeaderboard
+                playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
+                playerId={getPlayerProfile()?.id ?? null}
+                refreshKey={leaderboardKey}
+              />
+            </div>
+          }
+        />
+      )}
 
       <PrintDialog
         open={printDialogOpen}

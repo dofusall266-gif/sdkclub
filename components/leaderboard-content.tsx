@@ -19,6 +19,8 @@ interface Row {
   rank?: number
 }
 
+const MEDALS = ["🥇", "🥈", "🥉"]
+
 const TEXT = {
   fr: {
     h1: "Classement général",
@@ -28,7 +30,6 @@ const TEXT = {
     empty: "Personne pour l’instant sur cette période. Sois le premier !",
     noDb: "Le classement n’est pas activé sur ce site pour le moment.",
     error: "Impossible de charger le classement. Réessaie dans un instant.",
-    games: (n: number) => `${n} partie${n > 1 ? "s" : ""}`,
     you: "Toi",
     yourRank: "Ta place",
     play: "Jouer pour monter au classement",
@@ -42,7 +43,6 @@ const TEXT = {
     empty: "Nobody yet for this period. Be the first!",
     noDb: "The leaderboard is not enabled on this site right now.",
     error: "Could not load the leaderboard. Please try again in a moment.",
-    games: (n: number) => `${n} game${n > 1 ? "s" : ""}`,
     you: "You",
     yourRank: "Your place",
     play: "Play to climb the leaderboard",
@@ -126,7 +126,9 @@ export function LeaderboardContent() {
                     mine && "bg-primary/10 font-semibold",
                   )}
                 >
-                  <span className="w-7 text-sm tabular-nums text-muted-foreground">{i + 1}</span>
+                  <span className="w-8 text-center text-sm tabular-nums text-muted-foreground">
+                    {i < 3 ? <span className="text-xl">{MEDALS[i]}</span> : i + 1}
+                  </span>
                   <span className="text-lg" aria-hidden="true">
                     {countryFlag(r.country_code ?? "")}
                   </span>
@@ -134,8 +136,7 @@ export function LeaderboardContent() {
                     {r.pseudo}
                     {mine && <span className="ml-2 text-xs text-primary">({x.you})</span>}
                   </span>
-                  <span className="hidden text-xs text-muted-foreground sm:inline">{x.games(r.games)}</span>
-                  <b className="tabular-nums">{fmt(r.total)}</b>
+                  <b className="tabular-nums">{fmt(r.total)} pts</b>
                 </div>
               )
             })}
@@ -143,11 +144,11 @@ export function LeaderboardContent() {
 
         {state === "ok" && me && !inTop && (
           <div className="mt-3 flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/10 px-4 py-2.5 font-semibold">
-            <span className="w-7 text-sm tabular-nums">{me.rank}</span>
+            <span className="w-8 text-center text-sm tabular-nums">{me.rank}</span>
             <span className="min-w-0 flex-1 truncate">
               {me.pseudo} <span className="text-xs text-primary">({x.yourRank})</span>
             </span>
-            <b className="tabular-nums">{fmt(me.total)}</b>
+            <b className="tabular-nums">{fmt(me.total)} pts</b>
           </div>
         )}
 

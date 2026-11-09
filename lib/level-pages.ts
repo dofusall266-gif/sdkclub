@@ -18,7 +18,6 @@ export interface LevelText {
 
 export interface LevelPage {
   clues: [number, number]
-  rating: [number, number]
   fr: LevelText
   en: LevelText
 }
@@ -26,7 +25,6 @@ export interface LevelPage {
 export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
   facile: {
     clues: [37, 46],
-    rating: [3, 8],
     fr: {
       h1: "Sudoku facile gratuit en ligne",
       metaTitle: "Sudoku facile gratuit en ligne",
@@ -40,7 +38,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
         },
         {
           h: "Ce qui vous attend",
-          p: "Chaque grille Facile commence avec 37 à 46 chiffres sur 81, et obtient une note de difficulté très basse (entre 3 et 8 sur 100). Dans la quasi-totalité des cas, elle se résout uniquement avec la technique du candidat unique : une case où un seul chiffre reste possible.",
+          p: "Chaque grille Facile commence avec 37 à 46 chiffres sur 81. Dans la quasi-totalité des cas, elle se résout uniquement avec la technique du candidat unique : une case où un seul chiffre reste possible.",
         },
         {
           h: "Nos conseils",
@@ -67,7 +65,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
         },
         {
           h: "What to expect",
-          p: "Every Easy puzzle starts with 37 to 46 digits out of 81 and gets a very low difficulty rating (between 3 and 8 out of 100). In almost every case it is solved with the naked single technique alone: a cell where only one digit remains possible.",
+          p: "Every Easy puzzle starts with 37 to 46 digits out of 81. In almost every case it is solved with the naked single technique alone: a cell where only one digit remains possible.",
         },
         {
           h: "Our tips",
@@ -84,7 +82,6 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
   },
   moyen: {
     clues: [31, 38],
-    rating: [25, 38],
     fr: {
       h1: "Sudoku moyen gratuit en ligne",
       metaTitle: "Sudoku moyen gratuit en ligne",
@@ -94,7 +91,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "Ce qui change par rapport au niveau facile",
-          p: "Les grilles Moyen commencent avec 31 à 38 chiffres sur 81 et obtiennent une note de difficulté de 25 à 38 sur 100. Les candidats uniques ne suffisent plus : il faut éliminer des possibilités pour débloquer la grille.",
+          p: "Les grilles Moyen commencent avec 31 à 38 chiffres sur 81. Les candidats uniques ne suffisent plus : il faut éliminer des possibilités pour débloquer la grille.",
         },
         {
           h: "Les techniques à connaître",
@@ -125,7 +122,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "What changes from the easy level",
-          p: "Medium puzzles start with 31 to 38 digits out of 81 and get a difficulty rating of 25 to 38 out of 100. Naked singles are no longer enough: you have to eliminate possibilities to unlock the puzzle.",
+          p: "Medium puzzles start with 31 to 38 digits out of 81. Naked singles are no longer enough: you have to eliminate possibilities to unlock the puzzle.",
         },
         {
           h: "Techniques to know",
@@ -150,7 +147,6 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
   },
   difficile: {
     clues: [25, 32],
-    rating: [43, 58],
     fr: {
       h1: "Sudoku difficile gratuit en ligne",
       metaTitle: "Sudoku difficile gratuit en ligne",
@@ -160,7 +156,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "Ce qui vous attend",
-          p: "Les grilles Difficile commencent avec seulement 25 à 32 chiffres sur 81 et obtiennent une note de 43 à 58 sur 100. Elles se résolvent toujours par la logique, mais il faut combiner plusieurs techniques d'élimination.",
+          p: "Les grilles Difficile commencent avec seulement 25 à 32 chiffres sur 81. Elles se résolvent toujours par la logique, mais il faut combiner plusieurs techniques d'élimination.",
         },
         {
           h: "Les techniques à connaître",
@@ -191,7 +187,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "What to expect",
-          p: "Hard puzzles start with only 25 to 32 digits out of 81 and get a rating of 43 to 58 out of 100. They can always be solved by logic, but you have to combine several elimination techniques.",
+          p: "Hard puzzles start with only 25 to 32 digits out of 81. They can always be solved by logic, but you have to combine several elimination techniques.",
         },
         {
           h: "Techniques to know",
@@ -216,7 +212,6 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
   },
   expert: {
     clues: [24, 29],
-    rating: [61, 76],
     fr: {
       h1: "Sudoku expert gratuit en ligne",
       metaTitle: "Sudoku expert gratuit en ligne",
@@ -226,7 +221,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "Ce qui vous attend",
-          p: "Les grilles Expert commencent avec 24 à 29 chiffres sur 81 et obtiennent une note de 61 à 76 sur 100. Les paires et les triplets ne suffisent plus à débloquer la grille.",
+          p: "Les grilles Expert commencent avec 24 à 29 chiffres sur 81. Les paires et les triplets ne suffisent plus à débloquer la grille.",
         },
         {
           h: "Les techniques à connaître",
@@ -257,7 +252,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "What to expect",
-          p: "Expert puzzles start with 24 to 29 digits out of 81 and get a rating of 61 to 76 out of 100. Pairs and triples are no longer enough to unlock the puzzle.",
+          p: "Expert puzzles start with 24 to 29 digits out of 81. Pairs and triples are no longer enough to unlock the puzzle.",
         },
         {
           h: "Techniques to know",
@@ -282,7 +277,6 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
   },
   diabolique: {
     clues: [24, 28],
-    rating: [77, 90],
     fr: {
       h1: "Sudoku diabolique gratuit en ligne",
       metaTitle: "Sudoku diabolique gratuit en ligne",
@@ -292,7 +286,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "Ce qui vous attend",
-          p: "Les grilles Diabolique commencent avec 24 à 28 chiffres sur 81 et obtiennent une note de 77 à 90 sur 100. Elles ne se résolvent pas sans raisonner sur des enchaînements de cases.",
+          p: "Les grilles Diabolique commencent avec 24 à 28 chiffres sur 81. Elles ne se résolvent pas sans raisonner sur des enchaînements de cases.",
         },
         {
           h: "Les techniques à connaître",
@@ -323,7 +317,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "What to expect",
-          p: "Diabolical puzzles start with 24 to 28 digits out of 81 and get a rating of 77 to 90 out of 100. They cannot be solved without reasoning about chains of cells.",
+          p: "Diabolical puzzles start with 24 to 28 digits out of 81. They cannot be solved without reasoning about chains of cells.",
         },
         {
           h: "Techniques to know",
@@ -348,7 +342,6 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
   },
   fou: {
     clues: [22, 27],
-    rating: [91, 100],
     fr: {
       h1: "Sudoku fou gratuit en ligne",
       metaTitle: "Sudoku fou gratuit en ligne",
@@ -358,7 +351,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "Ce qui vous attend",
-          p: "Les grilles Fou commencent avec seulement 22 à 27 chiffres sur 81 et obtiennent une note de 91 à 100 sur 100. Elles combinent plusieurs motifs avancés, et c'est leur enchaînement qui fait la difficulté.",
+          p: "Les grilles Fou commencent avec seulement 22 à 27 chiffres sur 81. Elles combinent plusieurs motifs avancés, et c'est leur enchaînement qui fait la difficulté.",
         },
         {
           h: "Les techniques à connaître",
@@ -389,7 +382,7 @@ export const LEVEL_PAGES: Record<Difficulty, LevelPage> = {
       sections: [
         {
           h: "What to expect",
-          p: "Crazy puzzles start with only 22 to 27 digits out of 81 and get a rating of 91 to 100 out of 100. They combine several advanced patterns, and it is the way these chain together that makes them hard.",
+          p: "Crazy puzzles start with only 22 to 27 digits out of 81. They combine several advanced patterns, and it is the way these chain together that makes them hard.",
         },
         {
           h: "Techniques to know",

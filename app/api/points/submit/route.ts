@@ -29,12 +29,13 @@ export async function POST(req: Request) {
   const points = typeof b.points === "number" ? Math.round(b.points) : NaN
   const seconds = typeof b.seconds === "number" ? Math.round(b.seconds) : NaN
   const mistakes = typeof b.mistakes === "number" ? Math.round(b.mistakes) : 0
+  const daily = b.daily === true
 
   // Anti-abus minimal (le score est calculé dans le navigateur) : valeurs plausibles uniquement.
   if (!level) return NextResponse.json({ ok: false, reason: "invalid-level" }, { status: 400 })
   if (!Number.isFinite(seconds) || seconds < MIN_SECONDS[level] || seconds > 14400)
     return NextResponse.json({ ok: false, reason: "invalid-seconds" }, { status: 400 })
-  if (!Number.isFinite(points) || points < 1 || points > maxPossibleScore(level))
+  if (!Number.isFinite(points) || points < 1 || points > Math.ceil(maxPossibleScore(level) * (daily ? 1.25 : 1)))
     return NextResponse.json({ ok: false, reason: "invalid-points" }, { status: 400 })
   if (mistakes < 0 || mistakes > 300) return NextResponse.json({ ok: false, reason: "invalid-mistakes" }, { status: 400 })
 

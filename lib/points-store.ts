@@ -27,6 +27,22 @@ export function getLocalTotals(now: Date = new Date()): Record<Period, number> {
   return totals
 }
 
+const BEST_KEY = "sc_best_score_v1"
+
+/** Meilleur score obtenu sur une seule partie (depuis toujours, sur cet appareil). */
+export function getBestScore(): number {
+  return readJSON<number>(BEST_KEY) ?? 0
+}
+
+/** Enregistre le score s'il bat le meilleur. Renvoie `true` seulement si un record existait déjà et vient d'être battu. */
+export function maybeRecordBestScore(points: number): boolean {
+  const best = getBestScore()
+  if (points <= best) return false
+  writeJSON(BEST_KEY, points)
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("sc:score-updated"))
+  return best > 0
+}
+
 export function getLastRank(): number | null {
   return readJSON<number>(RANK_KEY)
 }

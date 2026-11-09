@@ -55,15 +55,9 @@ export function LevelView({ level, locale }: { level: Difficulty; locale: Locale
       <SudokuGame initialDifficulty={level} forceDifficulty={level} />
 
       <div className="mt-12 space-y-8 border-t border-border pt-8">
-        <dl className="grid max-w-xl grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-5">
-          <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{isFr ? "Chiffres de départ" : "Starting digits"}</dt>
-            <dd className="mt-1 text-lg font-semibold">{page.clues[0]} – {page.clues[1]} / 81</dd>
-          </div>
-          <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{isFr ? "Note de difficulté" : "Difficulty rating"}</dt>
-            <dd className="mt-1 text-lg font-semibold">{page.rating[0]} – {page.rating[1]} / 100</dd>
-          </div>
+        <dl className="max-w-xs rounded-2xl border border-border bg-card p-5">
+          <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{isFr ? "Chiffres de départ" : "Starting digits"}</dt>
+          <dd className="mt-1 text-lg font-semibold">{page.clues[0]} – {page.clues[1]} / 81</dd>
         </dl>
 
         {text.sections.map((s) => (

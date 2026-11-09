@@ -16,6 +16,7 @@ export async function submitPoints(args: {
   points: number
   seconds: number
   mistakes: number
+  daily?: boolean
 }): Promise<SubmitResult> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 10000)
@@ -33,6 +34,7 @@ export async function submitPoints(args: {
         points: args.points,
         seconds: args.seconds,
         mistakes: args.mistakes,
+        daily: args.daily === true,
       }),
     })
     return (await res.json()) as SubmitResult

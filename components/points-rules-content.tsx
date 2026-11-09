@@ -28,6 +28,8 @@ const TEXT = {
     time: "Plus tu termines vite par rapport au temps de référence de ton niveau, plus le bonus est grand : jusqu’à +50 % des points de base des cases. Il diminue régulièrement et tombe à 0 quand tu atteins le temps de référence.",
     flawlessTitle: "Partie sans faute",
     flawless: "Si tu termines la grille sans aucune erreur, tes points (cases, combos et bonus de temps) sont augmentés de 25 %. Avec au moins une erreur, ce bonus vaut 0.",
+    dailyTitle: "Le défi du jour",
+    daily: "Le défi du jour rapporte aussi des points, avec les mêmes règles, plus un bonus de 20 % sur le total. Comme il n’y a qu’une grille par jour, tu ne peux marquer des points qu’une seule fois par défi.",
     fairTitle: "Ce qui ne rapporte rien",
     fair: "Une case ne rapporte qu’une fois : l’effacer puis la retaper ne donne pas de points en plus. Un indice ne rapporte rien non plus, et ne casse pas ton combo.",
     boardTitle: "Le classement",
@@ -52,6 +54,8 @@ const TEXT = {
     time: "The faster you finish compared to your level’s reference time, the bigger the bonus: up to +50% of the cells’ base points. It decreases steadily and drops to 0 when you reach the reference time.",
     flawlessTitle: "Flawless game",
     flawless: "If you finish the puzzle with no mistake at all, your points (cells, combos and time bonus) are increased by 25%. With at least one mistake, this bonus is 0.",
+    dailyTitle: "The daily challenge",
+    daily: "The daily challenge also earns points, with the same rules plus a 20% bonus on the total. As there is only one puzzle a day, you can only score once per challenge.",
     fairTitle: "What earns nothing",
     fair: "A cell only earns points once: erasing it and typing it again gives nothing extra. A hint earns nothing either, and does not break your combo.",
     boardTitle: "The leaderboard",
@@ -113,6 +117,9 @@ export function PointsRulesContent() {
 
         <h2 className="mt-8 text-xl font-bold">{x.flawlessTitle}</h2>
         <p className="mt-2 leading-relaxed text-muted-foreground">{x.flawless}</p>
+
+        <h2 className="mt-8 text-xl font-bold">{x.dailyTitle}</h2>
+        <p className="mt-2 leading-relaxed text-muted-foreground">{x.daily}</p>
 
         <h2 className="mt-8 text-xl font-bold">{x.fairTitle}</h2>
         <p className="mt-2 leading-relaxed text-muted-foreground">{x.fair}</p>

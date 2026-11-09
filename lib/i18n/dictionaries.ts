@@ -62,7 +62,7 @@ const fr = {
 
     daily: {
       title: "Défi du jour",
-      subtitle: "Une seule grille, la même pour tout le monde. Qui sera le/la meilleur(e) aujourd'hui ?",
+      subtitle: "Une seule grille, la même pour tout le monde. Qui sera le/la meilleur(e) aujourd'hui ? Gagnez des points, avec un bonus de 20 % réservé au défi du jour.",
       alreadyPlayed: "Vous avez déjà joué le défi d'aujourd'hui.",
       submitHeading: "Bravo ! Inscrivez votre score au classement",
       pseudoLabel: "Pseudo",
@@ -269,7 +269,7 @@ const fr = {
         },
         {
           title: "Comment sont conçues nos grilles",
-          text: "Les grilles viennent d'une banque préparée à l'avance : chacune a une solution unique et se résout par la logique seule, sans jamais avoir à deviner. Un solveur logique l'analyse technique par technique (du candidat unique aux chaînes XY) et lui attribue une note de 1 à 100 ; c'est cette note qui détermine son niveau, de Facile à Fou. Les nombres de chiffres de départ et les techniques requises que vous voyez sur les pages de niveau sont mesurés sur ces grilles.",
+          text: "Les grilles viennent d'une banque préparée à l'avance : chacune a une solution unique et se résout par la logique seule, sans jamais avoir à deviner. Un solveur logique l'analyse technique par technique (du candidat unique aux chaînes XY) pour déterminer son niveau, de Facile à Fou. Les nombres de chiffres de départ et les techniques requises que vous voyez sur les pages de niveau sont mesurés sur ces grilles.",
         },
         {
           title: "Nous écrire",
@@ -396,7 +396,7 @@ const en: Dictionary = {
 
     daily: {
       title: "Daily challenge",
-      subtitle: "One single grid, the same for everyone. Who'll be the best today?",
+      subtitle: "One single grid, the same for everyone. Who'll be the best today? Earn points, with a 20% bonus reserved for the daily challenge.",
       alreadyPlayed: "You've already played today's challenge.",
       submitHeading: "Well done! Add your score to the leaderboard",
       pseudoLabel: "Nickname",
@@ -603,7 +603,7 @@ const en: Dictionary = {
         },
         {
           title: "How our puzzles are made",
-          text: "Puzzles come from a bank prepared in advance: each has a unique solution and can be solved by logic alone, with no guessing. A logic solver analyses it technique by technique (from the naked single to XY-chains) and gives it a rating from 1 to 100; that rating sets its level, from Easy to Crazy. The starting-digit counts and required techniques shown on the level pages are measured on these puzzles.",
+          text: "Puzzles come from a bank prepared in advance: each has a unique solution and can be solved by logic alone, with no guessing. A logic solver analyses it technique by technique (from the naked single to XY-chains) to determine its level, from Easy to Crazy. The starting-digit counts and required techniques shown on the level pages are measured on these puzzles.",
         },
         {
           title: "Get in touch",
