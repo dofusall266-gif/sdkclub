@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 const fmtNumber = (n: number, locale: "fr" | "en", max = 0) =>
   n.toLocaleString(locale === "fr" ? "fr-FR" : "en-US", { maximumFractionDigits: max })
 
-/** Score en cours (gros chiffre) ; le combo s'affiche dessous quand il est actif (3 bonnes réponses d'affilée), puis disparaît. */
+/** Score en cours, sur une seule ligne avec la flamme : « Score 207 » puis, quand il est actif, le combo à côté (sans décaler la flamme). */
 export function ScoreStat({
   points,
   comboStreak,
@@ -25,17 +25,18 @@ export function ScoreStat({
 }) {
   const comboActive = comboStreak >= 3
   return (
-    <div>
-      <p className="text-xs font-medium text-muted-foreground lg:text-sm">Score</p>
-      <p className="text-3xl leading-none font-bold tabular-nums lg:text-4xl">{fmtNumber(points, locale)}</p>
-      <p
+    <div className="flex min-w-0 items-center gap-2.5">
+      <span className="text-sm font-medium text-muted-foreground">Score</span>
+      <span className="text-2xl leading-none font-bold tabular-nums">{fmtNumber(points, locale)}</span>
+      <span
         className={cn(
-          "mt-1 h-4 text-xs font-bold whitespace-nowrap text-flash transition-all duration-300",
-          comboActive ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
+          "rounded-full bg-flash/15 px-2 py-0.5 text-xs font-bold whitespace-nowrap text-flash transition-all duration-300",
+          comboActive ? "scale-100 opacity-100" : "pointer-events-none scale-90 opacity-0",
         )}
+        aria-hidden={!comboActive}
       >
         🔥 Combo ×{fmtNumber(comboMultiplier(comboStreak, multipliers), locale, 2)}
-      </p>
+      </span>
     </div>
   )
 }
@@ -77,11 +78,11 @@ export function StreakStat({ locale }: { locale: "fr" | "en" }) {
           : `Current streak: ${streak} day${streak === 1 ? "" : "s"}`
       }
       className={cn(
-        "flex items-center gap-1 text-3xl leading-none font-bold tabular-nums lg:text-4xl",
+        "flex items-center gap-1 text-2xl leading-none font-bold tabular-nums",
         streak > 0 ? "text-orange-600 dark:text-orange-400" : "text-muted-foreground/60",
       )}
     >
-      <Flame className={cn("size-7 lg:size-8", streak > 0 && "fill-orange-500/25")} />
+      <Flame className={cn("size-6", streak > 0 && "fill-orange-500/25")} />
       {streak}
     </div>
   )

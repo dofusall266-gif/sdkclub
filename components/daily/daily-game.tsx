@@ -156,6 +156,62 @@ export function DailyGame() {
     return <div className={cn("mx-auto aspect-square w-full animate-pulse rounded-xl border-2 border-border bg-muted/40", boardMax)} />
   }
 
+  // Soumission du temps (pseudo) + classement du jour avec « Tu es n°X » : affichés dans le récapitulatif
+  // et, une fois celui-ci fermé, sur la page de résultat (plus besoin de revoir la grille terminée).
+  const dailyExtra = (
+    <div className="space-y-4">
+      {!submitted && !alreadySubmitted ? (
+        <DailySubmitForm
+          variant="inline"
+          seconds={state.seconds}
+          mistakes={state.mistakes}
+          dateKey={dateKey}
+          onSubmitted={(pseudo) => {
+            setSubmitted(pseudo)
+            markDailySubmitted(dateKey)
+            setLeaderboardKey((k) => k + 1)
+          }}
+        />
+      ) : (
+        <p className="rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary">
+          {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
+        </p>
+      )}
+      <DailyLeaderboard
+        playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
+        playerId={getPlayerProfile()?.id ?? null}
+        refreshKey={leaderboardKey}
+        showRank
+      />
+    </div>
+  )
+
+  // Défi terminé et récapitulatif fermé : on montre le classement, pas la grille.
+  if (isOver && fx.winPhase === "card" && winResult && !cardOpen) {
+    return (
+      <div className="mx-auto flex max-w-[36rem] flex-col gap-5">
+        <div className="rounded-2xl border border-border bg-card p-5 text-center">
+          <p className="text-sm font-medium text-muted-foreground">{t.game.wonTitle}</p>
+          <p className="mt-1 text-4xl font-extrabold text-primary tabular-nums">
+            {winResult.breakdown.total.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")}{" "}
+            <span className="text-base font-semibold">pts</span>
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {formatTime(state.seconds)} · {state.mistakes} {t.game.mistakeWord(state.mistakes)}
+          </p>
+          <button
+            type="button"
+            onClick={() => setCardOpen(true)}
+            className="mt-3 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+          >
+            {locale === "fr" ? "Voir le récapitulatif" : "Show summary"}
+          </button>
+        </div>
+        {dailyExtra}
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto grid max-w-[36rem] gap-8 lg:max-w-none lg:grid-cols-[min(36rem,calc(100dvh-11rem))_18rem] lg:justify-center lg:gap-x-6">
       <div className="flex flex-col gap-4">
@@ -189,16 +245,6 @@ export function DailyGame() {
             shakeCell={fx.shakeCell}
             gainFloat={fx.gainFloat}
           />
-
-          {isOver && fx.winPhase === "card" && winResult && !cardOpen && (
-            <button
-              type="button"
-              onClick={() => setCardOpen(true)}
-              className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
-            >
-              {locale === "fr" ? "Voir le récapitulatif" : "Show summary"}
-            </button>
-          )}
 
           <HalfwayAnimation id={fx.halfwayId} label={locale === "fr" ? "À mi-parcours" : "Halfway there"} />
 
@@ -280,33 +326,7 @@ export function DailyGame() {
           showDailyCta={false}
           onNewGame={() => {}}
           onClose={() => setCardOpen(false)}
-          extra={
-            <div className="space-y-4">
-              {!submitted && !alreadySubmitted ? (
-                <DailySubmitForm
-                  variant="inline"
-                  seconds={state.seconds}
-                  mistakes={state.mistakes}
-                  dateKey={dateKey}
-                  onSubmitted={(pseudo) => {
-                    setSubmitted(pseudo)
-                    markDailySubmitted(dateKey)
-                    setLeaderboardKey((k) => k + 1)
-                  }}
-                />
-              ) : (
-                <p className="rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary">
-                  {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
-                </p>
-              )}
-              <DailyLeaderboard
-                playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
-                playerId={getPlayerProfile()?.id ?? null}
-                refreshKey={leaderboardKey}
-                showRank
-              />
-            </div>
-          }
+          extra={dailyExtra}
         />
       )}
 

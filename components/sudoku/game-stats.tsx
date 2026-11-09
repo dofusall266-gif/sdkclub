@@ -23,8 +23,8 @@ export function GameStats(props: {
 }) {
   const { labels } = props
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-start justify-between gap-4">
+    <div className="flex flex-col gap-2.5">
+      <div className="flex h-9 items-center justify-between gap-4">
         <ScoreStat points={props.points} comboStreak={props.comboStreak} multipliers={props.multipliers} locale={props.locale} />
         <StreakStat locale={props.locale} />
       </div>
