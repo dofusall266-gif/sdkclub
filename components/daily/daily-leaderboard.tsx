@@ -104,12 +104,15 @@ export function DailyLeaderboard({
   playerPseudo,
   playerId,
   refreshKey,
+  showRank = false,
 }: {
   playerPseudo: string | null
   playerId: string | null
   refreshKey: number
+  /** Affiche en gros « Tu es n°X du jour » (écran de fin du défi). */
+  showRank?: boolean
 }) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [scores, setScores] = useState<ScoreRow[] | null>(null)
   const [me, setMe] = useState<MeRow | null>(null)
   const [noDb, setNoDb] = useState(false)
@@ -144,6 +147,12 @@ export function DailyLeaderboard({
       {!noDb && <p className="mt-0.5 text-xs text-muted-foreground">{t.daily.rankingRule(penalty)}</p>}
 
       {noDb && <p className="mt-3 text-sm text-muted-foreground">{t.daily.noDbNotice}</p>}
+
+      {showRank && me && (
+        <p className="mt-3 rounded-xl bg-primary/10 px-4 py-3 text-center text-lg font-bold text-primary">
+          {locale === "fr" ? `Tu es n°${me.rank} du classement du jour` : `You are #${me.rank} on today’s leaderboard`}
+        </p>
+      )}
 
       {!noDb && scores === null && (
         <div className="mt-4 space-y-2">

@@ -1,12 +1,12 @@
 "use client"
 
-import { Pause, Play } from "lucide-react"
+import { Pause } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { ComboToast } from "@/components/sudoku/combo-toast"
 import { ConfettiBurst } from "@/components/sudoku/confetti-burst"
 import { HalfwayAnimation } from "@/components/sudoku/halfway-animation"
-import { ScoreStat, StreakStat } from "@/components/sudoku/score-stat"
+import { GameStats } from "@/components/sudoku/game-stats"
 import { useGameEffects } from "@/components/sudoku/use-game-effects"
 import { WinCard } from "@/components/sudoku/win-card"
 import { GameToolbar } from "@/components/sudoku/game-toolbar"
@@ -45,6 +45,7 @@ export function DailyGame() {
   const [mounted, setMounted] = useState(false)
   const [notesMode, setNotesMode] = useState(false)
   const fx = useGameEffects(state, locale)
+  const [cardOpen, setCardOpen] = useState(true)
   const [winResult, setWinResult] = useState<{
     breakdown: ScoreBreakdown
     gameId: string
@@ -158,29 +159,18 @@ export function DailyGame() {
   return (
     <div className="mx-auto grid max-w-[36rem] gap-8 lg:max-w-none lg:grid-cols-[min(36rem,calc(100dvh-11rem))_18rem] lg:justify-center lg:gap-x-6">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-5 sm:gap-8">
-            <ScoreStat points={state.points ?? 0} comboStreak={state.comboStreak ?? 0} multipliers={state.multipliers} locale={locale} />
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">{t.game.errors}</p>
-              <p className="text-xl font-semibold tabular-nums">{state.mistakes}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">{t.game.time}</p>
-              <p className="text-xl font-semibold tabular-nums">{formatTime(state.seconds)}</p>
-            </div>
-            <StreakStat locale={locale} />
-          </div>
-          <button
-            type="button"
-            aria-label={state.running ? t.game.pause : t.game.resume}
-            onClick={actions.togglePause}
-            disabled={isOver}
-            className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20 disabled:pointer-events-none disabled:opacity-40"
-          >
-            {state.running ? <Pause className="size-4" /> : <Play className="size-4" />}
-          </button>
-        </div>
+        <GameStats
+          points={state.points ?? 0}
+          comboStreak={state.comboStreak ?? 0}
+          multipliers={state.multipliers}
+          mistakes={state.mistakes}
+          timeText={formatTime(state.seconds)}
+          running={state.running}
+          pauseDisabled={isOver}
+          onTogglePause={actions.togglePause}
+          labels={{ errors: t.game.errors, time: t.game.time, pause: t.game.pause, resume: t.game.resume }}
+          locale={locale}
+        />
 
         <div className={cn("relative mx-auto w-full", boardMax)}>
           <SudokuBoard
@@ -199,6 +189,16 @@ export function DailyGame() {
             shakeCell={fx.shakeCell}
             gainFloat={fx.gainFloat}
           />
+
+          {isOver && fx.winPhase === "card" && winResult && !cardOpen && (
+            <button
+              type="button"
+              onClick={() => setCardOpen(true)}
+              className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
+            >
+              {locale === "fr" ? "Voir le récapitulatif" : "Show summary"}
+            </button>
+          )}
 
           <HalfwayAnimation id={fx.halfwayId} label={locale === "fr" ? "À mi-parcours" : "Halfway there"} />
 
@@ -257,7 +257,7 @@ export function DailyGame() {
       {Array.from({ length: fx.bursts }, (_, i) => (
         <ConfettiBurst key={i} count={i === 0 ? 40 : 30} />
       ))}
-      {fx.winPhase === "card" && winResult && (
+      {fx.winPhase === "card" && winResult && cardOpen && (
         <WinCard
           mode="daily"
           difficultyLabel={t.daily.title}
@@ -279,6 +279,7 @@ export function DailyGame() {
           )}
           showDailyCta={false}
           onNewGame={() => {}}
+          onClose={() => setCardOpen(false)}
           extra={
             <div className="space-y-4">
               {!submitted && !alreadySubmitted ? (
@@ -302,6 +303,7 @@ export function DailyGame() {
                 playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}
                 playerId={getPlayerProfile()?.id ?? null}
                 refreshKey={leaderboardKey}
+                showRank
               />
             </div>
           }

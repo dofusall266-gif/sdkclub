@@ -1,10 +1,10 @@
 "use client"
 
-import { Pause, Play, Sparkles } from "lucide-react"
+import { Pause, Sparkles } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { ComboToast } from "@/components/sudoku/combo-toast"
-import { ScoreStat, StreakStat } from "@/components/sudoku/score-stat"
+import { GameStats } from "@/components/sudoku/game-stats"
 import { useGameEffects } from "@/components/sudoku/use-game-effects"
 import { ConfettiBurst } from "@/components/sudoku/confetti-burst"
 import { GameToolbar } from "@/components/sudoku/game-toolbar"
@@ -22,7 +22,7 @@ import { useLanguage } from "@/lib/i18n/context"
 import { getLocalTotals, maybeRecordBestScore, recordPoints } from "@/lib/points-store"
 import { type Period, type ScoreBreakdown, finalScore } from "@/lib/scoring"
 import { DIFFICULTIES, type Difficulty, colOf, groupIndices, rowOf } from "@/lib/sudoku"
-import { getBestTime, maybeRecordBest, recordWinForStreak } from "@/lib/streak"
+import { maybeRecordBest, recordWinForStreak } from "@/lib/streak"
 import { cn } from "@/lib/utils"
 
 function formatTime(total: number): string {
@@ -58,6 +58,7 @@ export function SudokuGame({
     difficulty: Difficulty
   } | null>(null)
   const fx = useGameEffects(state, locale)
+  const [cardOpen, setCardOpen] = useState(true)
   const isOver = state.status === "won"
   const difficultyLabel = t.game.difficulties[state.difficulty]
 
@@ -95,6 +96,7 @@ export function SudokuGame({
         mistakes: state.mistakes,
         difficulty: state.difficulty,
       })
+      setCardOpen(true)
       fx.beginWin()
     }
     if (state.status === "playing" && winHandledRef.current) {
@@ -215,41 +217,21 @@ export function SudokuGame({
     )
   }
 
-  const bestTime = mounted ? getBestTime(state.difficulty) : null
-
-  // Erreurs + temps + pause. Affiché au-dessus du plateau sur mobile/tablette,
-  // dans le panneau de droite sur ordinateur (comme sudoku.com).
+  // Score + série en haut, puis meilleur score, erreurs, temps et pause. Affiché au-dessus du plateau
+  // sur mobile/tablette, dans le panneau de droite sur ordinateur (comme sudoku.com).
   const stats = (
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-5 sm:gap-8 lg:gap-10">
-        <ScoreStat points={state.points ?? 0} comboStreak={state.comboStreak ?? 0} multipliers={state.multipliers} locale={locale} />
-        <div>
-          <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.errors}</p>
-          <p className="text-xl font-semibold tabular-nums lg:text-2xl">{state.mistakes}</p>
-        </div>
-        <div>
-          <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.time}</p>
-          <p className="text-xl font-semibold tabular-nums lg:text-2xl">{formatTime(state.seconds)}</p>
-        </div>
-        <StreakStat locale={locale} />
-        {bestTime !== null && (
-          <div className="hidden sm:block">
-            <p className="text-xs font-medium text-muted-foreground lg:text-sm">{t.game.bestTime}</p>
-            <p className="text-xl font-semibold tabular-nums text-primary lg:text-2xl">{formatTime(bestTime)}</p>
-          </div>
-        )}
-      </div>
-      <button
-        type="button"
-        aria-label={state.running ? t.game.pause : t.game.resume}
-        title={state.running ? t.game.pause : t.game.resume}
-        onClick={actions.togglePause}
-        disabled={isOver}
-        className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
-      >
-        {state.running ? <Pause className="size-4" /> : <Play className="size-4" />}
-      </button>
-    </div>
+    <GameStats
+      points={state.points ?? 0}
+      comboStreak={state.comboStreak ?? 0}
+      multipliers={state.multipliers}
+      mistakes={state.mistakes}
+      timeText={formatTime(state.seconds)}
+      running={state.running}
+      pauseDisabled={isOver}
+      onTogglePause={actions.togglePause}
+      labels={{ errors: t.game.errors, time: t.game.time, pause: t.game.pause, resume: t.game.resume }}
+      locale={locale}
+    />
   )
 
   return (
@@ -257,9 +239,8 @@ export function SudokuGame({
       {/* Choix de la difficulté (au-dessus du plateau) */}
       <nav
         aria-label={t.game.difficultyLabel}
-        className="flex flex-wrap items-center gap-x-0.5 gap-y-1 lg:col-start-1 lg:row-start-1"
+        className="flex flex-nowrap items-center justify-between gap-0.5 overflow-x-auto [scrollbar-width:none] lg:col-start-1 lg:row-start-1 [&::-webkit-scrollbar]:hidden"
       >
-        <span className="mr-1 hidden text-sm font-medium text-muted-foreground sm:inline">{t.game.difficultyLabel}</span>
         {DIFFICULTIES.map((d) => (
           <button
             key={d}
@@ -267,7 +248,7 @@ export function SudokuGame({
             onClick={() => handleNewGame(d)}
             aria-current={state.difficulty === d ? "true" : undefined}
             className={cn(
-              "cursor-pointer rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors sm:text-base",
+              "cursor-pointer rounded-lg px-2 py-1.5 text-sm font-medium whitespace-nowrap transition-colors sm:px-2.5 sm:text-[0.95rem]",
               "hover:bg-primary/10 hover:text-primary active:bg-primary/20",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               state.difficulty === d ? "font-semibold text-primary" : "text-foreground/70",
@@ -300,6 +281,16 @@ export function SudokuGame({
           shakeCell={fx.shakeCell}
           gainFloat={fx.gainFloat}
         />
+
+        {isOver && fx.winPhase === "card" && winResult && !cardOpen && (
+          <button
+            type="button"
+            onClick={() => setCardOpen(true)}
+            className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
+          >
+            {locale === "fr" ? "Voir le récapitulatif" : "Show summary"}
+          </button>
+        )}
 
         <HalfwayAnimation id={fx.halfwayId} label={locale === "fr" ? "À mi-parcours" : "Halfway there"} />
 
@@ -351,7 +342,7 @@ export function SudokuGame({
       {Array.from({ length: fx.bursts }, (_, i) => (
         <ConfettiBurst key={i} count={i === 0 ? 40 : 30} />
       ))}
-      {fx.winPhase === "card" && winResult && (
+      {fx.winPhase === "card" && winResult && cardOpen && (
         <WinCard
           difficultyLabel={t.game.difficulties[winResult.difficulty]}
           difficulty={winResult.difficulty}
@@ -371,6 +362,7 @@ export function SudokuGame({
           )}
           showDailyCta={!hasCompletedDailyToday()}
           onNewGame={() => handleNewGame(state.difficulty)}
+          onClose={() => setCardOpen(false)}
         />
       )}
 

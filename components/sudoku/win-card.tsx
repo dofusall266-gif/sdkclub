@@ -1,6 +1,6 @@
 "use client"
 
-import { Flame, Sparkles, Trophy } from "lucide-react"
+import { Flame, Sparkles, Trophy, X } from "lucide-react"
 import Link from "@/components/localized-link"
 import { type ReactNode, useEffect, useState } from "react"
 
@@ -25,6 +25,8 @@ const TEXT = {
     daily: "Bonus défi du jour",
     scoreRecord: "Meilleur score battu !",
     playFree: "Jouer une grille libre",
+    close: "Fermer",
+    detail: "Détail des points",
     periods: { day: "Aujourd’hui", week: "Cette semaine", month: "Ce mois", all: "Total" } as Record<Period, string>,
     rank: "Classement général",
     rankSending: "Calcul de ta place…",
@@ -52,6 +54,8 @@ const TEXT = {
     daily: "Daily challenge bonus",
     scoreRecord: "New best score!",
     playFree: "Play a free puzzle",
+    close: "Close",
+    detail: "Points breakdown",
     periods: { day: "Today", week: "This week", month: "This month", all: "Total" } as Record<Period, string>,
     rank: "Overall ranking",
     rankSending: "Finding your place…",
@@ -92,6 +96,8 @@ interface Props {
   shareText: string
   showDailyCta: boolean
   onNewGame: () => void
+  /** Ferme le récapitulatif (croix, touche Échap ou clic à côté). */
+  onClose: () => void
 }
 
 function fmtTime(total: number): string {
@@ -171,9 +177,80 @@ export function WinCard(props: Props) {
 
   const reveal = (n: number) => ({ animationDelay: `${500 + n * 170}ms` })
 
+  // Échap ferme le récapitulatif.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") props.onClose()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [props])
+
+  const daily = props.mode === "daily"
+  const breakdownRows = (
+    <div className="text-sm">
+      {[
+        [x.resolution, breakdown.resolution],
+        [x.combo, breakdown.combo],
+        [x.timeBonus, breakdown.time],
+        [x.flawless, breakdown.flawless],
+        ...(breakdown.daily > 0 ? [[x.daily, breakdown.daily]] : []),
+      ].map(([label, value]) => (
+        <div key={label as string} className="flex justify-between border-b border-border py-1.5">
+          <span>{label}</span>
+          <b className="tabular-nums">+{fmt(value as number)}</b>
+        </div>
+      ))}
+    </div>
+  )
+  const periodRows = (
+    <div className="text-sm">
+      {PERIODS.map((p) => (
+        <div key={p} className="flex items-center justify-between border-b border-border py-1.5">
+          <span>{x.periods[p]}</span>
+          <span className="flex items-center gap-2">
+            <span className="rounded-full bg-flash/15 px-2 py-0.5 text-xs font-bold text-flash">+{fmt(breakdown.total)}</span>
+            <b className="tabular-nums">{fmt(totals[p])}</b>
+          </span>
+        </div>
+      ))}
+      <div className="flex items-center justify-between py-2 font-semibold">
+        <span>{x.rank}</span>
+        <span className="tabular-nums">
+          {state === "ok" && rank ? (
+            <>
+              #{rank.value}
+              {rank.up > 0 && <span className="ml-1.5 text-flash">▲{rank.up}</span>}
+            </>
+          ) : state === "sending" ? (
+            <span className="text-xs font-normal text-muted-foreground">{x.rankSending}</span>
+          ) : state === "error" ? (
+            <span className="text-xs font-normal text-muted-foreground">{x.rankError}</span>
+          ) : state === "no-db" ? (
+            <span className="text-xs font-normal text-muted-foreground">{x.noDb}</span>
+          ) : null}
+        </span>
+      </div>
+    </div>
+  )
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4">
-      <div className="animate-card-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-card p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4" onClick={props.onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+        className="animate-card-pop relative max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-card p-6 shadow-2xl"
+      >
+        <button
+          type="button"
+          onClick={props.onClose}
+          aria-label={x.close}
+          title={x.close}
+          className="absolute top-3 right-3 z-10 grid size-9 place-items-center rounded-full bg-secondary text-foreground/80 transition-colors hover:bg-secondary/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="size-4" />
+        </button>
         <div className="animate-row-reveal grid grid-cols-2 gap-3 text-center" style={reveal(0)}>
           <div>
             <p className="text-xs font-medium text-muted-foreground">{x.level}</p>
@@ -207,49 +284,32 @@ export function WinCard(props: Props) {
           </div>
         </div>
 
-        <div className="animate-row-reveal mt-4 text-sm" style={reveal(2)}>
-          {[
-            [x.resolution, breakdown.resolution],
-            [x.combo, breakdown.combo],
-            [x.timeBonus, breakdown.time],
-            [x.flawless, breakdown.flawless],
-            ...(breakdown.daily > 0 ? [[x.daily, breakdown.daily]] : []),
-          ].map(([label, value]) => (
-            <div key={label as string} className="flex justify-between border-b border-border py-1.5">
-              <span>{label}</span>
-              <b className="tabular-nums">+{fmt(value as number)}</b>
+        {daily ? (
+          <>
+            {/* Défi du jour : ce qu'on veut voir en premier, c'est sa place par rapport aux autres. */}
+            {props.extra && (
+              <div className="animate-row-reveal mt-4" style={reveal(2)}>
+                {props.extra}
+              </div>
+            )}
+            <details className="animate-row-reveal mt-4 rounded-xl border border-border" style={reveal(3)}>
+              <summary className="cursor-pointer px-3 py-2 text-sm font-semibold">{x.detail}</summary>
+              <div className="px-3 pb-2">
+                {breakdownRows}
+                {periodRows}
+              </div>
+            </details>
+          </>
+        ) : (
+          <>
+            <div className="animate-row-reveal mt-4" style={reveal(2)}>
+              {breakdownRows}
             </div>
-          ))}
-        </div>
-
-        <div className="animate-row-reveal mt-4 text-sm" style={reveal(3)}>
-          {PERIODS.map((p) => (
-            <div key={p} className="flex items-center justify-between border-b border-border py-1.5">
-              <span>{x.periods[p]}</span>
-              <span className="flex items-center gap-2">
-                <span className="rounded-full bg-flash/15 px-2 py-0.5 text-xs font-bold text-flash">+{fmt(breakdown.total)}</span>
-                <b className="tabular-nums">{fmt(totals[p])}</b>
-              </span>
+            <div className="animate-row-reveal mt-4" style={reveal(3)}>
+              {periodRows}
             </div>
-          ))}
-          <div className="flex items-center justify-between py-2 font-semibold">
-            <span>{x.rank}</span>
-            <span className="tabular-nums">
-              {state === "ok" && rank ? (
-                <>
-                  #{rank.value}
-                  {rank.up > 0 && <span className="ml-1.5 text-flash">▲{rank.up}</span>}
-                </>
-              ) : state === "sending" ? (
-                <span className="text-xs font-normal text-muted-foreground">{x.rankSending}</span>
-              ) : state === "error" ? (
-                <span className="text-xs font-normal text-muted-foreground">{x.rankError}</span>
-              ) : state === "no-db" ? (
-                <span className="text-xs font-normal text-muted-foreground">{x.noDb}</span>
-              ) : null}
-            </span>
-          </div>
-        </div>
+          </>
+        )}
 
         {props.mode !== "daily" && !profile && state === "idle" && (
           <div className="animate-row-reveal" style={reveal(4)}>
@@ -263,7 +323,7 @@ export function WinCard(props: Props) {
           </div>
         )}
 
-        {props.extra && (
+        {!daily && props.extra && (
           <div className="animate-row-reveal mt-4" style={reveal(4)}>
             {props.extra}
           </div>
