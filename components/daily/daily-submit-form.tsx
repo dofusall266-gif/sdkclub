@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { sortedCountries, countryFlag } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { getPlayerProfile, savePlayerProfile } from "@/lib/player"
+import { ensurePlayerProfile, getPlayerProfile, isLeaderboardOptOut, savePlayerProfile, type PlayerProfile } from "@/lib/player"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -28,16 +28,8 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
   >("idle")
   const countries = sortedCountries(locale)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const trimmed = pseudo.trim()
-    if (trimmed.length < 1 || trimmed.length > 20) {
-      setStatus("invalid")
-      return
-    }
-    setStatus("sending")
-    const profile = savePlayerProfile(trimmed, countryCode)
-
+  /** Envoie le temps au serveur. Renvoie le statut correspondant ("done" si tout va bien). */
+  const sendScore = async (profile: PlayerProfile): Promise<typeof status> => {
     // Filet de sécurité : si le serveur (ou la base Neon, qui peut mettre un
     // instant à "se réveiller" sur le plan gratuit) met trop de temps à
     // répondre, on arrête d'attendre plutôt que de laisser le bouton bloqué
@@ -53,30 +45,66 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
         body: JSON.stringify({
           date: dateKey,
           playerId: profile.id,
-          pseudo: trimmed,
-          countryCode,
+          pseudo: profile.pseudo,
+          countryCode: profile.countryCode,
           seconds,
           mistakes,
         }),
       })
       const data = await res.json()
-      if (data.ok) {
-        setStatus("done")
-        onSubmitted(trimmed)
-      } else if (data.reason === "invalid-pseudo") {
-        setStatus("invalid")
-      } else if (data.reason === "no-database") {
-        setStatus("no-db")
-      } else if (data.reason === "invalid-seconds" || data.reason === "invalid-mistakes") {
-        setStatus("invalid-score")
-      } else {
-        setStatus("error")
-      }
+      if (data.ok) return "done"
+      if (data.reason === "invalid-pseudo") return "invalid"
+      if (data.reason === "no-database") return "no-db"
+      if (data.reason === "invalid-seconds" || data.reason === "invalid-mistakes") return "invalid-score"
+      return "error"
     } catch (err) {
-      setStatus(err instanceof DOMException && err.name === "AbortError" ? "timeout" : "error")
+      return err instanceof DOMException && err.name === "AbortError" ? "timeout" : "error"
     } finally {
       clearTimeout(timeoutId)
     }
+  }
+
+  /** Envoi avec une seconde tentative automatique en cas de problème réseau / base qui se réveille. */
+  const sendWithRetry = async (profile: PlayerProfile) => {
+    setStatus("sending")
+    let result = await sendScore(profile)
+    if (result === "error" || result === "timeout") {
+      await new Promise((r) => setTimeout(r, 2500))
+      result = await sendScore(profile)
+    }
+    setStatus(result)
+    if (result === "done") onSubmitted(profile.pseudo)
+  }
+
+  // Envoi automatique à la fin du défi : avec le profil existant, ou un profil créé à la volée
+  // (pseudo généré + pays supposé, modifiables ensuite). Un joueur qui s'est retiré du classement
+  // garde le formulaire manuel : rien n'est envoyé sans son clic.
+  const autoStartedRef = useRef(false)
+  useEffect(() => {
+    if (autoStartedRef.current) return
+    autoStartedRef.current = true
+    if (isLeaderboardOptOut()) return
+    const profile = ensurePlayerProfile(locale)
+    if (!profile) return
+    setPseudo(profile.pseudo)
+    setCountryCode(profile.countryCode)
+    void sendWithRetry(profile)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Formulaire manuel (retrait précédent du classement, ou échec de l'envoi automatique) : bouton « Valider mon score ».
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = pseudo.trim()
+    if (trimmed.length < 1 || trimmed.length > 20) {
+      setStatus("invalid")
+      return
+    }
+    await sendWithRetry(savePlayerProfile(trimmed, countryCode))
+  }
+
+  if (status === "sending") {
+    return <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">{t.daily.submitting}</p>
   }
 
   if (status === "done") {
@@ -135,9 +163,7 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
       {status === "timeout" && <p className="text-sm text-destructive">{t.daily.submitTimeout}</p>}
       {status === "invalid-score" && <p className="text-sm text-destructive">{t.daily.submitInvalidScore}</p>}
 
-      <Button type="submit" disabled={status === "sending"}>
-        {status === "sending" ? t.daily.submitting : t.daily.submit}
-      </Button>
+      <Button type="submit">{t.daily.submit}</Button>
     </form>
   )
 }

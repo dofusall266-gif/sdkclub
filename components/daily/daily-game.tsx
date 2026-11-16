@@ -20,6 +20,7 @@ import { DailyLeaderboard } from "@/components/daily/daily-leaderboard"
 import { DailySubmitForm } from "@/components/daily/daily-submit-form"
 import { hasSubmittedDaily, markDailySubmitted } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
+import { ProfileNotice, PROFILE_LEFT_TEXT } from "@/components/profile-notice"
 import { getPlayerProfile } from "@/lib/player"
 import { getLocalTotals, maybeRecordBestScore, recordPoints } from "@/lib/points-store"
 import { type Period, type ScoreBreakdown, finalScore } from "@/lib/scoring"
@@ -55,6 +56,7 @@ export function DailyGame() {
   const [submitted, setSubmitted] = useState<string | null>(null)
   const [alreadySubmitted, setAlreadySubmitted] = useState(false)
   const [leaderboardKey, setLeaderboardKey] = useState(0)
+  const [profileLeft, setProfileLeft] = useState(false)
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [printIncludeSolution, setPrintIncludeSolution] = useState<boolean | null>(null)
   const isOver = state.status === "won"
@@ -173,9 +175,28 @@ export function DailyGame() {
           }}
         />
       ) : (
-        <p className="rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary">
-          {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
-        </p>
+        <div className="space-y-2">
+          <p className="rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary">
+            {submitted ? t.daily.submitted : t.daily.alreadyPlayed}
+          </p>
+          {profileLeft ? (
+            <p className="text-xs text-muted-foreground">{PROFILE_LEFT_TEXT[locale]}</p>
+          ) : (
+            (() => {
+              const current = getPlayerProfile()
+              return current ? (
+                <ProfileNotice
+                  profile={current}
+                  onChange={() => setLeaderboardKey((k) => k + 1)}
+                  onLeave={() => {
+                    setProfileLeft(true)
+                    setLeaderboardKey((k) => k + 1)
+                  }}
+                />
+              ) : null
+            })()
+          )}
+        </div>
       )}
       <DailyLeaderboard
         playerPseudo={submitted ?? getPlayerProfile()?.pseudo ?? null}

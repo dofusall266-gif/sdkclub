@@ -2,13 +2,14 @@
 
 import { Flame, Sparkles, Trophy, X } from "lucide-react"
 import Link from "@/components/localized-link"
-import { type ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
 
 import { ShareResult } from "@/components/share-result"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { countryFlag, sortedCountries } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { getPlayerProfile, savePlayerProfile, type PlayerProfile } from "@/lib/player"
+import { ProfileNotice, PROFILE_LEFT_TEXT } from "@/components/profile-notice"
+import { ensurePlayerProfile, getPlayerProfile, isLeaderboardOptOut, savePlayerProfile, type PlayerProfile } from "@/lib/player"
 import { getLastRank, setLastRank } from "@/lib/points-store"
 import { submitPoints } from "@/lib/points-client"
 import { PERIODS, type Period, type ScoreBreakdown } from "@/lib/scoring"
@@ -116,6 +117,8 @@ export function WinCard(props: Props) {
   const [totals, setTotals] = useState(props.localTotals)
   const [counter, setCounter] = useState(0)
   const [badPseudo, setBadPseudo] = useState(false)
+  const [left, setLeft] = useState(false)
+  const sentRef = useRef(false)
 
   // Compteur de points qui monte (2 s).
   useEffect(() => {
@@ -131,6 +134,8 @@ export function WinCard(props: Props) {
   }, [breakdown.total])
 
   const send = async (p: PlayerProfile) => {
+    if (sentRef.current) return
+    sentRef.current = true
     setState("sending")
     const res = await submitPoints({
       profile: p,
@@ -152,13 +157,16 @@ export function WinCard(props: Props) {
       // Pseudo refusé par le filtre : on redemande un autre pseudo.
       setBadPseudo(true)
       setProfile(null)
+      sentRef.current = false
       setState("idle")
     } else setState("error")
   }
 
-  // Si le joueur a déjà un pseudo (défi du jour ou partie précédente), envoi automatique.
+  // Envoi automatique des points : avec le profil existant, ou — pour une partie libre — un profil créé
+  // à la volée (pseudo généré + pays supposé, modifiables juste en dessous). Un joueur qui s'est retiré
+  // du classement n'est jamais réinscrit sans qu'il le demande.
   useEffect(() => {
-    const existing = getPlayerProfile()
+    const existing = props.mode === "daily" ? getPlayerProfile() : ensurePlayerProfile(locale)
     setProfile(existing)
     if (existing && breakdown.total >= 1) void send(existing)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -311,7 +319,26 @@ export function WinCard(props: Props) {
           </>
         )}
 
-        {props.mode !== "daily" && !profile && state === "idle" && (
+        {props.mode !== "daily" && profile && !left && (
+          <div className="animate-row-reveal mt-3" style={reveal(4)}>
+            <ProfileNotice
+              profile={profile}
+              onChange={setProfile}
+              onLeave={() => {
+                setProfile(null)
+                setLeft(true)
+              }}
+            />
+          </div>
+        )}
+
+        {props.mode !== "daily" && left && (
+          <p className="animate-row-reveal mt-3 text-xs text-muted-foreground" style={reveal(4)}>
+            {PROFILE_LEFT_TEXT[locale]}
+          </p>
+        )}
+
+        {props.mode !== "daily" && !profile && !left && state === "idle" && (isLeaderboardOptOut() || badPseudo) && (
           <div className="animate-row-reveal" style={reveal(4)}>
             <JoinForm
               initialError={badPseudo}

@@ -7,7 +7,8 @@ import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"
 import { countryFlag } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { getPlayerProfile } from "@/lib/player"
+import { ProfileNotice, PROFILE_LEFT_TEXT } from "@/components/profile-notice"
+import { getPlayerProfile, type PlayerProfile } from "@/lib/player"
 import { PERIODS, type Period } from "@/lib/scoring"
 import { cn } from "@/lib/utils"
 
@@ -24,7 +25,7 @@ const MEDALS = ["🥇", "🥈", "🥉"]
 const TEXT = {
   fr: {
     h1: "Classement général",
-    lead: "Les meilleurs joueurs de Sudoku-Club, tous niveaux confondus. Ouvert à tous : un simple pseudo à la fin d’une partie suffit pour apparaître ici.",
+    lead: "Les meilleurs joueurs de Sudoku-Club, tous niveaux confondus. Ouvert à tous, sans compte : tu apparais ici automatiquement dès ta première partie terminée, sous un pseudo que tu peux changer à tout moment.",
     periods: { day: "Aujourd’hui", week: "Cette semaine", month: "Ce mois", all: "Total" } as Record<Period, string>,
     loading: "Chargement…",
     empty: "Personne pour l’instant sur cette période. Sois le premier !",
@@ -37,7 +38,7 @@ const TEXT = {
   },
   en: {
     h1: "Overall leaderboard",
-    lead: "The best Sudoku-Club players, all levels combined. Open to everyone: just a nickname at the end of a game to appear here.",
+    lead: "The best Sudoku-Club players, all levels combined. Open to everyone, no account needed: you appear here automatically after your first finished game, under a nickname you can change at any time.",
     periods: { day: "Today", week: "This week", month: "This month", all: "Total" } as Record<Period, string>,
     loading: "Loading…",
     empty: "Nobody yet for this period. Be the first!",
@@ -58,14 +59,18 @@ export function LeaderboardContent() {
   const [rows, setRows] = useState<Row[]>([])
   const [me, setMe] = useState<Row | null>(null)
   const [myPseudo, setMyPseudo] = useState<string | null>(null)
+  const [profile, setProfile] = useState<PlayerProfile | null>(null)
+  const [left, setLeft] = useState(false)
+  const [reload, setReload] = useState(0)
 
   useEffect(() => {
     let cancelled = false
-    const profile = getPlayerProfile()
-    setMyPseudo(profile?.pseudo ?? null)
+    const current = getPlayerProfile()
+    setProfile(current)
+    setMyPseudo(current?.pseudo ?? null)
     setState("loading")
     const query = new URLSearchParams({ period })
-    if (profile) query.set("playerId", profile.id)
+    if (current) query.set("playerId", current.id)
     fetch(`/api/points/leaderboard?${query}`)
       .then((r) => r.json())
       .then((data) => {
@@ -80,7 +85,7 @@ export function LeaderboardContent() {
     return () => {
       cancelled = true
     }
-  }, [period])
+  }, [period, reload])
 
   const fmt = (n: number) => n.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")
   const inTop = me ? rows.some((r) => r.pseudo === me.pseudo && r.total === me.total) : false
@@ -90,6 +95,19 @@ export function LeaderboardContent() {
       <div className="mx-auto max-w-[42rem]">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{x.h1}</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">{x.lead}</p>
+
+        {profile && (
+          <ProfileNotice
+            className="mt-4"
+            profile={profile}
+            onChange={() => setReload((n) => n + 1)}
+            onLeave={() => {
+              setLeft(true)
+              setReload((n) => n + 1)
+            }}
+          />
+        )}
+        {left && !profile && <p className="mt-4 text-xs text-muted-foreground">{PROFILE_LEFT_TEXT[locale]}</p>}
 
         <div className="mt-6 flex flex-wrap gap-2" role="tablist">
           {PERIODS.map((p) => (
