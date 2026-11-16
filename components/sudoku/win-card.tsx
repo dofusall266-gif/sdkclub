@@ -8,8 +8,8 @@ import { ShareResult } from "@/components/share-result"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { countryFlag, sortedCountries } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { ProfileNotice, PROFILE_LEFT_TEXT } from "@/components/profile-notice"
-import { ensurePlayerProfile, getPlayerProfile, isLeaderboardOptOut, savePlayerProfile, type PlayerProfile } from "@/lib/player"
+import { ProfileNotice } from "@/components/profile-notice"
+import { ensurePlayerProfile, getPlayerProfile, savePlayerProfile, type PlayerProfile } from "@/lib/player"
 import { getLastRank, setLastRank } from "@/lib/points-store"
 import { submitPoints } from "@/lib/points-client"
 import { PERIODS, type Period, type ScoreBreakdown } from "@/lib/scoring"
@@ -117,7 +117,6 @@ export function WinCard(props: Props) {
   const [totals, setTotals] = useState(props.localTotals)
   const [counter, setCounter] = useState(0)
   const [badPseudo, setBadPseudo] = useState(false)
-  const [left, setLeft] = useState(false)
   const sentRef = useRef(false)
 
   // Compteur de points qui monte (2 s).
@@ -163,8 +162,7 @@ export function WinCard(props: Props) {
   }
 
   // Envoi automatique des points : avec le profil existant, ou — pour une partie libre — un profil créé
-  // à la volée (pseudo généré + pays supposé, modifiables juste en dessous). Un joueur qui s'est retiré
-  // du classement n'est jamais réinscrit sans qu'il le demande.
+  // à la volée (pseudo généré + pays supposé, modifiables juste en dessous).
   useEffect(() => {
     const existing = props.mode === "daily" ? getPlayerProfile() : ensurePlayerProfile(locale)
     setProfile(existing)
@@ -319,26 +317,13 @@ export function WinCard(props: Props) {
           </>
         )}
 
-        {props.mode !== "daily" && profile && !left && (
+        {props.mode !== "daily" && profile && (
           <div className="animate-row-reveal mt-3" style={reveal(4)}>
-            <ProfileNotice
-              profile={profile}
-              onChange={setProfile}
-              onLeave={() => {
-                setProfile(null)
-                setLeft(true)
-              }}
-            />
+            <ProfileNotice profile={profile} onChange={setProfile} />
           </div>
         )}
 
-        {props.mode !== "daily" && left && (
-          <p className="animate-row-reveal mt-3 text-xs text-muted-foreground" style={reveal(4)}>
-            {PROFILE_LEFT_TEXT[locale]}
-          </p>
-        )}
-
-        {props.mode !== "daily" && !profile && !left && state === "idle" && (isLeaderboardOptOut() || badPseudo) && (
+        {props.mode !== "daily" && !profile && state === "idle" && badPseudo && (
           <div className="animate-row-reveal" style={reveal(4)}>
             <JoinForm
               initialError={badPseudo}

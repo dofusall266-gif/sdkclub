@@ -27,8 +27,3 @@ async function post(body: Record<string, unknown>): Promise<ProfileResult> {
 export function syncProfile(profile: PlayerProfile): Promise<ProfileResult> {
   return post({ action: "update", playerId: profile.id, pseudo: profile.pseudo, countryCode: profile.countryCode })
 }
-
-/** Supprime tous les scores de ce joueur du classement (droit de retrait). */
-export function leaveLeaderboard(profile: PlayerProfile): Promise<ProfileResult> {
-  return post({ action: "leave", playerId: profile.id })
-}

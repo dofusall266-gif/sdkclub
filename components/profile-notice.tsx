@@ -5,18 +5,14 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { countryFlag, sortedCountries } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { clearPlayerProfile, savePlayerProfile, setLeaderboardOptOut, type PlayerProfile } from "@/lib/player"
-import { leaveLeaderboard, syncProfile } from "@/lib/profile-client"
+import { savePlayerProfile, type PlayerProfile } from "@/lib/player"
+import { syncProfile } from "@/lib/profile-client"
 
 const TEXT = {
   fr: {
     as: "Tu apparais au classement sous le nom",
     publicNote: "Ton pseudo et ton pays sont visibles de tous.",
     edit: "Modifier",
-    leave: "Ne plus apparaître",
-    leaving: "Retrait…",
-    left: "Tes scores ont été retirés du classement.",
-    leaveError: "Retrait impossible pour le moment, réessaie plus tard.",
     pseudo: "Pseudo",
     country: "Pays",
     save: "Enregistrer",
@@ -29,10 +25,6 @@ const TEXT = {
     as: "You appear on the leaderboard as",
     publicNote: "Your nickname and country are visible to everyone.",
     edit: "Edit",
-    leave: "Stop appearing",
-    leaving: "Removing…",
-    left: "Your scores have been removed from the leaderboard.",
-    leaveError: "Couldn’t remove them right now, please try again later.",
     pseudo: "Nickname",
     country: "Country",
     save: "Save",
@@ -47,19 +39,17 @@ interface Props {
   profile: PlayerProfile
   /** Appelé après une modification réussie (pseudo / pays). */
   onChange: (profile: PlayerProfile) => void
-  /** Appelé après le retrait du classement. */
-  onLeave: () => void
   className?: string
 }
 
-/** Ligne discrète « Tu apparais au classement sous le nom X » avec Modifier / Ne plus apparaître. */
-export function ProfileNotice({ profile, onChange, onLeave, className }: Props) {
+/** Ligne discrète « Tu apparais au classement sous le nom X » avec un bouton Modifier. */
+export function ProfileNotice({ profile, onChange, className }: Props) {
   const { locale } = useLanguage()
   const x = TEXT[locale]
   const [editing, setEditing] = useState(false)
   const [pseudo, setPseudo] = useState(profile.pseudo)
   const [country, setCountry] = useState(profile.countryCode)
-  const [busy, setBusy] = useState<"idle" | "saving" | "leaving">("idle")
+  const [busy, setBusy] = useState<"idle" | "saving">("idle")
   const [error, setError] = useState<string | null>(null)
   const countries = sortedCountries(locale)
 
@@ -81,17 +71,6 @@ export function ProfileNotice({ profile, onChange, onLeave, className }: Props) 
     if (!res.ok && res.reason !== "no-database" && res.reason !== "network") return setError(x.saveError)
     setEditing(false)
     onChange(next)
-  }
-
-  const leave = async () => {
-    setBusy("leaving")
-    setError(null)
-    const res = await leaveLeaderboard(profile)
-    setBusy("idle")
-    if (!res.ok && res.reason !== "no-database") return setError(x.leaveError)
-    setLeaderboardOptOut(true)
-    clearPlayerProfile()
-    onLeave()
   }
 
   if (editing) {
@@ -140,22 +119,12 @@ export function ProfileNotice({ profile, onChange, onLeave, className }: Props) 
         </b>
         . {x.publicNote}
       </p>
-      <p className="mt-1 flex flex-wrap gap-x-3">
+      <p className="mt-1">
         <button type="button" onClick={() => setEditing(true)} className="underline underline-offset-4 hover:text-foreground">
           {x.edit}
-        </button>
-        <button
-          type="button"
-          onClick={leave}
-          disabled={busy !== "idle"}
-          className="underline underline-offset-4 hover:text-foreground disabled:opacity-50"
-        >
-          {busy === "leaving" ? x.leaving : x.leave}
         </button>
       </p>
       {error && <p className="mt-1 text-destructive">{error}</p>}
     </div>
   )
 }
-
-export const PROFILE_LEFT_TEXT = { fr: TEXT.fr.left, en: TEXT.en.left } as const

@@ -1,9 +1,8 @@
 import { COUNTRIES } from "@/lib/countries"
 import { isValidCountryCode, sanitizePseudo } from "@/lib/moderation"
-import { readJSON, remove, writeJSON } from "@/lib/storage"
+import { readJSON, writeJSON } from "@/lib/storage"
 
 const PLAYER_KEY = "sc_player_v1"
-const OPTOUT_KEY = "sc_lb_optout_v1"
 
 export interface PlayerProfile {
   id: string
@@ -23,29 +22,12 @@ export function getPlayerProfile(): PlayerProfile | null {
   return readJSON<PlayerProfile>(PLAYER_KEY)
 }
 
-/** Enregistre / met à jour le profil choisi par le joueur. Un id stable est généré une seule fois.
- *  Enregistrer un profil lève aussi un éventuel retrait du classement. */
+/** Enregistre / met à jour le profil choisi par le joueur. Un id stable est généré une seule fois. */
 export function savePlayerProfile(pseudo: string, countryCode: string): PlayerProfile {
   const existing = getPlayerProfile()
   const profile: PlayerProfile = { id: existing?.id ?? randomId(), pseudo, countryCode, auto: false }
   writeJSON(PLAYER_KEY, profile)
-  remove(OPTOUT_KEY)
   return profile
-}
-
-/** Le joueur a demandé à ne plus apparaître au classement : plus aucun envoi automatique. */
-export function isLeaderboardOptOut(): boolean {
-  return readJSON<boolean>(OPTOUT_KEY) === true
-}
-
-export function setLeaderboardOptOut(value: boolean): void {
-  if (value) writeJSON(OPTOUT_KEY, true)
-  else remove(OPTOUT_KEY)
-}
-
-/** Oublie le profil local (après un retrait du classement). Les points locaux sont conservés. */
-export function clearPlayerProfile(): void {
-  remove(PLAYER_KEY)
 }
 
 const NAMES = {
@@ -87,11 +69,10 @@ export function guessCountry(locale: "fr" | "en"): string {
   return locale === "fr" ? "FR" : "US"
 }
 
-/** Renvoie le profil existant, ou en crée un automatiquement (pseudo généré + pays supposé). Renvoie `null` si le joueur s'est retiré du classement. */
-export function ensurePlayerProfile(locale: "fr" | "en"): PlayerProfile | null {
+/** Renvoie le profil existant, ou en crée un automatiquement (pseudo généré + pays supposé). */
+export function ensurePlayerProfile(locale: "fr" | "en"): PlayerProfile {
   const existing = getPlayerProfile()
   if (existing) return existing
-  if (isLeaderboardOptOut()) return null
   const profile: PlayerProfile = {
     id: randomId(),
     pseudo: generatePseudo(locale),

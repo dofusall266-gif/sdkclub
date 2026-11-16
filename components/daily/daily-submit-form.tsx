@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { sortedCountries, countryFlag } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { ensurePlayerProfile, getPlayerProfile, isLeaderboardOptOut, savePlayerProfile, type PlayerProfile } from "@/lib/player"
+import { ensurePlayerProfile, getPlayerProfile, savePlayerProfile, type PlayerProfile } from "@/lib/player"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -77,22 +77,19 @@ export function DailySubmitForm({ seconds, mistakes, dateKey, onSubmitted, varia
   }
 
   // Envoi automatique à la fin du défi : avec le profil existant, ou un profil créé à la volée
-  // (pseudo généré + pays supposé, modifiables ensuite). Un joueur qui s'est retiré du classement
-  // garde le formulaire manuel : rien n'est envoyé sans son clic.
+  // (pseudo généré + pays supposé, modifiables ensuite).
   const autoStartedRef = useRef(false)
   useEffect(() => {
     if (autoStartedRef.current) return
     autoStartedRef.current = true
-    if (isLeaderboardOptOut()) return
     const profile = ensurePlayerProfile(locale)
-    if (!profile) return
     setPseudo(profile.pseudo)
     setCountryCode(profile.countryCode)
     void sendWithRetry(profile)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Formulaire manuel (retrait précédent du classement, ou échec de l'envoi automatique) : bouton « Valider mon score ».
+  // Formulaire manuel, affiché seulement si l'envoi automatique a échoué : bouton « Valider mon score » pour réessayer.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const trimmed = pseudo.trim()

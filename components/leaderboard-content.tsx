@@ -7,7 +7,7 @@ import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"
 import { countryFlag } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { ProfileNotice, PROFILE_LEFT_TEXT } from "@/components/profile-notice"
+import { ProfileNotice } from "@/components/profile-notice"
 import { getPlayerProfile, type PlayerProfile } from "@/lib/player"
 import { PERIODS, type Period } from "@/lib/scoring"
 import { cn } from "@/lib/utils"
@@ -60,7 +60,6 @@ export function LeaderboardContent() {
   const [me, setMe] = useState<Row | null>(null)
   const [myPseudo, setMyPseudo] = useState<string | null>(null)
   const [profile, setProfile] = useState<PlayerProfile | null>(null)
-  const [left, setLeft] = useState(false)
   const [reload, setReload] = useState(0)
 
   useEffect(() => {
@@ -96,18 +95,7 @@ export function LeaderboardContent() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{x.h1}</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">{x.lead}</p>
 
-        {profile && (
-          <ProfileNotice
-            className="mt-4"
-            profile={profile}
-            onChange={() => setReload((n) => n + 1)}
-            onLeave={() => {
-              setLeft(true)
-              setReload((n) => n + 1)
-            }}
-          />
-        )}
-        {left && !profile && <p className="mt-4 text-xs text-muted-foreground">{PROFILE_LEFT_TEXT[locale]}</p>}
+        {profile && <ProfileNotice className="mt-4" profile={profile} onChange={() => setReload((n) => n + 1)} />}
 
         <div className="mt-6 flex flex-wrap gap-2" role="tablist">
           {PERIODS.map((p) => (

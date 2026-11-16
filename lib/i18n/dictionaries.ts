@@ -313,7 +313,7 @@ const fr = {
         },
         {
           title: "2. Données collectées",
-          text: "Le jeu de sudoku fonctionne entièrement dans votre navigateur et ne nécessite aucune inscription. Nous ne collectons pas de données personnelles identifiantes pour jouer. Certaines préférences (comme le thème clair/sombre ou la langue) sont stockées localement sur votre appareil. Si vous terminez une grille, vos points sont envoyés au classement public sous un pseudo (généré automatiquement ou choisi par vous), avec un pays supposé d'après la langue de votre navigateur, rattachés à un identifiant aléatoire stocké sur votre appareil. Vous pouvez à tout moment modifier ce pseudo et ce pays, ou supprimer vos scores du classement, depuis la page Classement ou le récapitulatif de fin de partie.",
+          text: "Le jeu de sudoku fonctionne entièrement dans votre navigateur et ne nécessite aucune inscription. Nous ne collectons pas de données personnelles identifiantes pour jouer. Certaines préférences (comme le thème clair/sombre ou la langue) sont stockées localement sur votre appareil. Si vous terminez une grille, vos points sont envoyés au classement public sous un pseudo (généré automatiquement ou choisi par vous), avec un pays supposé d'après la langue de votre navigateur, rattachés à un identifiant aléatoire stocké sur votre appareil. Vous pouvez à tout moment modifier ce pseudo et ce pays depuis la page Classement ou le récapitulatif de fin de partie. Pour faire supprimer vos scores du classement, contactez-nous via la page Contact.",
         },
         {
           title: "3. Cookies et mesure d'audience",
@@ -647,7 +647,7 @@ const en: Dictionary = {
         },
         {
           title: "2. Data collected",
-          text: "The sudoku game runs entirely in your browser and requires no sign-up. We do not collect personally identifying data to play. Some preferences (such as light/dark theme or language) are stored locally on your device. If you finish a puzzle, your points are sent to the public leaderboard under a nickname (generated automatically or chosen by you), with a country guessed from your browser language, linked to a random identifier stored on your device. You can change this nickname and country at any time, or delete your scores from the leaderboard, from the Leaderboard page or the end-of-game summary.",
+          text: "The sudoku game runs entirely in your browser and requires no sign-up. We do not collect personally identifying data to play. Some preferences (such as light/dark theme or language) are stored locally on your device. If you finish a puzzle, your points are sent to the public leaderboard under a nickname (generated automatically or chosen by you), with a country guessed from your browser language, linked to a random identifier stored on your device. You can change this nickname and country at any time from the Leaderboard page or the end-of-game summary. To have your scores deleted from the leaderboard, contact us through the Contact page.",
         },
         {
           title: "3. Cookies and audience measurement",

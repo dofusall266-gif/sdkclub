@@ -4,8 +4,7 @@ import { ensureDailyScoresTable, ensurePointsTable, getDb } from "@/lib/db"
 import { isValidCountryCode, sanitizePseudo } from "@/lib/moderation"
 
 /** Gestion du profil public d'un joueur (sans compte : il est identifié par son id aléatoire).
- *  - action "update" : change le pseudo / pays sur tous ses scores (classement général + défi du jour).
- *  - action "leave"  : supprime tous ses scores des classements. */
+ *  - action "update" : change le pseudo / pays sur tous ses scores (classement général + défi du jour). */
 export async function POST(req: Request) {
   const sql = getDb()
   if (!sql) return NextResponse.json({ ok: false, reason: "no-database" })
@@ -24,12 +23,6 @@ export async function POST(req: Request) {
   try {
     await ensurePointsTable(sql)
     await ensureDailyScoresTable(sql)
-
-    if (b.action === "leave") {
-      await sql`DELETE FROM points_scores WHERE player_id = ${playerId}`
-      await sql`DELETE FROM daily_scores WHERE player_id = ${playerId}`
-      return NextResponse.json({ ok: true })
-    }
 
     if (b.action === "update") {
       const pseudo = sanitizePseudo(typeof b.pseudo === "string" ? b.pseudo : "")
