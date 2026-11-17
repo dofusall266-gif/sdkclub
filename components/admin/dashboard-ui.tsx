@@ -1,7 +1,5 @@
 import type { ReactNode } from "react"
 
-import { completion } from "@/lib/admin-stats"
-
 export function formatSeconds(total: number | null): string {
   if (total === null) return "—"
   const m = Math.floor(total / 60)
@@ -64,37 +62,6 @@ export function KpiCard({
         {delta}
       </div>
       <p className="mt-1 text-xs leading-snug text-muted-foreground">{help}</p>
-    </div>
-  )
-}
-
-/** Barre de taux de réussite (parties gagnées ÷ lancées), avec les chiffres bruts à côté. */
-export function RateRow({
-  label,
-  started,
-  won,
-  extra,
-}: {
-  label: string
-  started: number
-  won: number
-  extra?: string
-}) {
-  const rate = completion(started, won)
-  return (
-    <div className="grid grid-cols-[7rem_1fr_auto] items-center gap-3 text-sm">
-      <span className="truncate capitalize text-muted-foreground">{label}</span>
-      <div className="h-2.5 overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-primary" style={{ width: `${rate ?? 0}%` }} />
-      </div>
-      <span className="whitespace-nowrap text-right tabular-nums">
-        <span className="font-semibold">{rate === null ? "—" : `${rate} %`}</span>
-        <span className="text-xs text-muted-foreground">
-          {" "}
-          · {won}/{started}
-          {extra ? ` · ${extra}` : ""}
-        </span>
-      </span>
     </div>
   )
 }

@@ -1,4 +1,3 @@
-import type { ChartPoint } from "@/components/admin/interactive-chart"
 import type { getDb } from "@/lib/db"
 import { DIFFICULTIES, DIFFICULTY_LABELS, type Difficulty } from "@/lib/sudoku"
 
@@ -45,11 +44,21 @@ export interface Retention {
   regulars: number
 }
 
-export interface DailyDay {
-  day: string
-  participants: number
+/** Un point du graphique = un jour (ou une semaine pour les longues périodes). */
+export interface ChartPoint {
+  label: string // axe : « 28/10 »
+  title: string // infobulle : « Mardi 28 octobre » ou « Semaine du 27 octobre »
   started: number
   won: number
+  visitors: number
+  sessions: number
+  minutes: number
+  participants: number
+  /** Parties du défi du jour lancées / terminées ce jour-là (mesurées dans `events`). */
+  dailyStarted: number
+  dailyWon: number
+  /** Durée moyenne des victoires du jour, en secondes (0 s'il n'y a eu aucune victoire). */
+  winSeconds: number
 }
 
 export interface DailyStats {
@@ -61,7 +70,6 @@ export interface DailyStats {
   medianSeconds: number | null
   startedTracked: number
   wonTracked: number
-  last7: DailyDay[]
 }
 
 export interface Dashboard {
@@ -69,6 +77,8 @@ export interface Dashboard {
   cur: Kpi
   prev: Kpi
   chart: ChartPoint[]
+  /** Même série sur la période juste avant (même durée), pour comparer. */
+  prevChart: ChartPoint[]
   /** Unité de l'axe du graphique : un point = un jour ou une semaine. */
   bucket: "jour" | "semaine"
   levels: LevelRow[]
@@ -77,6 +87,8 @@ export interface Dashboard {
   devices: Breakdown[]
   retention: Retention
   daily: DailyStats
+  /** Parties lancées par jour de la semaine (lundi → dimanche) et par heure (0 → 23), heure de Paris. */
+  heat: number[][]
   insights: string[]
 }
 
@@ -120,6 +132,65 @@ function frenchDate(iso: string, bucket: "jour" | "semaine"): string {
 
 export const completion = (started: number, won: number) => (started > 0 ? Math.min(100, Math.round((won / started) * 100)) : null)
 
+/** Série temporelle : `days` jours se terminant `endOffset` jours avant aujourd'hui (0 = période en cours). */
+async function loadSeries(sql: Sql, days: number, endOffset: number, bucket: "jour" | "semaine"): Promise<ChartPoint[]> {
+  const unit = bucket === "jour" ? "day" : "week"
+  const stepInterval = bucket === "jour" ? "1 day" : "7 days"
+  const startBack = endOffset + days - 1
+  const rows = (await sql`
+    WITH b AS (
+      SELECT generate_series(
+        date_trunc(${unit}, current_date - ${startBack}::int)::date,
+        date_trunc(${unit}, current_date - ${endOffset}::int)::date,
+        ${stepInterval}::interval
+      )::date AS bucket
+    ), e AS (
+      SELECT date_trunc(${unit}, created_at)::date AS bucket,
+        count(*) FILTER (WHERE type = 'game_started') AS started,
+        count(*) FILTER (WHERE type = 'game_won') AS won,
+        count(DISTINCT visitor_id) AS visitors,
+        count(*) FILTER (WHERE type = 'visit_time' AND new_session) AS sessions,
+        coalesce(sum(duration_seconds) FILTER (WHERE type = 'visit_time'), 0) AS play_seconds,
+        count(*) FILTER (WHERE type = 'game_started' AND mode = 'daily') AS daily_started,
+        count(*) FILTER (WHERE type = 'game_won' AND mode = 'daily') AS daily_won,
+        coalesce(round(avg(duration_seconds) FILTER (WHERE type = 'game_won')), 0) AS win_seconds
+      FROM events
+      WHERE created_at >= date_trunc(${unit}, current_date - ${startBack}::int)
+        AND created_at < (current_date - ${endOffset}::int) + 1
+      GROUP BY 1
+    ), s AS (
+      SELECT date_trunc(${unit}, date)::date AS bucket, count(*) AS participants
+      FROM daily_scores
+      WHERE date >= date_trunc(${unit}, current_date - ${startBack}::int)::date
+        AND date <= current_date - ${endOffset}::int
+      GROUP BY 1
+    )
+    SELECT to_char(b.bucket, 'DD/MM') AS label,
+      to_char(b.bucket, 'YYYY-MM-DD') AS iso,
+      coalesce(e.started, 0) AS started, coalesce(e.won, 0) AS won,
+      coalesce(e.visitors, 0) AS visitors, coalesce(e.sessions, 0) AS sessions,
+      round(coalesce(e.play_seconds, 0) / 60.0, 1) AS minutes,
+      coalesce(s.participants, 0) AS participants,
+      coalesce(e.daily_started, 0) AS daily_started, coalesce(e.daily_won, 0) AS daily_won,
+      coalesce(e.win_seconds, 0) AS win_seconds
+    FROM b LEFT JOIN e ON e.bucket = b.bucket LEFT JOIN s ON s.bucket = b.bucket
+    ORDER BY b.bucket
+  `) as Row[]
+  return rows.map((r) => ({
+    label: String(r.label),
+    title: frenchDate(String(r.iso), bucket),
+    started: num(r.started),
+    won: num(r.won),
+    visitors: num(r.visitors),
+    sessions: num(r.sessions),
+    minutes: num(r.minutes),
+    participants: num(r.participants),
+    dailyStarted: num(r.daily_started),
+    dailyWon: num(r.daily_won),
+    winSeconds: num(r.win_seconds),
+  }))
+}
+
 export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> {
   const now = Date.now()
   const iso = (ms: number) => new Date(ms).toISOString()
@@ -131,49 +202,7 @@ export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> 
 
   // Un point par jour jusqu'à 90 jours ; au-delà (année), un point par semaine pour rester lisible.
   const bucket: "jour" | "semaine" = days <= 90 ? "jour" : "semaine"
-  const unit = bucket === "jour" ? "day" : "week"
-  const stepInterval = bucket === "jour" ? "1 day" : "7 days"
-  const chart = ((await sql`
-    WITH b AS (
-      SELECT generate_series(
-        date_trunc(${unit}, current_date - ${days - 1}::int)::date,
-        date_trunc(${unit}, current_date)::date,
-        ${stepInterval}::interval
-      )::date AS bucket
-    ), e AS (
-      SELECT date_trunc(${unit}, created_at)::date AS bucket,
-        count(*) FILTER (WHERE type = 'game_started') AS started,
-        count(*) FILTER (WHERE type = 'game_won') AS won,
-        count(DISTINCT visitor_id) AS visitors,
-        count(*) FILTER (WHERE type = 'visit_time' AND new_session) AS sessions,
-        coalesce(sum(duration_seconds) FILTER (WHERE type = 'visit_time'), 0) AS play_seconds
-      FROM events
-      WHERE created_at >= date_trunc(${unit}, current_date - ${days - 1}::int)
-      GROUP BY 1
-    ), s AS (
-      SELECT date_trunc(${unit}, date)::date AS bucket, count(*) AS participants
-      FROM daily_scores
-      WHERE date >= date_trunc(${unit}, current_date - ${days - 1}::int)::date
-      GROUP BY 1
-    )
-    SELECT to_char(b.bucket, 'DD/MM') AS label,
-      to_char(b.bucket, 'YYYY-MM-DD') AS iso,
-      coalesce(e.started, 0) AS started, coalesce(e.won, 0) AS won,
-      coalesce(e.visitors, 0) AS visitors, coalesce(e.sessions, 0) AS sessions,
-      round(coalesce(e.play_seconds, 0) / 60.0, 1) AS minutes,
-      coalesce(s.participants, 0) AS participants
-    FROM b LEFT JOIN e ON e.bucket = b.bucket LEFT JOIN s ON s.bucket = b.bucket
-    ORDER BY b.bucket
-  `) as Row[]).map((r) => ({
-    label: String(r.label),
-    title: frenchDate(String(r.iso), bucket),
-    started: num(r.started),
-    won: num(r.won),
-    visitors: num(r.visitors),
-    sessions: num(r.sessions),
-    minutes: num(r.minutes),
-    participants: num(r.participants),
-  })) as ChartPoint[]
+  const [chart, prevChart] = await Promise.all([loadSeries(sql, days, 0, bucket), loadSeries(sql, days, days, bucket)])
 
   const levelRows = (await sql`
     SELECT difficulty,
@@ -291,13 +320,6 @@ export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> 
       FROM events WHERE mode = 'daily' AND created_at >= ${from}::timestamptz
     `
   )[0] as Row
-  const last7 = ((await sql`
-    SELECT to_char(d::date, 'DD/MM') AS day,
-      (SELECT count(*) FROM daily_scores s WHERE s.date = d::date) AS participants,
-      (SELECT count(*) FROM events e WHERE e.mode = 'daily' AND e.type = 'game_started' AND e.created_at::date = d::date) AS started,
-      (SELECT count(*) FROM events e WHERE e.mode = 'daily' AND e.type = 'game_won' AND e.created_at::date = d::date) AS won
-    FROM generate_series(current_date - 6, current_date, '1 day') d ORDER BY d DESC
-  `) as Row[]).map((r) => ({ day: String(r.day), participants: num(r.participants), started: num(r.started), won: num(r.won) }))
   const daily: DailyStats = {
     participants: num(dailyAgg.participants),
     players: num(dailyAgg.players),
@@ -307,10 +329,25 @@ export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> 
     medianSeconds: dailyAgg.median_seconds === null ? null : num(dailyAgg.median_seconds),
     startedTracked: num(tracked.started),
     wonTracked: num(tracked.won),
-    last7,
   }
 
-  const dash: Dashboard = { days, cur, prev, chart, bucket, levels, ratingBands, sources, devices, retention, daily, insights: [] }
+  // Quand jouent-ils ? Parties lancées par jour de la semaine et par heure (heure de Paris).
+  const heat: number[][] = Array.from({ length: 7 }, () => Array<number>(24).fill(0))
+  const heatRows = (await sql`
+    SELECT extract(isodow FROM created_at AT TIME ZONE 'Europe/Paris')::int AS dow,
+      extract(hour FROM created_at AT TIME ZONE 'Europe/Paris')::int AS hour,
+      count(*) AS n
+    FROM events
+    WHERE type = 'game_started' AND created_at >= ${from}::timestamptz
+    GROUP BY 1, 2
+  `) as Row[]
+  for (const r of heatRows) {
+    const dow = num(r.dow) - 1
+    const hour = num(r.hour)
+    if (dow >= 0 && dow < 7 && hour >= 0 && hour < 24) heat[dow][hour] = num(r.n)
+  }
+
+  const dash: Dashboard = { days, cur, prev, chart, prevChart, bucket, levels, ratingBands, sources, devices, retention, daily, heat, insights: [] }
   dash.insights = buildInsights(dash)
   return dash
 }
@@ -385,6 +422,14 @@ function buildInsights(d: Dashboard): string[] {
     } else if (avgMin >= 5) {
       out.push(`Une visite dure en moyenne ${avgMin.toFixed(1).replace(".", ",")} min : bon engagement, les joueurs restent.`)
     }
+  }
+
+  const DAY_NAMES = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+  const heatTotal = d.heat.reduce((a, row) => a + row.reduce((x, y) => x + y, 0), 0)
+  if (heatTotal >= 30) {
+    let best = { dow: 0, hour: 0, n: 0 }
+    d.heat.forEach((row, dow) => row.forEach((n, hour) => n > best.n && (best = { dow, hour, n })))
+    out.push(`Le créneau le plus actif : ${DAY_NAMES[best.dow]} vers ${best.hour} h (${best.n} parties lancées). C'est le bon moment pour publier ou lancer une annonce.`)
   }
 
   if (prev.started >= 10 && cur.started > prev.started * 1.5) {

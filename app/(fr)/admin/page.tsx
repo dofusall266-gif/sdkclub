@@ -46,7 +46,7 @@ async function logout() {
 async function checkAuthed() {
   const cookieStore = await cookies()
   const expected = process.env.ADMIN_PASSWORD
-  return Boolean(expected) && cookieStore.get(COOKIE_NAME)?.value === hashPassword(expected)
+  return expected !== undefined && expected !== "" && cookieStore.get(COOKIE_NAME)?.value === hashPassword(expected)
 }
 
 /** Vide la table des événements (parties jouées). Ne touche pas au classement du défi du jour. */
@@ -136,14 +136,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   return (
     <Shell wide>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-bold">Tableau de bord</h1>
+        <h1 className="text-2xl font-bold">Statistiques</h1>
         <div className="flex items-center gap-4">
-          <nav className="flex gap-1 rounded-lg border border-border p-0.5 text-sm" aria-label="Période">
+          <nav className="flex gap-1 rounded-full border border-border bg-card p-0.5 text-sm" aria-label="Période">
             {PERIODS.map((p) => (
               <a
                 key={p.days}
                 href={`/admin?jours=${p.days}`}
-                className={`rounded-md px-3 py-1 ${p.days === days ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`rounded-full px-3.5 py-1 ${p.days === days ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {p.label}
               </a>
@@ -197,5 +197,5 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 }
 
 function Shell({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
-  return <div className={`mx-auto w-full px-4 py-10 ${wide ? "max-w-5xl" : "max-w-sm"}`}>{children}</div>
+  return <div className={`mx-auto w-full px-4 py-10 ${wide ? "max-w-6xl" : "max-w-sm"}`}>{children}</div>
 }

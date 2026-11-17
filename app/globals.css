@@ -72,6 +72,12 @@
   --chart-3: #CBA57C;
   --chart-4: #7A5B45;
   --chart-5: #C6382E;
+  --viz-1: #555934;
+  --viz-2: #C2693E;
+  --viz-3: #D9B26F;
+  --viz-4: #8A5A7B;
+  --viz-5: #4F8A8B;
+  --viz-6: #7A5B45;
   --radius: 0.75rem;
   --sidebar: #FBF6EF;
   --sidebar-foreground: #593E2E;
@@ -109,6 +115,12 @@
   --chart-3: #4E3626;
   --chart-4: #C9B08A;
   --chart-5: #E5695D;
+  --viz-1: #A7AD78;
+  --viz-2: #E08A5C;
+  --viz-3: #E3C07E;
+  --viz-4: #B98BAA;
+  --viz-5: #7FB5B6;
+  --viz-6: #C9B08A;
   --sidebar: #2B1D15;
   --sidebar-foreground: #F5EAD9;
   --sidebar-primary: #A7AD78;
