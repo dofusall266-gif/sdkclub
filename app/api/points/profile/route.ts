@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { ensureDailyScoresTable, ensurePointsTable, getDb } from "@/lib/db"
+import { ensureAccountsTable, ensureDailyScoresTable, ensurePointsTable, getDb } from "@/lib/db"
 import { isValidCountryCode, sanitizePseudo } from "@/lib/moderation"
 
 /** Gestion du profil public d'un joueur (sans compte : il est identifié par son id aléatoire).
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   try {
     await ensurePointsTable(sql)
     await ensureDailyScoresTable(sql)
+    await ensureAccountsTable(sql)
 
     if (b.action === "update") {
       const pseudo = sanitizePseudo(typeof b.pseudo === "string" ? b.pseudo : "")
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
       const countryCode = isValidCountryCode(b.countryCode) ? b.countryCode : null
       await sql`UPDATE points_scores SET pseudo = ${pseudo}, country_code = ${countryCode} WHERE player_id = ${playerId}`
       await sql`UPDATE daily_scores SET pseudo = ${pseudo}, country_code = ${countryCode} WHERE player_id = ${playerId}`
+      await sql`UPDATE accounts SET pseudo = ${pseudo}, country_code = ${countryCode} WHERE player_id = ${playerId}`
       return NextResponse.json({ ok: true })
     }
 

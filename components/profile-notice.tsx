@@ -7,6 +7,7 @@ import { countryFlag, sortedCountries } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
 import { savePlayerProfile, type PlayerProfile } from "@/lib/player"
 import { syncProfile } from "@/lib/profile-client"
+import { AccountPanel } from "@/components/account-panel"
 
 const TEXT = {
   fr: {
@@ -38,7 +39,7 @@ const TEXT = {
 interface Props {
   profile: PlayerProfile
   /** Appelé après une modification réussie (pseudo / pays). */
-  onChange: (profile: PlayerProfile) => void
+  onChange: (profile: PlayerProfile | null) => void
   className?: string
 }
 
@@ -125,6 +126,7 @@ export function ProfileNotice({ profile, onChange, className }: Props) {
         </button>
       </p>
       {error && <p className="mt-1 text-destructive">{error}</p>}
+      <AccountPanel className="mt-2" profile={profile} onChange={onChange} />
     </div>
   )
 }

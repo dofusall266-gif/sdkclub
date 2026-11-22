@@ -1,5 +1,5 @@
 import { type Period, PERIODS, periodStarts } from "@/lib/scoring"
-import { readJSON, writeJSON } from "@/lib/storage"
+import { readJSON, remove, writeJSON } from "@/lib/storage"
 
 const KEY = "sc_points_v1"
 const RANK_KEY = "sc_points_rank_v1"
@@ -49,4 +49,11 @@ export function getLastRank(): number | null {
 
 export function setLastRank(rank: number): void {
   writeJSON(RANK_KEY, rank)
+}
+
+/** Efface la progression locale de cet appareil (déconnexion). */
+export function clearLocalProgress(): void {
+  remove(KEY)
+  remove(RANK_KEY)
+  remove(BEST_KEY)
 }

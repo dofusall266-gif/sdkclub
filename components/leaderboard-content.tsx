@@ -7,6 +7,7 @@ import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"
 import { countryFlag } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
+import { AccountPanel } from "@/components/account-panel"
 import { ProfileNotice } from "@/components/profile-notice"
 import { getPlayerProfile, type PlayerProfile } from "@/lib/player"
 import { PERIODS, type Period } from "@/lib/scoring"
@@ -95,7 +96,11 @@ export function LeaderboardContent() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{x.h1}</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">{x.lead}</p>
 
-        {profile && <ProfileNotice className="mt-4" profile={profile} onChange={() => setReload((n) => n + 1)} />}
+        {profile ? (
+          <ProfileNotice className="mt-4" profile={profile} onChange={() => setReload((n) => n + 1)} />
+        ) : (
+          <AccountPanel className="mt-4 text-xs text-muted-foreground" profile={null} onChange={() => setReload((n) => n + 1)} />
+        )}
 
         <div className="mt-6 flex flex-wrap gap-2" role="tablist">
           {PERIODS.map((p) => (

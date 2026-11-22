@@ -1,6 +1,6 @@
 import { COUNTRIES } from "@/lib/countries"
 import { isValidCountryCode, sanitizePseudo } from "@/lib/moderation"
-import { readJSON, writeJSON } from "@/lib/storage"
+import { readJSON, remove, writeJSON } from "@/lib/storage"
 
 const PLAYER_KEY = "sc_player_v1"
 
@@ -10,6 +10,8 @@ export interface PlayerProfile {
   countryCode: string // code ISO 3166-1 alpha-2, ex "FR"
   /** Vrai tant que le joueur n'a pas choisi lui-même son pseudo (pseudo généré automatiquement). */
   auto?: boolean
+  /** Vrai si la progression est rattachée à un compte Google (récupérable après un vidage du navigateur). */
+  linked?: boolean
 }
 
 function randomId(): string {
@@ -25,7 +27,7 @@ export function getPlayerProfile(): PlayerProfile | null {
 /** Enregistre / met à jour le profil choisi par le joueur. Un id stable est généré une seule fois. */
 export function savePlayerProfile(pseudo: string, countryCode: string): PlayerProfile {
   const existing = getPlayerProfile()
-  const profile: PlayerProfile = { id: existing?.id ?? randomId(), pseudo, countryCode, auto: false }
+  const profile: PlayerProfile = { id: existing?.id ?? randomId(), pseudo, countryCode, auto: false, linked: existing?.linked }
   writeJSON(PLAYER_KEY, profile)
   return profile
 }
@@ -81,4 +83,14 @@ export function ensurePlayerProfile(locale: "fr" | "en"): PlayerProfile {
   }
   writeJSON(PLAYER_KEY, profile)
   return profile
+}
+
+/** Remplace le profil local (après une connexion Google : on récupère l'identifiant du compte). */
+export function replacePlayerProfile(profile: PlayerProfile): void {
+  writeJSON(PLAYER_KEY, profile)
+}
+
+/** Efface le profil local (déconnexion). Les points restent en base, rattachés au compte. */
+export function clearPlayerProfile(): void {
+  remove(PLAYER_KEY)
 }

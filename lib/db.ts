@@ -77,3 +77,18 @@ export async function ensurePointsTable(sql: NonNullable<ReturnType<typeof getDb
   `
   await sql`CREATE INDEX IF NOT EXISTS points_scores_created_at_idx ON points_scores (created_at)`
 }
+
+/** Comptes Google (optionnels) : relie une identité Google à l'identifiant joueur existant,
+ * pour retrouver sa progression après un vidage du navigateur ou sur un autre appareil.
+ * On ne stocke que `sub` (l'identifiant anonyme fourni par Google), jamais l'email ni le nom. */
+export async function ensureAccountsTable(sql: NonNullable<ReturnType<typeof getDb>>) {
+  await sql`
+    CREATE TABLE IF NOT EXISTS accounts (
+      google_sub TEXT PRIMARY KEY,
+      player_id TEXT NOT NULL UNIQUE,
+      pseudo TEXT NOT NULL,
+      country_code TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `
+}
