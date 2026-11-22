@@ -20,7 +20,9 @@ import { DailyLeaderboard } from "@/components/daily/daily-leaderboard"
 import { DailySubmitForm } from "@/components/daily/daily-submit-form"
 import { hasSubmittedDaily, markDailySubmitted } from "@/lib/daily"
 import { useLanguage } from "@/lib/i18n/context"
+import { AccountPromo } from "@/components/account-promo"
 import { ProfileNotice } from "@/components/profile-notice"
+import { PROFILE_EVENT } from "@/lib/account-events"
 import { getPlayerProfile } from "@/lib/player"
 import { getLocalTotals, maybeRecordBestScore, recordPoints } from "@/lib/points-store"
 import { type Period, type ScoreBreakdown, finalScore } from "@/lib/scoring"
@@ -56,6 +58,13 @@ export function DailyGame() {
   const [submitted, setSubmitted] = useState<string | null>(null)
   const [alreadySubmitted, setAlreadySubmitted] = useState(false)
   const [leaderboardKey, setLeaderboardKey] = useState(0)
+
+  // Se met à jour après une connexion / déconnexion Google.
+  useEffect(() => {
+    const onProfile = () => setLeaderboardKey((k) => k + 1)
+    window.addEventListener(PROFILE_EVENT, onProfile)
+    return () => window.removeEventListener(PROFILE_EVENT, onProfile)
+  }, [])
   const [printDialogOpen, setPrintDialogOpen] = useState(false)
   const [printIncludeSolution, setPrintIncludeSolution] = useState<boolean | null>(null)
   const isOver = state.status === "won"
@@ -184,6 +193,7 @@ export function DailyGame() {
               <ProfileNotice profile={current} onChange={() => setLeaderboardKey((k) => k + 1)} />
             ) : null
           })()}
+          <AccountPromo className="mt-2" />
         </div>
       )}
       <DailyLeaderboard

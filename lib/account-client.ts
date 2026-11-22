@@ -41,6 +41,31 @@ export function loadGoogleIdentity(): Promise<GoogleIdApi> {
   return scriptPromise
 }
 
+let googleInitialized = false
+let credentialHandler: ((credential: string) => void) | null = null
+
+/** Initialise Google une seule fois, puis dessine le bouton officiel « Continuer avec Google » dans `el`. */
+export function setupGoogleButton(
+  api: GoogleIdApi,
+  el: HTMLElement,
+  locale: string,
+  onCredential: (credential: string) => void,
+): void {
+  credentialHandler = onCredential
+  if (!googleInitialized) {
+    api.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      auto_select: false,
+      callback: (r) => {
+        if (r.credential) credentialHandler?.(r.credential)
+      },
+    })
+    googleInitialized = true
+  }
+  el.innerHTML = ""
+  api.renderButton(el, { type: "standard", theme: "outline", size: "large", text: "continue_with", shape: "pill", width: 280, locale })
+}
+
 export interface GoogleLoginResult {
   ok: boolean
   reason?: string

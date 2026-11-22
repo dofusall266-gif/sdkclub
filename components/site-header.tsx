@@ -5,6 +5,7 @@ import Link from "@/components/localized-link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
+import { AccountButton } from "@/components/account-button"
 import { LanguageToggle } from "@/components/language-toggle"
 import { StreakBadge } from "@/components/streak-badge"
 import { SudokuLogo } from "@/components/sudoku-logo"
@@ -77,6 +78,7 @@ export function SiteHeader() {
           <StreakBadge className="hidden sm:flex" />
           <LanguageToggle />
           <ThemeToggle />
+          <AccountButton />
           <Button
             variant="ghost"
             size="icon"
@@ -116,6 +118,9 @@ export function SiteHeader() {
                 </Link>
               )
             })}
+            <div className="mt-1 border-t border-border pt-2" onClick={() => setOpen(false)}>
+              <AccountButton fullWidth />
+            </div>
           </div>
         </nav>
       )}

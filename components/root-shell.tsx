@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/next"
 import Script from "next/script"
 import { Suspense } from "react"
 
+import { AccountDialog } from "@/components/account-dialog"
 import { CookieConsent } from "@/components/cookie-consent"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { PwaRegister } from "@/components/pwa-register"
@@ -61,6 +62,7 @@ export function RootShell({ lang, children }: { lang: Locale; children: React.Re
             </div>
             <GoogleAnalytics />
             <CookieConsent />
+            <AccountDialog />
             <PwaRegister />
             <SourceCapture />
             <VisitTimer />

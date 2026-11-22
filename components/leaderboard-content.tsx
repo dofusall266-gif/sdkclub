@@ -5,9 +5,10 @@ import Link from "@/components/localized-link"
 
 import { PageLayout } from "@/components/page-layout"
 import { buttonVariants } from "@/components/ui/button"
+import { PROFILE_EVENT } from "@/lib/account-events"
 import { countryFlag } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
-import { AccountPanel } from "@/components/account-panel"
+import { AccountPromo } from "@/components/account-promo"
 import { ProfileNotice } from "@/components/profile-notice"
 import { getPlayerProfile, type PlayerProfile } from "@/lib/player"
 import { PERIODS, type Period } from "@/lib/scoring"
@@ -26,7 +27,7 @@ const MEDALS = ["🥇", "🥈", "🥉"]
 const TEXT = {
   fr: {
     h1: "Classement général",
-    lead: "Les meilleurs joueurs de Sudoku-Club, tous niveaux confondus. Ouvert à tous, sans compte : tu apparais ici automatiquement dès ta première partie terminée, sous un pseudo que tu peux changer à tout moment.",
+    lead: "Les meilleurs joueurs de Sudoku-Club, tous niveaux confondus. Ouvert à tous : tu apparais ici dès ta première partie terminée, sous un pseudo que tu peux changer à tout moment. Crée un compte gratuit avec Google pour ne jamais perdre ta progression.",
     periods: { day: "Aujourd’hui", week: "Cette semaine", month: "Ce mois", all: "Total" } as Record<Period, string>,
     loading: "Chargement…",
     empty: "Personne pour l’instant sur cette période. Sois le premier !",
@@ -39,7 +40,7 @@ const TEXT = {
   },
   en: {
     h1: "Overall leaderboard",
-    lead: "The best Sudoku-Club players, all levels combined. Open to everyone, no account needed: you appear here automatically after your first finished game, under a nickname you can change at any time.",
+    lead: "The best Sudoku-Club players, all levels combined. Open to everyone: you appear here after your first finished game, under a nickname you can change at any time. Create a free account with Google to never lose your progress.",
     periods: { day: "Today", week: "This week", month: "This month", all: "Total" } as Record<Period, string>,
     loading: "Loading…",
     empty: "Nobody yet for this period. Be the first!",
@@ -62,6 +63,13 @@ export function LeaderboardContent() {
   const [myPseudo, setMyPseudo] = useState<string | null>(null)
   const [profile, setProfile] = useState<PlayerProfile | null>(null)
   const [reload, setReload] = useState(0)
+
+  // Recharge le classement après une connexion / déconnexion (le profil local change).
+  useEffect(() => {
+    const onProfile = () => setReload((n) => n + 1)
+    window.addEventListener(PROFILE_EVENT, onProfile)
+    return () => window.removeEventListener(PROFILE_EVENT, onProfile)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -96,11 +104,8 @@ export function LeaderboardContent() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{x.h1}</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">{x.lead}</p>
 
-        {profile ? (
-          <ProfileNotice className="mt-4" profile={profile} onChange={() => setReload((n) => n + 1)} />
-        ) : (
-          <AccountPanel className="mt-4 text-xs text-muted-foreground" profile={null} onChange={() => setReload((n) => n + 1)} />
-        )}
+        {profile && <ProfileNotice className="mt-4" profile={profile} onChange={() => setReload((n) => n + 1)} />}
+        <AccountPromo className="mt-4" />
 
         <div className="mt-6 flex flex-wrap gap-2" role="tablist">
           {PERIODS.map((p) => (

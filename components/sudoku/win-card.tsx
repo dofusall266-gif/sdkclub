@@ -8,7 +8,9 @@ import { ShareResult } from "@/components/share-result"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { countryFlag, sortedCountries } from "@/lib/countries"
 import { useLanguage } from "@/lib/i18n/context"
+import { AccountPromo } from "@/components/account-promo"
 import { ProfileNotice } from "@/components/profile-notice"
+import { PROFILE_EVENT } from "@/lib/account-events"
 import { ensurePlayerProfile, getPlayerProfile, savePlayerProfile, type PlayerProfile } from "@/lib/player"
 import { getLastRank, setLastRank } from "@/lib/points-store"
 import { submitPoints } from "@/lib/points-client"
@@ -181,6 +183,33 @@ export function WinCard(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.profileKey])
 
+  // Après une connexion Google : le profil change (ancien compte retrouvé), on rafraîchit pseudo, totaux et rang.
+  useEffect(() => {
+    const onProfile = async () => {
+      const next = getPlayerProfile()
+      setProfile(next)
+      if (!next?.linked) return
+      try {
+        const results = await Promise.all(
+          PERIODS.map((p) =>
+            fetch(`/api/points/leaderboard?period=${p}&playerId=${encodeURIComponent(next.id)}`).then((r) => r.json()),
+          ),
+        )
+        const fresh = {} as Record<Period, number>
+        PERIODS.forEach((p, i) => {
+          fresh[p] = results[i]?.me?.total ?? 0
+        })
+        setTotals(fresh)
+        const overall = results[PERIODS.indexOf("all")]
+        if (overall?.me?.rank) setRank({ value: overall.me.rank, up: 0 })
+      } catch {
+        // hors-ligne : on garde l'affichage actuel
+      }
+    }
+    window.addEventListener(PROFILE_EVENT, onProfile)
+    return () => window.removeEventListener(PROFILE_EVENT, onProfile)
+  }, [])
+
   const reveal = (n: number) => ({ animationDelay: `${500 + n * 170}ms` })
 
   // Échap ferme le récapitulatif.
@@ -322,6 +351,10 @@ export function WinCard(props: Props) {
             <ProfileNotice profile={profile} onChange={setProfile} />
           </div>
         )}
+
+        <div className="animate-row-reveal mt-3" style={reveal(5)}>
+          <AccountPromo />
+        </div>
 
         {props.mode !== "daily" && !profile && state === "idle" && badPseudo && (
           <div className="animate-row-reveal" style={reveal(4)}>
