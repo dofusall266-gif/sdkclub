@@ -6,7 +6,7 @@ import { TrainingBoard } from "@/components/training/training-board"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/i18n/context"
 import { TRAINING_CASES } from "@/lib/training-cases"
-import { checkSelection, decodeCase, explainPattern, type TrainingPattern, type TrainingTech } from "@/lib/training"
+import { checkSelection, decodeCase, explainPattern, zoneOf, type TrainingPattern, type TrainingTech } from "@/lib/training"
 
 type Status = "playing" | "wrong" | "correct" | "revealed"
 
@@ -42,7 +42,9 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
   // Chiffres du motif (pour l'indice 1) et lignes à teinter (indice 2)
   const digits = useMemo(() => [...new Set(dc.patterns.map((p) => p.d))].sort(), [dc])
   const bivalue = useMemo(() => new Set(dc.candidates.flatMap((c, i) => (c.length === 2 ? [i] : []))), [dc])
-  const pivots = useMemo(() => new Set(dc.patterns.flatMap((p) => (p.pv !== undefined ? [p.pv] : []))), [dc])
+  // Indice Y-Wing : on montre UN pivot (celui du premier motif) et sa zone ; les autres motifs restent acceptés.
+  const hintPivot = dc.patterns[0]?.pv
+  const hintZone = useMemo(() => (hintPivot !== undefined ? zoneOf(hintPivot) : undefined), [hintPivot])
 
   const maxHints = 2
   const hintText =
@@ -58,7 +60,8 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
 
   const focusDigits = tech !== "xy_wing" && (hintLevel >= 1 || finished) ? digits : []
   const shade = tech !== "xy_wing" && hintLevel >= 2 && !shown ? dc.patterns.flatMap((p) => (p.l ? [p.l] : [])) : []
-  const tint = tech === "xy_wing" && !finished ? (hintLevel >= 2 ? pivots : hintLevel === 1 ? bivalue : undefined) : undefined
+  const tint = tech === "xy_wing" && !finished && hintLevel >= 1 ? bivalue : undefined
+  const showPivotHint = tech === "xy_wing" && !finished && hintLevel >= 2
 
   const toggle = (i: number) => {
     if (finished) return
@@ -122,6 +125,8 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
             reveal={shown}
             shade={shade}
             tint={tint}
+            zone={showPivotHint ? hintZone : undefined}
+            hintPivot={showPivotHint ? hintPivot : undefined}
             className={zoom ? "min-w-[42rem] max-w-none lg:min-w-0 lg:max-w-[36rem]" : undefined}
           />
         </div>
@@ -169,7 +174,7 @@ export function Trainer({ tech, task }: { tech: TrainingTech; task: string }) {
 
         {finished && shown && (
           <>
-            <p className="text-sm leading-relaxed">{explainPattern(tech, shown, dc, locale)}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-line">{explainPattern(tech, shown, dc, locale)}</p>
             <p className="text-xs text-muted-foreground">{t.training.notation}</p>
             <Button onClick={next}>{t.training.next}</Button>
           </>

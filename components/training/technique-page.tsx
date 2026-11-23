@@ -5,6 +5,7 @@ import Link from "@/components/localized-link"
 import { PageLayout } from "@/components/page-layout"
 import { Trainer } from "@/components/training/trainer"
 import { TrainingBoard } from "@/components/training/training-board"
+import { YWingExplainer } from "@/components/training/ywing-diagram"
 import { buttonVariants } from "@/components/ui/button"
 import { useLanguage } from "@/lib/i18n/context"
 import { LESSONS, TECH_SLUGS, type TechSlug } from "@/lib/training-lessons"
@@ -21,6 +22,15 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
   // Le premier cas de chaque technique est choisi pour être lisible : un seul motif, peu d'éliminations.
   const example = decodeCase(TRAINING_CASES[lesson.tech][0])
   const pattern = example.patterns[0]
+  const isYWing = slug === "y-wing"
+  const yLegend =
+    locale === "fr"
+      ? { zone: "Zone vue par le pivot", pivot: "Pivot", wings: "Ailes", elim: "Candidat à éliminer (barré)" }
+      : { zone: "Zone seen by the pivot", pivot: "Pivot", wings: "Wings", elim: "Candidate to remove (crossed out)" }
+  const yIntro =
+    locale === "fr"
+      ? "Voici une vraie situation de grille, avec toutes les notes. Le pivot est en orange, ses deux ailes en vert, la zone qu'il voit en bleu, et le candidat à éliminer est barré en rouge. Les lignes (L) et les colonnes (C) sont numérotées de 1 à 9."
+      : "Here is a real grid situation, with all the notes. The pivot is orange, its two wings green, the zone it sees blue, and the candidate to remove is crossed out in red. Rows (R) and columns (C) are numbered 1 to 9."
 
   return (
     <PageLayout>
@@ -44,23 +54,42 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
           />
         </header>
 
+        {isYWing && <YWingExplainer />}
+
         <section>
           <h2 className="text-xl font-bold">{tr.exampleHeading}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{tr.exampleIntro}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{isYWing ? yIntro : tr.exampleIntro}</p>
           <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,36rem)_1fr]">
             <TrainingBoard dc={example} reveal={pattern} focusDigits={slug === "y-wing" ? [] : [pattern.d]} readOnly />
             <div className="space-y-4">
               <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <span className="size-4 rounded bg-primary/30 ring-1 ring-primary" /> {tr.legendPattern}
-                </li>
-                {slug !== "y-wing" && (
-                  <li className="flex items-center gap-2">
-                    <span className="size-4 rounded bg-primary/10 ring-1 ring-border" /> {tr.legendLines}
-                  </li>
+                {isYWing ? (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-sky-500/25 ring-1 ring-sky-500/60" /> {yLegend.zone}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-amber-500/30 ring-2 ring-amber-500" /> {yLegend.pivot}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-primary/30 ring-2 ring-primary" /> {yLegend.wings}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-destructive/15 ring-2 ring-destructive" /> {yLegend.elim}
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-primary/30 ring-1 ring-primary" /> {tr.legendPattern}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-primary/10 ring-1 ring-border" /> {tr.legendLines}
+                    </li>
+                  </>
                 )}
               </ul>
-              <p className="text-sm leading-relaxed">{explainPattern(lesson.tech, pattern, example, locale)}</p>
+              <p className="text-sm leading-relaxed whitespace-pre-line">{explainPattern(lesson.tech, pattern, example, locale)}</p>
               <p className="text-xs text-muted-foreground">{tr.notation}</p>
             </div>
           </div>

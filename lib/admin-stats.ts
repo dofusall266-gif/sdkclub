@@ -72,6 +72,21 @@ export interface DailyStats {
   wonTracked: number
 }
 
+/** Comptes Google : combien de joueurs sauvegardent leur progression. */
+export interface AccountStats {
+  /** Comptes Google existants (depuis toujours). */
+  totalAccounts: number
+  /** Comptes créés pendant la période, et pendant la période juste avant. */
+  newAccounts: number
+  prevNewAccounts: number
+  /** Joueurs ayant joué pendant la période, dont ceux rattachés à un compte Google. */
+  activePlayers: number
+  activeLinked: number
+  /** Tous les joueurs du classement (depuis toujours), dont ceux rattachés à un compte Google. */
+  allPlayers: number
+  allLinked: number
+}
+
 export interface Dashboard {
   days: number
   cur: Kpi
@@ -86,6 +101,7 @@ export interface Dashboard {
   sources: Breakdown[]
   devices: Breakdown[]
   retention: Retention
+  accounts: AccountStats
   daily: DailyStats
   /** Parties lancées par jour de la semaine (lundi → dimanche) et par heure (0 → 23), heure de Paris. */
   heat: number[][]
@@ -189,6 +205,41 @@ async function loadSeries(sql: Sql, days: number, endOffset: number, bucket: "jo
     dailyWon: num(r.daily_won),
     winSeconds: num(r.win_seconds),
   }))
+}
+
+export async function loadAccountStats(sql: Sql, from: string, prevFrom: string): Promise<AccountStats> {
+  const empty: AccountStats = { totalAccounts: 0, newAccounts: 0, prevNewAccounts: 0, activePlayers: 0, activeLinked: 0, allPlayers: 0, allLinked: 0 }
+  try {
+    const r = (
+      await sql`
+        WITH everyone AS (
+          SELECT player_id, created_at FROM points_scores
+          UNION ALL
+          SELECT player_id, created_at FROM daily_scores
+        ),
+        players AS (SELECT player_id, max(created_at) AS last_seen FROM everyone GROUP BY player_id)
+        SELECT
+          (SELECT count(*) FROM accounts) AS total_accounts,
+          (SELECT count(*) FROM accounts WHERE created_at >= ${from}::timestamptz) AS new_accounts,
+          (SELECT count(*) FROM accounts WHERE created_at >= ${prevFrom}::timestamptz AND created_at < ${from}::timestamptz) AS prev_new_accounts,
+          (SELECT count(*) FROM players) AS all_players,
+          (SELECT count(*) FROM players p WHERE EXISTS (SELECT 1 FROM accounts a WHERE a.player_id = p.player_id)) AS all_linked,
+          (SELECT count(*) FROM players WHERE last_seen >= ${from}::timestamptz) AS active_players,
+          (SELECT count(*) FROM players p WHERE p.last_seen >= ${from}::timestamptz AND EXISTS (SELECT 1 FROM accounts a WHERE a.player_id = p.player_id)) AS active_linked
+      `
+    )[0] as Row
+    return {
+      totalAccounts: num(r.total_accounts),
+      newAccounts: num(r.new_accounts),
+      prevNewAccounts: num(r.prev_new_accounts),
+      activePlayers: num(r.active_players),
+      activeLinked: num(r.active_linked),
+      allPlayers: num(r.all_players),
+      allLinked: num(r.all_linked),
+    }
+  } catch {
+    return empty // tables pas encore créées : on n'empêche pas le reste du tableau de bord de s'afficher
+  }
 }
 
 export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> {
@@ -347,7 +398,8 @@ export async function loadDashboard(sql: Sql, days: number): Promise<Dashboard> 
     if (dow >= 0 && dow < 7 && hour >= 0 && hour < 24) heat[dow][hour] = num(r.n)
   }
 
-  const dash: Dashboard = { days, cur, prev, chart, prevChart, bucket, levels, ratingBands, sources, devices, retention, daily, heat, insights: [] }
+  const accounts = await loadAccountStats(sql, from, prevFrom)
+  const dash: Dashboard = { days, cur, prev, chart, prevChart, bucket, levels, ratingBands, sources, devices, retention, accounts, daily, heat, insights: [] }
   dash.insights = buildInsights(dash)
   return dash
 }

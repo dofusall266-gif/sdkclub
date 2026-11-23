@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache"
 import { ResetStatsButton } from "@/components/admin/reset-stats-button"
 import { Dash } from "@/components/admin/dashboard"
 import { loadDashboard, type Dashboard } from "@/lib/admin-stats"
-import { ensureDailyScoresTable, ensureEventsTable, getDb } from "@/lib/db"
+import { ensureAccountsTable, ensureDailyScoresTable, ensureEventsTable, ensurePointsTable, getDb } from "@/lib/db"
 
 export const metadata: Metadata = {
   title: "Statistiques",
@@ -127,6 +127,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     try {
       await ensureEventsTable(sql)
       await ensureDailyScoresTable(sql)
+      await ensurePointsTable(sql)
+      await ensureAccountsTable(sql)
       dash = await loadDashboard(sql, days)
     } catch {
       dbError = true

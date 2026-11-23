@@ -1,6 +1,6 @@
 "use client"
 
-import type { DecodedCase, TrainingPattern } from "@/lib/training"
+import { zoneOf, type DecodedCase, type TrainingPattern } from "@/lib/training"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -15,6 +15,10 @@ interface Props {
   shade?: { k: "r" | "c"; b: number[]; v: number[] }[]
   /** Cases à teinter (indice : cases à deux candidats, pivot…). */
   tint?: Set<number>
+  /** Y-Wing (indice) : zone « vue » par le pivot (sa ligne, sa colonne, son bloc), teintée en bleu. */
+  zone?: Set<number>
+  /** Y-Wing (indice) : case pivot, teintée en orange. */
+  hintPivot?: number
   /** Pavé « lecture seule » : pas de boutons. */
   readOnly?: boolean
   /** Vignette : n'affiche que le chiffre du motif ("digit") ou que les cases du motif ("cells"). */
@@ -29,7 +33,7 @@ const NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
  * Grille avec toutes les notes (candidats) à leur place habituelle : 1 en haut à gauche, 9 en bas à droite.
  * Les colonnes et les lignes sont numérotées de 1 à 9 (comme dans les explications : L3C5 = ligne 3, colonne 5).
  */
-export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal, shade = [], tint, readOnly, thumbnail, className }: Props) {
+export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal, shade = [], tint, zone, hintPivot, readOnly, thumbnail, className }: Props) {
   const revealCells = new Set(reveal?.c ?? [])
   const revealElims = new Set(reveal?.e ?? [])
   const baseLines = new Set<string>()
@@ -40,6 +44,9 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
     for (const v of l.v) coverLines.add(`${l.k === "r" ? "c" : "r"}${v}`)
   }
   const showLabels = !thumbnail
+  // Y-Wing : le motif est montré avec la zone du pivot, et le candidat à éliminer reste visible, barré en rouge.
+  const yw = !thumbnail && reveal?.pv !== undefined
+  const zoneCells = yw ? zoneOf(reveal!.pv!) : zone
 
   const grid = (
     <div className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm">
@@ -47,6 +54,9 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
         const r = Math.floor(i / 9)
         const c = i % 9
         const isPattern = revealCells.has(i)
+        const isPivot = (yw && i === reveal!.pv) || i === hintPivot
+        const isElimCell = yw && revealElims.has(i)
+        const inZone = zoneCells?.has(i) ?? false
         const isSelected = selected?.has(i) ?? false
         const onBase = baseLines.has(`r${r}`) || baseLines.has(`c${c}`)
         const onCover = coverLines.has(`r${r}`) || coverLines.has(`c${c}`)
@@ -64,12 +74,13 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                 if (thumbnail === "cells" && !(isPattern || revealElims.has(i))) return <span key={d} />
                 const eliminated = revealElims.has(i) && reveal?.d === d
                 // Candidat éliminé par la technique : il est retiré de la grille (l'explication indique lesquels).
-                if (eliminated && !thumbnail) return <span key={d} />
+                if (eliminated && !thumbnail && !yw) return <span key={d} />
                 const sameDigit = focusDigits.includes(d)
                 const inPattern = isPattern && reveal?.d === d
                 // Quand le motif est montré, seuls les chiffres du motif sont en vert :
                 // les autres exemplaires du même chiffre restent des notes ordinaires.
                 const focus = reveal ? inPattern : sameDigit
+                const pivotDigit = isPivot
                 return (
                   <span
                     key={d}
@@ -77,7 +88,9 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                       "flex items-center justify-center text-[0.62rem] font-medium leading-none sm:text-[0.7rem]",
                       eliminated
                         ? "rounded-full bg-destructive/20 font-bold text-destructive line-through"
-                        : focus
+                        : pivotDigit
+                          ? "font-bold text-amber-600 dark:text-amber-300"
+                          : focus
                           ? "font-bold text-primary"
                           : "text-muted-foreground/70",
                     )}
@@ -98,8 +111,11 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
           r === 8 && "border-b-0",
           onBase && "bg-primary/10",
           onCover && !onBase && "bg-secondary/70",
+          inZone && !isPivot && "bg-sky-500/15 dark:bg-sky-400/15",
           tint?.has(i) && "bg-chart-4/25",
           isPattern && "bg-primary/30 ring-1 ring-inset ring-primary",
+          isElimCell && "bg-destructive/10 ring-1 ring-inset ring-destructive/60",
+          isPivot && "bg-amber-500/30 ring-2 ring-inset ring-amber-500",
           isSelected && "bg-primary/25 ring-2 ring-inset ring-primary",
           canClick && "cursor-pointer touch-manipulation hover:bg-primary/15 active:bg-primary/25",
         )

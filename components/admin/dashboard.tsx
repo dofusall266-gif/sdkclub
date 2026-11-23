@@ -31,7 +31,7 @@ function Panel({ title, hint, children }: { title: string; hint?: string; childr
 }
 
 export function Dash({ d }: { d: Dashboard }) {
-  const { cur, prev, retention, daily } = d
+  const { cur, prev, retention, daily, accounts } = d
   const flawlessRate = completion(cur.won, cur.flawless)
   const prevFlawless = completion(prev.won, prev.flawless)
   const dailyShare = daily.wonTracked > 0 ? completion(daily.wonTracked, daily.participants) : null
@@ -132,6 +132,35 @@ export function Dash({ d }: { d: Dashboard }) {
                 ]}
               />
             </Panel>
+          </div>
+        )}
+      </Section>
+
+      <Section
+        title="Comptes Google — combien de joueurs sauvegardent leur progression ?"
+        hint="Un compte Google permet de retrouver ses points après un vidage du navigateur. Le taux de conversion mesure la part des joueurs qui en ont créé un."
+      >
+        {accounts.allPlayers === 0 ? (
+          <Empty>Aucun joueur au classement pour le moment.</Empty>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <KpiCard
+              label="Taux de conversion (période)"
+              value={accounts.activePlayers > 0 ? `${completion(accounts.activePlayers, accounts.activeLinked)} %` : "—"}
+              help={`${accounts.activeLinked} joueur(s) avec compte Google sur ${accounts.activePlayers} joueur(s) actifs sur la période.`}
+            />
+            <KpiCard
+              label="Taux de conversion (global)"
+              value={`${completion(accounts.allPlayers, accounts.allLinked) ?? 0} %`}
+              help={`${accounts.allLinked} sur ${accounts.allPlayers} joueurs du classement. Un joueur qui vide son navigateur compte pour un nouveau joueur : ce taux est volontairement prudent.`}
+            />
+            <KpiCard label="Comptes Google" value={accounts.totalAccounts} help="Nombre total de comptes créés depuis le lancement." />
+            <KpiCard
+              label="Nouveaux comptes"
+              value={accounts.newAccounts}
+              help="Créés pendant la période, comparés à la période juste avant."
+              delta={<Delta cur={accounts.newAccounts} prev={accounts.prevNewAccounts} />}
+            />
           </div>
         )}
       </Section>

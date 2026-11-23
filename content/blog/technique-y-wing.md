@@ -23,6 +23,8 @@ Un Y-Wing se compose de :
 
 Les deux ailes doivent chacune **voir le pivot** : être dans sa ligne, sa colonne ou son bloc. Elles n'ont pas besoin de se voir entre elles.
 
+> **Que veut dire « voir » ?** Deux cases se voient quand elles sont dans la même ligne, la même colonne ou le même bloc de 3×3. L'ensemble des cases qu'une case voit forme sa **zone**. Les ailes d'un Y-Wing doivent donc se trouver dans la zone du pivot : une case hors de cette zone ne compte pas. Les [schémas interactifs de la leçon Y-Wing](/techniques/y-wing) montrent cette zone en bleu, avec des lettres (A, B, C) puis de vrais chiffres.
+
 ![Schéma d'un Y-Wing sur une grille de sudoku : le pivot et ses deux ailes sont colorés, le candidat éliminé est barré en rouge](/blog/diagram-y-wing.webp)
 
 *Exemple de Y-Wing : les trois cases du motif sont en vert, le candidat à retirer est barré en rouge.*

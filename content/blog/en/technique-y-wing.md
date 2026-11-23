@@ -20,6 +20,8 @@ A Y-Wing is made of:
 
 Each wing must **see the pivot**: be in its row, column or box. The wings do not have to see each other.
 
+> **What does “see” mean?** Two cells see each other when they share a row, a column or a 3×3 box. All the cells a cell sees make up its **zone**. The wings of a Y-Wing must therefore sit inside the pivot's zone: a cell outside it does not count. The [interactive diagrams in the Y-Wing lesson](/techniques/y-wing) show this zone in blue, first with letters (A, B, C) and then with real digits.
+
 ![Diagram of a Y-Wing on a sudoku grid: the pivot and its two wings are coloured, the eliminated candidate is crossed out in red](/blog/diagram-y-wing.webp)
 
 *Y-Wing example: the three pattern cells are in green, the candidate to remove is crossed out in red.*

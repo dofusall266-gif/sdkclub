@@ -78,18 +78,62 @@ const nums = (xs: number[], locale: "fr" | "en") => {
   return a.length <= 1 ? String(a[0]) : `${a.slice(0, -1).join(", ")} ${locale === "fr" ? "et" : "and"} ${a[a.length - 1]}`
 }
 
+
+/** Deux cases distinctes se « voient » si elles sont dans la même ligne, la même colonne ou le même bloc. */
+export function seesCell(a: number, b: number): boolean {
+  if (a === b) return false
+  const sameRow = Math.floor(a / 9) === Math.floor(b / 9)
+  const sameCol = a % 9 === b % 9
+  const sameBox = Math.floor(a / 27) === Math.floor(b / 27) && Math.floor((a % 9) / 3) === Math.floor((b % 9) / 3)
+  return sameRow || sameCol || sameBox
+}
+
+/** La « zone » d'une case : toutes les cases qu'elle voit (sa ligne, sa colonne et son bloc), sans elle-même. */
+export function zoneOf(cell: number): Set<number> {
+  const zone = new Set<number>()
+  for (let j = 0; j < 81; j++) if (seesCell(cell, j)) zone.add(j)
+  return zone
+}
+
+/** Pourquoi deux cases se voient : « même ligne », « même colonne » ou « même bloc ». */
+function relation(a: number, b: number, locale: "fr" | "en"): string {
+  const fr = locale === "fr"
+  if (Math.floor(a / 9) === Math.floor(b / 9)) return fr ? "même ligne" : "same row"
+  if (a % 9 === b % 9) return fr ? "même colonne" : "same column"
+  return fr ? "même bloc" : "same box"
+}
+
+/** Y-Wing : explication pas à pas, avec la raison pour laquelle chaque case en « voit » une autre. */
+function explainYWing(pattern: TrainingPattern, dc: DecodedCase, locale: "fr" | "en"): string {
+  const fr = locale === "fr"
+  const pv = pattern.pv!
+  const wings = pattern.c.filter((i) => i !== pv)
+  const [a, b] = dc.candidates[pv]
+  const d = pattern.d
+  // Aile « A d » (contient le premier chiffre du pivot) et aile « B d » (contient le second).
+  const wingA = dc.candidates[wings[0]].includes(a) ? wings[0] : wings[1]
+  const wingB = wingA === wings[0] ? wings[1] : wings[0]
+  const pair = (i: number, x: number, y: number) => `${rc(i, locale)} (${x} ${y})`
+
+  const elimLines = pattern.e
+    .map((e) =>
+      fr
+        ? `• ${rc(e, locale)} voit ${rc(wingA, locale)} (${relation(e, wingA, locale)}) et ${rc(wingB, locale)} (${relation(e, wingB, locale)})`
+        : `• ${rc(e, locale)} sees ${rc(wingA, locale)} (${relation(e, wingA, locale)}) and ${rc(wingB, locale)} (${relation(e, wingB, locale)})`,
+    )
+    .join("\n")
+
+  return fr
+    ? `Le pivot ${rc(pv, locale)} contient ${a} et ${b}. Il « voit » toutes les cases de sa ligne, de sa colonne et de son bloc : c'est sa zone (en bleu).\n\nSes deux ailes sont dans cette zone :\n• ${pair(wingA, a, d)} : ${relation(wingA, pv, locale)} que le pivot\n• ${pair(wingB, b, d)} : ${relation(wingB, pv, locale)} que le pivot\n\nSi le pivot vaut ${a}, l'aile ${rc(wingA, locale)} ne peut plus valoir ${a} : elle vaut ${d}. S'il vaut ${b}, c'est l'aile ${rc(wingB, locale)} qui vaut ${d}. Dans les deux cas, une des deux ailes vaut ${d}.\n\nToute case qui voit les deux ailes ne peut donc pas contenir ${d}. On retire le ${d} (barré en rouge) de :\n${elimLines}`
+    : `The pivot ${rc(pv, locale)} holds ${a} and ${b}. It “sees” every cell in its row, its column and its box: that is its zone (in blue).\n\nIts two wings are inside that zone:\n• ${pair(wingA, a, d)}: ${relation(wingA, pv, locale)} as the pivot\n• ${pair(wingB, b, d)}: ${relation(wingB, pv, locale)} as the pivot\n\nIf the pivot is ${a}, wing ${rc(wingA, locale)} cannot be ${a}: it is ${d}. If it is ${b}, wing ${rc(wingB, locale)} is ${d}. Either way, one of the two wings is ${d}.\n\nAny cell that sees both wings therefore cannot hold ${d}. We remove the ${d} (crossed out in red) from:\n${elimLines}`
+}
+
 /** Explication en langage clair d'un motif trouvé. */
 export function explainPattern(tech: TrainingTech, pattern: TrainingPattern, dc: DecodedCase, locale: "fr" | "en"): string {
   const fr = locale === "fr"
   const elim = list(pattern.e, locale)
   if (tech === "xy_wing" && pattern.pv !== undefined) {
-    const wings = pattern.c.filter((i) => i !== pattern.pv)
-    const digits = (i: number) => dc.candidates[i].join("")
-    const pivotDigits = dc.candidates[pattern.pv]
-    const [a, b] = pivotDigits
-    return fr
-      ? `Ici on se focalise sur le pivot ${rc(pattern.pv, locale)} : il ne peut contenir que ${a} ou ${b}. Ses deux ailes ${rc(wings[0], locale)} (${digits(wings[0])}) et ${rc(wings[1], locale)} (${digits(wings[1])}) voient le pivot. Si le pivot vaut ${a}, l'aile qui contient ${a} ne peut pas le prendre et vaut donc ${pattern.d} ; s'il vaut ${b}, c'est l'autre aile qui vaut ${pattern.d}. Dans les deux cas, une des ailes vaut ${pattern.d} : toute case qui voit les deux ailes ne peut donc pas contenir ${pattern.d}. On peut donc retirer le ${pattern.d} de ${elim} afin de faciliter la suite de la partie.`
-      : `Here we focus on the pivot ${rc(pattern.pv, locale)}: it can only be ${a} or ${b}. Its two wings ${rc(wings[0], locale)} (${digits(wings[0])}) and ${rc(wings[1], locale)} (${digits(wings[1])}) both see the pivot. If the pivot is ${a}, the wing holding ${a} cannot be ${a}, so it is ${pattern.d}; if the pivot is ${b}, the other wing is ${pattern.d}. Either way one of the wings is ${pattern.d}, so any cell that sees both wings cannot be ${pattern.d}. We can therefore remove ${pattern.d} from ${elim} to make the rest of the game easier.`
+    return explainYWing(pattern, dc, locale)
   }
   const lines = pattern.l!
   const isRows = lines.k === "r"
