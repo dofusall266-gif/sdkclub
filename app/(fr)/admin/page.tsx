@@ -149,6 +149,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               </a>
             ))}
           </nav>
+          <a href="/admin/joueurs" className="text-xs text-muted-foreground hover:text-foreground">
+            Gérer les joueurs
+          </a>
           <form action={logout}>
             <button type="submit" className="text-xs text-muted-foreground hover:text-foreground">
               Se déconnecter
