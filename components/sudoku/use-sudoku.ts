@@ -30,6 +30,8 @@ export interface State {
   selected: number | null
   /** Autres cases de la sélection multiple (Shift + clic / glisser), en plus de `selected`. */
   multi: number[]
+  /** Case de référence : la première case choisie. C'est elle qui pilote les surbrillances (chiffre + zone), même avec Maj. */
+  anchor?: number | null
   history: Snapshot[]
   mistakes: number
   status: "playing" | "won"
@@ -132,23 +134,30 @@ export function reducer(state: State, action: Action): State {
       return createGame(action.difficulty)
 
     case "select":
-      return { ...state, selected: action.index, multi: [] }
+      return { ...state, selected: action.index, multi: [], anchor: action.index }
 
     // Shift + clic / glisser : ajoute une case à la sélection (ou la retire
     // avec `toggle`). La dernière case ajoutée devient la case principale.
     case "extend": {
       const sel = state.selected
-      if (sel === null) return { ...state, selected: action.index, multi: [] }
+      if (sel === null) return { ...state, selected: action.index, multi: [], anchor: action.index }
       const all = new Set(selectedCells(state))
+      // La case de référence reste la première case choisie, tant qu'elle fait partie de la sélection.
+      const anchor = state.anchor != null && all.has(state.anchor) ? state.anchor : sel
       if (all.has(action.index)) {
         if (!action.toggle || all.size === 1) return state
         all.delete(action.index)
         const rest = [...all]
         const primary = action.index === sel ? rest[rest.length - 1] : sel
-        return { ...state, selected: primary, multi: rest.filter((k) => k !== primary) }
+        return {
+          ...state,
+          selected: primary,
+          multi: rest.filter((k) => k !== primary),
+          anchor: action.index === anchor ? primary : anchor,
+        }
       }
       all.add(action.index)
-      return { ...state, selected: action.index, multi: [...all].filter((k) => k !== action.index) }
+      return { ...state, selected: action.index, multi: [...all].filter((k) => k !== action.index), anchor }
     }
 
     case "tick":

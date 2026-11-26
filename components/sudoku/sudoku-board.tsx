@@ -18,6 +18,8 @@ interface SudokuBoardProps {
   onExtend?: (index: number, toggle?: boolean) => void
   /** Autres cases de la sélection multiple, en plus de `selected`. */
   multi?: number[]
+  /** Case de référence (la première choisie) : elle seule pilote la surbrillance du chiffre et de sa zone, même avec Maj. */
+  anchor?: number | null
   /** Cases à mettre brièvement en surbrillance (ligne/colonne/bloc qui vient d'être complété). */
   flashIndices?: Set<number>
   /** Vague de victoire / zone complétée : délai (ms) de l'animation de chaque case. */
@@ -41,6 +43,7 @@ export function SudokuBoard({
   onSelect,
   onExtend,
   multi,
+  anchor,
   flashIndices,
   waveDelays,
   popCell,
@@ -58,13 +61,13 @@ export function SudokuBoard({
     return () => window.removeEventListener("mouseup", stop)
   }, [])
 
-  // Cases « sources » des surbrillances : parmi toutes les cases sélectionnées (case principale + Maj + clic),
-  // celles qui contiennent un chiffre. Ainsi, en ajoutant des cases vides avec Maj, le chiffre choisi au départ
-  // garde sa surbrillance (mêmes chiffres + zone « défendue »). Sans chiffre sélectionné, on garde la case principale.
+  // Surbrillance (mêmes chiffres + zone « défendue ») : toujours pilotée par UNE seule case, la case de référence
+  // (la première choisie). Avec Maj, les cases ajoutées sont sélectionnées mais ne changent pas le chiffre mis en avant.
   const allSelected = selected !== null ? [selected, ...(multi ?? [])] : []
-  const digitSources = allSelected.filter((i) => grid[i] !== 0)
-  const sources = digitSources.length > 0 ? digitSources : selected !== null ? [selected] : []
-  const sourceValues = new Set(digitSources.map((i) => grid[i]))
+  const focusCell = anchor != null && allSelected.includes(anchor) ? anchor : selected
+  const sources = focusCell !== null ? [focusCell] : []
+  const focusValue = focusCell !== null ? grid[focusCell] : 0
+  const sourceValues = new Set(focusValue !== 0 ? [focusValue] : [])
   const scopeRows = new Set(sources.map(rowOf))
   const scopeCols = new Set(sources.map(colOf))
   const scopeBoxes = new Set(sources.map(boxOf))
@@ -81,7 +84,7 @@ export function SudokuBoard({
 
   return (
     <div
-      className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-[3px] border-foreground bg-card shadow-sm"
+      className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/90 bg-card shadow-sm"
       role="grid"
       aria-label="Grille de sudoku"
     >
@@ -127,10 +130,10 @@ export function SudokuBoard({
             style={waveDelay !== undefined ? { animationDelay: `${waveDelay}ms` } : undefined}
             className={cn(
               "relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden text-xl transition-colors select-none sm:text-[1.7rem]",
-              // Lignes fines bien visibles, séparations des blocs 3×3 nettement plus épaisses.
-              "border-r border-b border-foreground/25",
-              c % 3 === 2 && c !== 8 && "border-r-[3px] border-r-foreground/80",
-              r % 3 === 2 && r !== 8 && "border-b-[3px] border-b-foreground/80",
+              // Lignes fines visibles, séparations des blocs 3×3 un cran plus marquées (sans excès).
+              "border-r border-b border-foreground/20",
+              c % 3 === 2 && c !== 8 && "border-r-2 border-r-foreground/65",
+              r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/65",
               c === 8 && "border-r-0",
               r === 8 && "border-b-0",
               // Trois niveaux bien distincts :
@@ -143,7 +146,7 @@ export function SudokuBoard({
               // Toutes les cases sélectionnées (case principale ET cases ajoutées avec Maj) ont le même rendu bien visible.
               (isSelected || isMulti) && "bg-primary/24 ring-[3px] ring-inset ring-primary",
               // Chiffres de départ : gras et sombres. Chiffres posés par le joueur : bleu encre, en permanence.
-              isGiven ? "font-bold text-foreground" : "font-semibold text-entry",
+              isGiven ? "font-semibold text-foreground" : "font-medium text-entry",
               isWrong && "text-destructive",
               isConflict && "text-destructive",
               isFlashing && "animate-cell-flash",

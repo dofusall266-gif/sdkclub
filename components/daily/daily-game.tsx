@@ -259,6 +259,7 @@ export function DailyGame() {
             onSelect={actions.select}
           onExtend={actions.extend}
           multi={state.multi}
+          anchor={state.anchor}
             waveDelays={fx.waveDelays}
             popCell={fx.popCell}
             shakeCell={fx.shakeCell}

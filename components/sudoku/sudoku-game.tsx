@@ -275,6 +275,7 @@ export function SudokuGame({
           onSelect={actions.select}
           onExtend={actions.extend}
           multi={state.multi}
+          anchor={state.anchor}
           flashIndices={flashIndices}
           waveDelays={fx.waveDelays}
           popCell={fx.popCell}
