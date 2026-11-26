@@ -58,9 +58,16 @@ export function SudokuBoard({
     return () => window.removeEventListener("mouseup", stop)
   }, [])
 
-  const selRow = selected !== null ? rowOf(selected) : -1
-  const selCol = selected !== null ? colOf(selected) : -1
-  const selValue = selected !== null ? grid[selected] : 0
+  // Cases « sources » des surbrillances : parmi toutes les cases sélectionnées (case principale + Maj + clic),
+  // celles qui contiennent un chiffre. Ainsi, en ajoutant des cases vides avec Maj, le chiffre choisi au départ
+  // garde sa surbrillance (mêmes chiffres + zone « défendue »). Sans chiffre sélectionné, on garde la case principale.
+  const allSelected = selected !== null ? [selected, ...(multi ?? [])] : []
+  const digitSources = allSelected.filter((i) => grid[i] !== 0)
+  const sources = digitSources.length > 0 ? digitSources : selected !== null ? [selected] : []
+  const sourceValues = new Set(digitSources.map((i) => grid[i]))
+  const scopeRows = new Set(sources.map(rowOf))
+  const scopeCols = new Set(sources.map(colOf))
+  const scopeBoxes = new Set(sources.map(boxOf))
 
   // Le focus réel du navigateur (celui qui dessine l'anneau de sélection via
   // :focus-visible) ne bouge pas tout seul quand on change de case au clavier
@@ -84,8 +91,8 @@ export function SudokuBoard({
         const isGiven = given[index] !== 0
         const isSelected = selected === index
         const isMulti = multiSet.has(index)
-        const inScope = r === selRow || c === selCol || sameBox(index, selected)
-        const sameNumber = value !== 0 && value === selValue
+        const inScope = scopeRows.has(r) || scopeCols.has(c) || scopeBoxes.has(boxOf(index))
+        const sameNumber = value !== 0 && sourceValues.has(value)
         const isConflict = conflicts.has(index)
         const isWrong = !isGiven && value !== 0 && value !== solution[index]
         const isFlashing = flashIndices?.has(index) ?? false
@@ -132,10 +139,9 @@ export function SudokuBoard({
               //  3. la case sélectionnée : vert olive plus soutenu + contour épais.
               !isSelected && !isMulti && !inScope && "bg-card",
               !isSelected && !isMulti && inScope && "bg-muted/60 dark:bg-muted",
-              sameNumber && !isSelected && !isMulti && "bg-primary/22 ring-2 ring-inset ring-primary/45",
-              (isSelected || isMulti) && "bg-primary/28",
-              isSelected && "ring-[3px] ring-inset ring-primary",
-              isMulti && "ring-2 ring-inset ring-primary/55",
+              sameNumber && !isSelected && !isMulti && "bg-primary/18 ring-2 ring-inset ring-primary/45",
+              // Toutes les cases sélectionnées (case principale ET cases ajoutées avec Maj) ont le même rendu bien visible.
+              (isSelected || isMulti) && "bg-primary/24 ring-[3px] ring-inset ring-primary",
               // Chiffres de départ : gras et sombres. Chiffres posés par le joueur : bleu encre, en permanence.
               isGiven ? "font-bold text-foreground" : "font-semibold text-entry",
               isWrong && "text-destructive",
@@ -159,7 +165,7 @@ export function SudokuBoard({
                 {Array.from({ length: 9 }, (_, n) => (
                   <span
                     key={n}
-                    className={cn("flex items-center justify-center", selValue !== 0 && n + 1 === selValue && "font-extrabold text-primary")}
+                    className={cn("flex items-center justify-center", sourceValues.has(n + 1) && "font-extrabold text-primary")}
                   >
                     {notes[index].includes(n + 1) ? n + 1 : ""}
                   </span>
@@ -182,9 +188,6 @@ export function SudokuBoard({
   )
 }
 
-function sameBox(a: number, b: number | null): boolean {
-  if (b === null) return false
-  const boxA = Math.floor(rowOf(a) / 3) * 3 + Math.floor(colOf(a) / 3)
-  const boxB = Math.floor(rowOf(b) / 3) * 3 + Math.floor(colOf(b) / 3)
-  return boxA === boxB
+function boxOf(index: number): number {
+  return Math.floor(rowOf(index) / 3) * 3 + Math.floor(colOf(index) / 3)
 }

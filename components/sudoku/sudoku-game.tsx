@@ -235,7 +235,7 @@ export function SudokuGame({
   )
 
   return (
-    <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[min(36rem,calc(100dvh-11rem))_18rem] lg:grid-rows-[auto_1fr] lg:justify-center lg:gap-x-6">
+    <div className="mx-auto grid max-w-[36rem] gap-4 lg:max-w-none lg:grid-cols-[min(36rem,calc(100dvh-11rem))_18rem] lg:grid-rows-[auto_1fr_auto] lg:justify-center lg:gap-x-6">
       {/* Choix de la difficulté (au-dessus du plateau) */}
       <nav
         aria-label={t.game.difficultyLabel}
@@ -263,7 +263,7 @@ export function SudokuGame({
       <div className="lg:hidden">{stats}</div>
 
       {/* Plateau de jeu */}
-      <div className={cn("relative mx-auto w-full lg:col-start-1 lg:row-start-2 lg:mx-0", boardMax)}>
+      <div className={cn("relative mx-auto w-full lg:col-start-1 lg:row-start-2 lg:mx-0 lg:self-end", boardMax)}>
         <SudokuBoard
           grid={state.grid}
           given={state.given}
@@ -309,7 +309,7 @@ export function SudokuGame({
       </div>
 
       {/* Panneau de droite : stats (desktop), outils, pavé 3×3, nouvelle partie */}
-      <div className="flex flex-col gap-5 lg:col-start-2 lg:row-start-2 lg:gap-6">
+      <div className="flex flex-col gap-5 lg:col-start-2 lg:row-start-2 lg:justify-between lg:gap-6">
         <div className="hidden lg:block">{stats}</div>
 
         <GameToolbar
@@ -327,10 +327,11 @@ export function SudokuGame({
         <Button size="lg" className="h-12 text-base" onClick={() => handleNewGame(state.difficulty)}>
           <Sparkles className="size-4" /> {t.game.newGame}
         </Button>
-
-        {/* Astuce clavier : inutile sur mobile, donc affichée seulement sur ordinateur. */}
-        <p className="hidden text-center text-xs text-muted-foreground lg:block">{t.game.hintKeyboard}</p>
       </div>
+
+      {/* Astuce clavier : inutile sur mobile, donc affichée seulement sur ordinateur (sous le bouton, pour que
+          le bas de la grille reste aligné avec « Nouvelle grille »). */}
+      <p className="hidden text-center text-xs text-muted-foreground lg:col-start-2 lg:row-start-3 lg:block">{t.game.hintKeyboard}</p>
 
       {/* Zone d'impression (masquée à l'écran, visible uniquement à l'impression) */}
       <div id="print-area" className="hidden print:block">
