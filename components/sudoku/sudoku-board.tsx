@@ -74,7 +74,7 @@ export function SudokuBoard({
 
   return (
     <div
-      className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm"
+      className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-[3px] border-foreground bg-card shadow-sm"
       role="grid"
       aria-label="Grille de sudoku"
     >
@@ -119,22 +119,25 @@ export function SudokuBoard({
             }}
             style={waveDelay !== undefined ? { animationDelay: `${waveDelay}ms` } : undefined}
             className={cn(
-              "relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden text-xl font-semibold transition-colors select-none sm:text-2xl",
-              "border-r border-b border-border/70",
-              c % 3 === 2 && c !== 8 && "border-r-2 border-r-foreground/55",
-              r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/55",
+              "relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden text-xl transition-colors select-none sm:text-[1.7rem]",
+              // Lignes fines bien visibles, séparations des blocs 3×3 nettement plus épaisses.
+              "border-r border-b border-foreground/25",
+              c % 3 === 2 && c !== 8 && "border-r-[3px] border-r-foreground/80",
+              r % 3 === 2 && r !== 8 && "border-b-[3px] border-b-foreground/80",
               c === 8 && "border-r-0",
               r === 8 && "border-b-0",
-              // Couleurs de fond selon l'état de la case.
+              // Trois niveaux bien distincts :
+              //  1. la zone « défendue » par la case sélectionnée (sa ligne, sa colonne et son bloc) : beige foncé ;
+              //  2. les cases qui contiennent le même chiffre : vert olive + liseré ;
+              //  3. la case sélectionnée : vert olive plus soutenu + contour épais.
               !isSelected && !isMulti && !inScope && "bg-card",
-              !isSelected && !isMulti && inScope && "bg-secondary/60",
-              sameNumber && !isSelected && !isMulti && "bg-primary/15",
-              (isSelected || isMulti) && "bg-primary/25",
-              isMulti && "ring-1 ring-inset ring-primary/50",
-              // Chiffres donnés (toujours neutres) vs saisis par le joueur (teintés
-              // seulement pendant que la case est sélectionnée, pas en permanence —
-              // sinon la couleur reste "collée" même une fois qu'on a bougé ailleurs).
-              isGiven ? "text-foreground" : isSelected ? "text-primary" : "text-foreground",
+              !isSelected && !isMulti && inScope && "bg-muted/60 dark:bg-muted",
+              sameNumber && !isSelected && !isMulti && "bg-primary/22 ring-2 ring-inset ring-primary/45",
+              (isSelected || isMulti) && "bg-primary/28",
+              isSelected && "ring-[3px] ring-inset ring-primary",
+              isMulti && "ring-2 ring-inset ring-primary/55",
+              // Chiffres de départ : gras et sombres. Chiffres posés par le joueur : bleu encre, en permanence.
+              isGiven ? "font-bold text-foreground" : "font-semibold text-entry",
               isWrong && "text-destructive",
               isConflict && "text-destructive",
               isFlashing && "animate-cell-flash",
@@ -151,9 +154,13 @@ export function SudokuBoard({
                 {value}
               </span>
             ) : notes[index].length > 0 ? (
-              <span className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-0.5 text-[0.5rem] leading-none text-muted-foreground sm:text-[0.6rem]">
+              // Notes plus grandes et plus contrastées ; celle qui correspond au chiffre sélectionné ressort en gras.
+              <span className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-[2px] text-[0.62rem] leading-none font-medium text-foreground/75 min-[420px]:text-[0.7rem] sm:p-1 sm:text-[0.8rem]">
                 {Array.from({ length: 9 }, (_, n) => (
-                  <span key={n} className="flex items-center justify-center">
+                  <span
+                    key={n}
+                    className={cn("flex items-center justify-center", selValue !== 0 && n + 1 === selValue && "font-extrabold text-primary")}
+                  >
                     {notes[index].includes(n + 1) ? n + 1 : ""}
                   </span>
                 ))}

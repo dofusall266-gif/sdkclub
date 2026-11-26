@@ -20,6 +20,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-flash: var(--flash);
+  --color-entry: var(--entry);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
@@ -67,6 +68,8 @@
   --input: #DFC9AE;
   --ring: #555934;
   --flash: #6E9B2E;
+  /* Chiffres saisis par le joueur (≠ chiffres de départ) : bleu encre, lisible sur tous les fonds de la grille. */
+  --entry: #1B5A86;
   --chart-1: #555934;
   --chart-2: #8C5B3E;
   --chart-3: #CBA57C;
@@ -110,6 +113,7 @@
   --input: #43301F;
   --ring: #A7AD78;
   --flash: #9CCB55;
+  --entry: #8CC2E6;
   --chart-1: #A7AD78;
   --chart-2: #CBA57C;
   --chart-3: #4E3626;
