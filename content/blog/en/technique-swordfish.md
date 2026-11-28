@@ -13,6 +13,8 @@ category: "Technique"
 
 *Swordfish example: pattern cells are in green, the candidate to remove is crossed out in red.*
 
+> **Not clear yet?** The [Swordfish lesson](/techniques/swordfish) shows the pattern step by step: the three rows in blue, the three columns in orange, and the two ways to place the three digits, which explain why we can eliminate.
+
 If you've already gotten into the habit of spotting [X-Wings](/blog/technique-x-wing) in your grids, the **Swordfish** shouldn't feel unfamiliar: it's exactly the same logical principle, simply extended from two to three rows (or columns). It's one of the most advanced techniques you can run into on an **Expert** grid, and it is often enough, on its own, to unlock a grid that seemed completely stuck.
 
 ## A quick reminder of the X-Wing principle

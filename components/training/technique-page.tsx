@@ -5,6 +5,7 @@ import Link from "@/components/localized-link"
 import { PageLayout } from "@/components/page-layout"
 import { Trainer } from "@/components/training/trainer"
 import { TrainingBoard } from "@/components/training/training-board"
+import { SwordfishExplainer } from "@/components/training/swordfish-diagram"
 import { YWingExplainer } from "@/components/training/ywing-diagram"
 import { buttonVariants } from "@/components/ui/button"
 import { useLanguage } from "@/lib/i18n/context"
@@ -23,10 +24,19 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
   const example = decodeCase(TRAINING_CASES[lesson.tech][0])
   const pattern = example.patterns[0]
   const isYWing = slug === "y-wing"
+  const isFish = !isYWing
   const yLegend =
     locale === "fr"
       ? { zone: "Zone vue par le pivot", pivot: "Pivot", wings: "Ailes", elim: "Candidat à éliminer (barré)" }
       : { zone: "Zone seen by the pivot", pivot: "Pivot", wings: "Wings", elim: "Candidate to remove (crossed out)" }
+  const fishLegend =
+    locale === "fr"
+      ? { base: "Lignes de base", cover: "Colonnes (ou lignes) de couverture", pattern: "Places du chiffre (à garder)", elim: "Candidat à éliminer (barré)" }
+      : { base: "Base lines", cover: "Cover columns (or rows)", pattern: "Spots of the digit (kept)", elim: "Candidate to remove (crossed out)" }
+  const fishIntro =
+    locale === "fr"
+      ? "Voici une vraie situation de grille, avec toutes les notes. Les lignes (ou colonnes) de base sont en bleu, les colonnes (ou lignes) de couverture en orange, les places du chiffre en vert, et le candidat à éliminer est barré en rouge. Les lignes (L) et les colonnes (C) sont numérotées de 1 à 9."
+      : "Here is a real grid situation, with all the notes. The base lines are blue, the cover lines orange, the digit's spots green, and the candidate to remove is crossed out in red. Rows (R) and columns (C) are numbered 1 to 9."
   const yIntro =
     locale === "fr"
       ? "Voici une vraie situation de grille, avec toutes les notes. Le pivot est en orange, ses deux ailes en vert, la zone qu'il voit en bleu, et le candidat à éliminer est barré en rouge. Les lignes (L) et les colonnes (C) sont numérotées de 1 à 9."
@@ -55,10 +65,11 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
         </header>
 
         {isYWing && <YWingExplainer />}
+        {slug === "swordfish" && <SwordfishExplainer />}
 
         <section>
           <h2 className="text-xl font-bold">{tr.exampleHeading}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{isYWing ? yIntro : tr.exampleIntro}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{isYWing ? yIntro : isFish ? fishIntro : tr.exampleIntro}</p>
           <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,36rem)_1fr]">
             <TrainingBoard dc={example} reveal={pattern} focusDigits={slug === "y-wing" ? [] : [pattern.d]} readOnly />
             <div className="space-y-4">
@@ -81,10 +92,16 @@ export function TechniquePage({ slug }: { slug: TechSlug }) {
                 ) : (
                   <>
                     <li className="flex items-center gap-2">
-                      <span className="size-4 rounded bg-primary/30 ring-1 ring-primary" /> {tr.legendPattern}
+                      <span className="size-4 rounded bg-sky-500/25 ring-1 ring-sky-500/60" /> {fishLegend.base}
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="size-4 rounded bg-primary/10 ring-1 ring-border" /> {tr.legendLines}
+                      <span className="size-4 rounded bg-amber-500/25 ring-1 ring-amber-500/60" /> {fishLegend.cover}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-primary/30 ring-2 ring-primary" /> {fishLegend.pattern}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="size-4 rounded bg-destructive/15 ring-2 ring-destructive" /> {fishLegend.elim}
                     </li>
                   </>
                 )}

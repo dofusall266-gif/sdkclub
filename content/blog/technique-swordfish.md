@@ -16,6 +16,8 @@ technique: "swordfish"
 
 *Exemple de Swordfish : les cases du motif sont en vert, le candidat à retirer est barré en rouge.*
 
+> **Pas encore clair ?** La [leçon Swordfish](/techniques/swordfish) montre le motif pas à pas : les trois lignes en bleu, les trois colonnes en orange, et les deux façons de placer les trois chiffres, qui expliquent pourquoi on peut éliminer.
+
 Si vous avez déjà pris l'habitude de repérer des [X-Wing](/blog/technique-x-wing) dans vos grilles, le **Swordfish** ne devrait pas vous dépayser : c'est exactement le même principe logique, simplement étendu de deux à trois lignes (ou colonnes). C'est une des techniques les plus avancées qu'on puisse rencontrer sur une grille **Expert**, et elle suffit souvent, à elle seule, à débloquer une grille qui semblait complètement figée.
 
 ## Rappel rapide du principe du X-Wing

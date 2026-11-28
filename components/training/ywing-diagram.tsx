@@ -2,6 +2,7 @@
 
 import { Check, X } from "lucide-react"
 
+import { cell, DiagramGrid, Rich, T, type CellSpec, type Link } from "@/components/training/diagram-grid"
 import { useLanguage } from "@/lib/i18n/context"
 import { zoneOf } from "@/lib/training"
 import { cn } from "@/lib/utils"
@@ -11,26 +12,6 @@ import { cn } from "@/lib/utils"
  * Les cases sont repérées comme sur le reste du site (L7C4 = ligne 7, colonne 4).
  */
 
-type Kind = "pivot" | "wing" | "elim"
-interface Token {
-  text: string
-  struck?: boolean
-}
-interface CellSpec {
-  kind: Kind
-  tokens: Token[]
-}
-interface Link {
-  from: number
-  to: number
-  /** Texte posé près du trait (ex. « même ligne »). */
-  label?: string
-  /** Décalage du texte, en cases (1 case = 10 unités). */
-  dx?: number
-  dy?: number
-}
-
-const cell = (r: number, c: number) => r * 9 + c
 
 // Exemple valide : pivot en L9C5 (A B), ailes L7C4 (A C) et L9C1 (B C), élimination du C en L7C1.
 const PIVOT = cell(8, 4)
@@ -41,7 +22,6 @@ const ELIM = cell(6, 0)
 const BAD_WING_1 = cell(6, 0)
 const BAD_WING_2 = cell(7, 6)
 
-const T = (text: string, struck = false): Token => ({ text, struck })
 
 const TEXT = {
   fr: {
@@ -119,146 +99,6 @@ const TEXT = {
     aria: "Sudoku grid diagram illustrating the Y-Wing",
   },
 } as const
-
-const KIND_STYLE: Record<Kind, string> = {
-  pivot: "bg-amber-500/30 text-amber-700 ring-2 ring-inset ring-amber-500 dark:text-amber-300",
-  wing: "bg-primary/20 text-primary ring-2 ring-inset ring-primary",
-  elim: "bg-destructive/15 text-foreground ring-2 ring-inset ring-destructive",
-}
-
-/** Transforme « **gras** » en <strong> (les textes de la liste y recourent). */
-function Rich({ text }: { text: string }) {
-  return (
-    <>
-      {text.split("**").map((part, i) =>
-        i % 2 === 1 ? (
-          <strong key={i} className="font-semibold text-foreground">
-            {part}
-          </strong>
-        ) : (
-          <span key={i}>{part}</span>
-        ),
-      )}
-    </>
-  )
-}
-
-/** Grille 9×9 avec zone bleue, cases mises en valeur et traits « voit » (pointillés rouges). Purement visuelle. */
-function DiagramGrid({
-  zone,
-  cells,
-  links = [],
-  label,
-  rowLetter,
-  compact,
-}: {
-  zone: Set<number>
-  cells: Map<number, CellSpec>
-  links?: Link[]
-  label: string
-  rowLetter: string
-  compact?: boolean
-}) {
-  const center = (i: number) => ({ x: (i % 9) * 10 + 5, y: Math.floor(i / 9) * 10 + 5 })
-  const board = (
-    <div className="relative grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm">
-      {Array.from({ length: 81 }, (_, i) => {
-        const r = Math.floor(i / 9)
-        const c = i % 9
-        const spec = cells.get(i)
-        return (
-          <div
-            key={i}
-            className={cn(
-              "relative flex min-h-0 min-w-0 items-center justify-center border-b border-r border-border",
-              c % 3 === 2 && c !== 8 && "border-r-2 border-r-foreground/40",
-              r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/40",
-              c === 8 && "border-r-0",
-              r === 8 && "border-b-0",
-              zone.has(i) && "bg-sky-500/15 dark:bg-sky-400/15",
-              spec && KIND_STYLE[spec.kind],
-            )}
-          >
-            {spec && (
-              <span className={cn("flex gap-[0.2em] font-bold leading-none tracking-wide", compact ? "text-[0.5rem] sm:text-[0.65rem]" : "text-[0.7rem] sm:text-base")}>
-                {spec.tokens.map((tk, k) => (
-                  <span key={k} className={cn(tk.struck && "text-destructive line-through decoration-2")}>
-                    {tk.text}
-                  </span>
-                ))}
-              </span>
-            )}
-          </div>
-        )
-      })}
-      {links.length > 0 && (
-        <svg viewBox="0 0 90 90" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
-          {links.map((l, k) => {
-            const a = center(l.from)
-            const b = center(l.to)
-            return (
-              <g key={k}>
-                <line
-                  x1={a.x}
-                  y1={a.y}
-                  x2={b.x}
-                  y2={b.y}
-                  className="stroke-destructive"
-                  strokeWidth={compact ? 1.6 : 1.2}
-                  strokeDasharray="2.4 1.8"
-                  strokeLinecap="round"
-                />
-                {l.label && !compact && (
-                  <text
-                    x={(a.x + b.x) / 2 + (l.dx ?? 0) * 10}
-                    y={(a.y + b.y) / 2 + (l.dy ?? 0) * 10}
-                    textAnchor="middle"
-                    className="fill-destructive font-semibold"
-                    style={{ fontSize: 2.8, paintOrder: "stroke", stroke: "var(--card)", strokeWidth: 0.9 }}
-                  >
-                    {l.label}
-                  </text>
-                )}
-              </g>
-            )
-          })}
-        </svg>
-      )}
-    </div>
-  )
-
-  if (compact) {
-    return (
-      <div className="w-full" role="img" aria-label={label}>
-        {board}
-      </div>
-    )
-  }
-
-  return (
-    <div className="w-full max-w-[30rem]" role="img" aria-label={label}>
-      <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-1 gap-y-1 sm:grid-cols-[1.75rem_minmax(0,1fr)]">
-        <span aria-hidden />
-        <div className="grid grid-cols-9" aria-hidden>
-          {Array.from({ length: 9 }, (_, c) => (
-            <span key={c} className="text-center text-[0.65rem] font-semibold text-muted-foreground sm:text-xs">
-              C{c + 1}
-            </span>
-          ))}
-        </div>
-        <div className="grid grid-rows-9" aria-hidden>
-          {Array.from({ length: 9 }, (_, r) => (
-            <span key={r} className="grid place-items-center text-[0.65rem] font-semibold text-muted-foreground sm:text-xs">
-              {rowLetter}
-              {r + 1}
-            </span>
-          ))}
-        </div>
-        {board}
-      </div>
-    </div>
-  )
-}
 
 function Legend({ x, withElim }: { x: (typeof TEXT)["fr"] | (typeof TEXT)["en"]; withElim: boolean }) {
   const item = (cls: string, text: string) => (

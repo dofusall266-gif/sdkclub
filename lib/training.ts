@@ -135,25 +135,36 @@ export function explainPattern(tech: TrainingTech, pattern: TrainingPattern, dc:
   if (tech === "xy_wing" && pattern.pv !== undefined) {
     return explainYWing(pattern, dc, locale)
   }
+  return explainFish(tech, pattern, locale)
+}
+
+/** X-Wing / Swordfish : explication pas à pas, avec les lignes de base, les colonnes de couverture et les éliminations. */
+function explainFish(tech: TrainingTech, pattern: TrainingPattern, locale: "fr" | "en"): string {
+  const fr = locale === "fr"
   const lines = pattern.l!
   const isRows = lines.k === "r"
-  const base = nums(lines.b, locale)
-  const cover = nums(lines.v, locale)
+  // Repères comme sur la grille : L2, L5 et L8 / C1, C4 et C8 (R pour « row » en anglais).
+  const rowTag = fr ? "L" : "R"
+  const tags = (xs: number[], prefix: string) => {
+    const a = xs.map((x) => `${prefix}${x + 1}`)
+    return a.length <= 1 ? a[0] : `${a.slice(0, -1).join(", ")} ${fr ? "et" : "and"} ${a[a.length - 1]}`
+  }
+  const base = tags(lines.b, isRows ? rowTag : "C")
+  const cover = tags(lines.v, isRows ? "C" : rowTag)
   const n = lines.b.length
   const name = tech === "x_wing" ? "X-Wing" : "Swordfish"
   const d = pattern.d
-  // X-Wing : exactement 2 places par ligne/colonne de base ; Swordfish : 2 ou 3.
-  const places = n === 2 ? (fr ? "que deux places possibles (exactement 2 candidats)" : "exactly two possible spots (2 candidates)") : fr ? "que 2 ou 3 places possibles" : "only 2 or 3 possible spots"
+  const elim = list(pattern.e, locale)
   if (fr) {
     const baseWord = isRows ? "lignes" : "colonnes"
     const coverWord = isRows ? "colonnes" : "lignes"
     const coverOne = isRows ? "colonne" : "ligne"
-    const shape = n === 2 ? "un rectangle" : `un motif de ${n} ${baseWord} et ${n} ${coverWord}`
-    return `Ici on se focalise sur le chiffre ${d} : dans les ${baseWord} ${base}, le ${d} n'a ${places}, et toutes se trouvent dans les mêmes ${n} ${coverWord} (${cover}) → ce qui forme ${shape}. Les ${n} chiffres ${d} de ces ${baseWord} se répartiront donc forcément un par ${coverOne} : c'est un ${name}. On peut donc éliminer les autres ${d} de ces ${coverWord} (${elim}) afin de faciliter la suite de la partie. Les chiffres ${d} qui se trouvent dans les autres ${coverWord} ne sont pas concernés : ils restent possibles.`
+    const places = n === 2 ? "que 2 places possibles" : "que 2 ou 3 places possibles"
+    return `Ici, c'est un ${name} sur le chiffre ${d}. Dans les ${baseWord} ${base} (en bleu), le ${d} n'a ${places}, et toutes ces places (cases vertes) tiennent dans les ${n} mêmes ${coverWord} : ${cover} (en orange).\n\nChacune de ces ${n} ${baseWord} doit contenir un ${d}, et il ne peut être que sur une case verte. Les ${n} chiffres ${d} occupent donc forcément ces ${n} ${coverWord}, un par ${coverOne}.\n\nChaque ${coverOne} (${cover}) a ainsi déjà son ${d} dans une de ces ${baseWord} : ailleurs dans ces ${coverWord}, le ${d} est impossible. On le retire (barré en rouge) de : ${elim}.`
   }
   const baseWord = isRows ? "rows" : "columns"
   const coverWord = isRows ? "columns" : "rows"
   const coverOne = isRows ? "column" : "row"
-  const shape = n === 2 ? "a rectangle" : `a pattern of ${n} ${baseWord} and ${n} ${coverWord}`
-  return `Here we focus on the digit ${d}: in ${baseWord} ${base}, the ${d} has ${places}, and all of them sit in the same ${n} ${coverWord} (${cover}) → which forms ${shape}. The ${n} digits ${d} in those ${baseWord} must therefore land one per ${coverOne}: this is a ${name}. We can therefore eliminate the other ${d}s in those ${coverWord} (${elim}) to make the rest of the game easier. The ${d}s in the other ${coverWord} are not concerned: they remain possible.`
+  const places = n === 2 ? "only 2 possible spots" : "only 2 or 3 possible spots"
+  return `Here we have a ${name} on the digit ${d}. In ${baseWord} ${base} (blue), the ${d} has ${places}, and all those spots (green cells) fit in the same ${n} ${coverWord}: ${cover} (orange).\n\nEach of these ${n} ${baseWord} must contain a ${d}, and it can only be on a green cell. The ${n} digits ${d} therefore occupy these ${n} ${coverWord}, one per ${coverOne}.\n\nEach ${coverOne} (${cover}) thus already has its ${d} in one of these ${baseWord}: elsewhere in these ${coverWord}, the ${d} is impossible. We remove it (crossed out in red) from: ${elim}.`
 }

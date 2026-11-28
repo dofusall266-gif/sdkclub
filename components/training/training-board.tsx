@@ -47,6 +47,9 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
   // Y-Wing : le motif est montré avec la zone du pivot, et le candidat à éliminer reste visible, barré en rouge.
   const yw = !thumbnail && reveal?.pv !== undefined
   const zoneCells = yw ? zoneOf(reveal!.pv!) : zone
+  // X-Wing / Swordfish : lignes de base en bleu, colonnes de couverture en orange, éliminations visibles et barrées en rouge.
+  const fish = !thumbnail && reveal?.l !== undefined
+  const fishTint = !thumbnail && lineSources.length > 0
 
   const grid = (
     <div className="grid aspect-square w-full grid-cols-9 grid-rows-9 overflow-hidden rounded-xl border-2 border-foreground/70 bg-card shadow-sm">
@@ -55,7 +58,7 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
         const c = i % 9
         const isPattern = revealCells.has(i)
         const isPivot = (yw && i === reveal!.pv) || i === hintPivot
-        const isElimCell = yw && revealElims.has(i)
+        const isElimCell = (yw || fish) && revealElims.has(i)
         const inZone = zoneCells?.has(i) ?? false
         const isSelected = selected?.has(i) ?? false
         const onBase = baseLines.has(`r${r}`) || baseLines.has(`c${c}`)
@@ -74,7 +77,7 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
                 if (thumbnail === "cells" && !(isPattern || revealElims.has(i))) return <span key={d} />
                 const eliminated = revealElims.has(i) && reveal?.d === d
                 // Candidat éliminé par la technique : il est retiré de la grille (l'explication indique lesquels).
-                if (eliminated && !thumbnail && !yw) return <span key={d} />
+                if (eliminated && !thumbnail && !yw && !fish) return <span key={d} />
                 const sameDigit = focusDigits.includes(d)
                 const inPattern = isPattern && reveal?.d === d
                 // Quand le motif est montré, seuls les chiffres du motif sont en vert :
@@ -109,8 +112,11 @@ export function TrainingBoard({ dc, selected, onToggle, focusDigits = [], reveal
           r % 3 === 2 && r !== 8 && "border-b-2 border-b-foreground/40",
           c === 8 && "border-r-0",
           r === 8 && "border-b-0",
-          onBase && "bg-primary/10",
-          onCover && !onBase && "bg-secondary/70",
+          onBase && !fishTint && "bg-primary/10",
+          onCover && !onBase && !fishTint && "bg-secondary/70",
+          fishTint && onBase && "bg-sky-500/15 dark:bg-sky-400/15",
+          fishTint && onCover && !onBase && "bg-amber-500/15 dark:bg-amber-400/15",
+          fishTint && onBase && onCover && !isPattern && !isElimCell && "bg-[linear-gradient(rgb(245_158_11/0.2),rgb(245_158_11/0.2))]",
           inZone && !isPivot && "bg-sky-500/15 dark:bg-sky-400/15",
           tint?.has(i) && "bg-chart-4/25",
           isPattern && "bg-primary/30 ring-1 ring-inset ring-primary",
